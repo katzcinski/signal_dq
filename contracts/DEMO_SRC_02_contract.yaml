@@ -1,0 +1,28 @@
+product: DEMO_SRC_02_contract
+kind: consumer_contract
+dataset: DEMO_SRC_02
+owned_by: product
+owners: []
+version: 1.0.0
+description: ''
+guarantees:
+  schema:
+    columns:
+    - SRC_COL_01
+    - SRC_COL_02
+    - SRC_COL_03
+    - SRC_COL_04
+    - SRC_COL_05
+    - SRC_COL_06
+    mode: closed
+  volume:
+    baseline: rolling
+    bounds: auto
+    severity: warn
+  freshness:
+    column: SRC_COL_03
+    max_age: PT24H
+    severity: warn
+observability: {}
+checks: []
+lifecycle: active
