@@ -1,0 +1,22 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "cockpit",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "apps/cockpit",
+      "autoPort": false,
+      "port": 5173
+    },
+    {
+      "name": "backend",
+      "runtimeExecutable": "C:\\Program Files\\Git\\bin\\bash.exe",
+      "runtimeArgs": [
+        "-c",
+        "SQLITE_DB=signal.db INVENTORY_FILE=data/inventory.json LINEAGE_FILE=data/lineage.json CONTRACTS_DIR=contracts CHECKS_DIR=checks BIND_HOST=127.0.0.1 uvicorn services.api.main:app --reload --host 127.0.0.1 --port 8000"
+      ],
+      "port": 8000
+    }
+  ]
+}
