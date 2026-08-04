@@ -1,0 +1,708 @@
+{
+  "meta": {
+    "schemaVersion": 6,
+    "sanitized": true,
+    "source": "sanitized-demo-sample",
+    "generatedBy": "codex"
+  },
+  "nodes": [
+    {
+      "id": "DEMO_SRC_01",
+      "label": "DEMO_SRC_01",
+      "businessName": "Demo Source Object 01",
+      "type": "local-tables",
+      "status": "Deployed",
+      "space": "S_SP1",
+      "system": "DEMO",
+      "layer": "Source",
+      "layerCode": "S",
+      "role": "source",
+      "confidence": 0.9,
+      "family": "observability",
+      "columns": [
+        "SRC_COL_01",
+        "SRC_COL_02",
+        "SRC_COL_03",
+        "SRC_COL_04",
+        "SRC_COL_05",
+        "SRC_COL_06",
+        "SRC_COL_07",
+        "SRC_COL_08",
+        "SRC_COL_09",
+        "SRC_COL_10",
+        "SRC_COL_11",
+        "SRC_COL_12"
+      ],
+      "columnCount": 12
+    },
+    {
+      "id": "DEMO_SRC_02",
+      "label": "DEMO_SRC_02",
+      "businessName": "Demo Source Object 02",
+      "type": "views",
+      "status": "Deployed",
+      "space": "S_SP1",
+      "system": "DEMO",
+      "layer": "Source",
+      "layerCode": "S",
+      "role": "source",
+      "confidence": 0.9,
+      "family": "observability",
+      "columns": [
+        "SRC_COL_01",
+        "SRC_COL_02",
+        "SRC_COL_03",
+        "SRC_COL_04",
+        "SRC_COL_05",
+        "SRC_COL_06"
+      ],
+      "columnCount": 6
+    },
+    {
+      "id": "DEMO_SRC_03",
+      "label": "DEMO_SRC_03",
+      "businessName": "Demo Source Object 03",
+      "type": "views",
+      "status": "Deployed",
+      "space": "S_SP1",
+      "system": "DEMO",
+      "layer": "Source",
+      "layerCode": "S",
+      "role": "source",
+      "confidence": 0.9,
+      "family": "observability",
+      "columns": [
+        "SRC_COL_01",
+        "SRC_COL_02",
+        "SRC_COL_03",
+        "SRC_COL_04",
+        "SRC_COL_05",
+        "SRC_COL_06"
+      ],
+      "columnCount": 6
+    },
+    {
+      "id": "DEMO_SRC_04",
+      "label": "DEMO_SRC_04",
+      "businessName": "Demo Source Object 04",
+      "type": "local-tables",
+      "status": "Deployed",
+      "space": "S_SP1",
+      "system": "DEMO",
+      "layer": "Source",
+      "layerCode": "S",
+      "role": "source",
+      "confidence": 0.9,
+      "family": "observability",
+      "columns": [
+        "SRC_COL_01",
+        "SRC_COL_02",
+        "SRC_COL_03",
+        "SRC_COL_04",
+        "SRC_COL_05",
+        "SRC_COL_06",
+        "SRC_COL_07"
+      ],
+      "columnCount": 7
+    },
+    {
+      "id": "DEMO_SRC_05",
+      "label": "DEMO_SRC_05",
+      "businessName": "Demo Source Object 05",
+      "type": "views",
+      "status": "Deployed",
+      "space": "S_SP1",
+      "system": "DEMO",
+      "layer": "Source",
+      "layerCode": "S",
+      "role": "source",
+      "confidence": 0.9,
+      "family": "observability",
+      "columns": [
+        "SRC_COL_01",
+        "SRC_COL_02",
+        "SRC_COL_03",
+        "SRC_COL_04",
+        "SRC_COL_05",
+        "SRC_COL_06",
+        "SRC_COL_07"
+      ],
+      "columnCount": 7
+    },
+    {
+      "id": "DEMO_SRC_06",
+      "label": "DEMO_SRC_06",
+      "businessName": "Demo Source Object 06",
+      "type": "local-tables",
+      "status": "Deployed",
+      "space": "S_SP1",
+      "system": "DEMO",
+      "layer": "Source",
+      "layerCode": "S",
+      "role": "source",
+      "confidence": 0.9,
+      "family": "observability",
+      "columns": [
+        "SRC_COL_01",
+        "SRC_COL_02",
+        "SRC_COL_03",
+        "SRC_COL_04",
+        "SRC_COL_05"
+      ],
+      "columnCount": 5
+    },
+    {
+      "id": "DEMO_HARM_01",
+      "label": "DEMO_HARM_01",
+      "businessName": "Demo Harmonization Object 01",
+      "type": "views",
+      "status": "Deployed",
+      "space": "H",
+      "system": "DEMO",
+      "layer": "Harmonization",
+      "layerCode": "H",
+      "role": "transformation",
+      "confidence": 0.9,
+      "family": "quality",
+      "columns": [
+        "HARM_COL_01",
+        "HARM_COL_02",
+        "HARM_COL_03",
+        "HARM_COL_04"
+      ],
+      "columnCount": 4
+    },
+    {
+      "id": "DEMO_HARM_02",
+      "label": "DEMO_HARM_02",
+      "businessName": "Demo Harmonization Object 02",
+      "type": "views",
+      "status": "Deployed",
+      "space": "H",
+      "system": "DEMO",
+      "layer": "Harmonization",
+      "layerCode": "H",
+      "role": "transformation",
+      "confidence": 0.9,
+      "family": "quality",
+      "columns": [
+        "HARM_COL_01",
+        "HARM_COL_02",
+        "HARM_COL_03",
+        "HARM_COL_04",
+        "HARM_COL_05",
+        "HARM_COL_06"
+      ],
+      "columnCount": 6
+    },
+    {
+      "id": "DEMO_HARM_03",
+      "label": "DEMO_HARM_03",
+      "businessName": "Demo Harmonization Object 03",
+      "type": "views",
+      "status": "Deployed",
+      "space": "H",
+      "system": "DEMO",
+      "layer": "Harmonization",
+      "layerCode": "H",
+      "role": "transformation",
+      "confidence": 0.9,
+      "family": "quality",
+      "columns": [
+        "HARM_COL_01",
+        "HARM_COL_02",
+        "HARM_COL_03",
+        "HARM_COL_04"
+      ],
+      "columnCount": 4
+    },
+    {
+      "id": "DEMO_HARM_04",
+      "label": "DEMO_HARM_04",
+      "businessName": "Demo Harmonization Object 04",
+      "type": "views",
+      "status": "Deployed",
+      "space": "H",
+      "system": "DEMO",
+      "layer": "Harmonization",
+      "layerCode": "H",
+      "role": "transformation",
+      "confidence": 0.9,
+      "family": "quality",
+      "columns": [
+        "HARM_COL_01",
+        "HARM_COL_02",
+        "HARM_COL_03"
+      ],
+      "columnCount": 3
+    },
+    {
+      "id": "DEMO_HARM_05",
+      "label": "DEMO_HARM_05",
+      "businessName": "Demo Harmonization Object 05",
+      "type": "views",
+      "status": "Deployed",
+      "space": "H",
+      "system": "DEMO",
+      "layer": "Harmonization",
+      "layerCode": "H",
+      "role": "transformation",
+      "confidence": 0.9,
+      "family": "quality",
+      "columns": [
+        "HARM_COL_01",
+        "HARM_COL_02",
+        "HARM_COL_03",
+        "HARM_COL_04",
+        "HARM_COL_05"
+      ],
+      "columnCount": 5
+    },
+    {
+      "id": "DEMO_HARM_06",
+      "label": "DEMO_HARM_06",
+      "businessName": "Demo Harmonization Object 06",
+      "type": "views",
+      "status": "Deployed",
+      "space": "H",
+      "system": "DEMO",
+      "layer": "Harmonization",
+      "layerCode": "H",
+      "role": "transformation",
+      "confidence": 0.9,
+      "family": "quality",
+      "columns": [
+        "HARM_COL_01",
+        "HARM_COL_02",
+        "HARM_COL_03",
+        "HARM_COL_04",
+        "HARM_COL_05",
+        "HARM_COL_06",
+        "HARM_COL_07",
+        "HARM_COL_08"
+      ],
+      "columnCount": 8
+    },
+    {
+      "id": "DEMO_BUS_01",
+      "label": "DEMO_BUS_01",
+      "businessName": "Demo Business Object 01",
+      "type": "views",
+      "status": "Deployed",
+      "space": "B",
+      "system": "DEMO",
+      "layer": "Business",
+      "layerCode": "B",
+      "role": "consumption",
+      "confidence": 0.9,
+      "family": "contract",
+      "columns": [
+        "BUS_COL_01",
+        "BUS_COL_02",
+        "BUS_COL_03",
+        "BUS_COL_04",
+        "BUS_COL_05",
+        "BUS_COL_06",
+        "BUS_COL_07",
+        "BUS_COL_08",
+        "BUS_COL_09",
+        "BUS_COL_10",
+        "BUS_COL_11",
+        "BUS_COL_12"
+      ],
+      "columnCount": 12
+    },
+    {
+      "id": "DEMO_BUS_02",
+      "label": "DEMO_BUS_02",
+      "businessName": "Demo Business Object 02",
+      "type": "views",
+      "status": "Deployed",
+      "space": "B",
+      "system": "DEMO",
+      "layer": "Business",
+      "layerCode": "B",
+      "role": "consumption",
+      "confidence": 0.9,
+      "family": "contract",
+      "columns": [
+        "BUS_COL_01",
+        "BUS_COL_02",
+        "BUS_COL_03",
+        "BUS_COL_04",
+        "BUS_COL_05",
+        "BUS_COL_06",
+        "BUS_COL_07",
+        "BUS_COL_08",
+        "BUS_COL_09",
+        "BUS_COL_10",
+        "BUS_COL_11"
+      ],
+      "columnCount": 11
+    },
+    {
+      "id": "DEMO_BUS_03",
+      "label": "DEMO_BUS_03",
+      "businessName": "Demo Business Object 03",
+      "type": "local-tables",
+      "status": "Deployed",
+      "space": "B",
+      "system": "DEMO",
+      "layer": "Business",
+      "layerCode": "B",
+      "role": "consumption",
+      "confidence": 0.9,
+      "family": "contract",
+      "columns": [
+        "BUS_COL_01",
+        "BUS_COL_02",
+        "BUS_COL_03"
+      ],
+      "columnCount": 3
+    },
+    {
+      "id": "DEMO_BUS_04",
+      "label": "DEMO_BUS_04",
+      "businessName": "Demo Business Object 04",
+      "type": "local-tables",
+      "status": "Deployed",
+      "space": "B",
+      "system": "DEMO",
+      "layer": "Business",
+      "layerCode": "B",
+      "role": "consumption",
+      "confidence": 0.9,
+      "family": "contract",
+      "columns": [
+        "BUS_COL_01",
+        "BUS_COL_02",
+        "BUS_COL_03"
+      ],
+      "columnCount": 3
+    },
+    {
+      "id": "DEMO_BUS_05",
+      "label": "DEMO_BUS_05",
+      "businessName": "Demo Business Object 05",
+      "type": "local-tables",
+      "status": "Deployed",
+      "space": "B",
+      "system": "DEMO",
+      "layer": "Business",
+      "layerCode": "B",
+      "role": "consumption",
+      "confidence": 0.9,
+      "family": "contract",
+      "columns": [
+        "BUS_COL_01",
+        "BUS_COL_02",
+        "BUS_COL_03"
+      ],
+      "columnCount": 3
+    },
+    {
+      "id": "DEMO_BUS_06",
+      "label": "DEMO_BUS_06",
+      "businessName": "Demo Business Object 06",
+      "type": "views",
+      "status": "Deployed",
+      "space": "B",
+      "system": "DEMO",
+      "layer": "Business",
+      "layerCode": "B",
+      "role": "consumption",
+      "confidence": 0.9,
+      "family": "contract",
+      "columns": [
+        "BUS_COL_01",
+        "BUS_COL_02",
+        "BUS_COL_03",
+        "BUS_COL_04",
+        "BUS_COL_05",
+        "BUS_COL_06",
+        "BUS_COL_07",
+        "BUS_COL_08",
+        "BUS_COL_09",
+        "BUS_COL_10",
+        "BUS_COL_11",
+        "BUS_COL_12"
+      ],
+      "columnCount": 12
+    }
+  ],
+  "edges": [
+    {
+      "id": "DEMO_EDGE_001",
+      "source": "DEMO_SRC_01",
+      "target": "DEMO_SRC_02",
+      "type": "lineage",
+      "edgeType": "lineage"
+    },
+    {
+      "id": "DEMO_EDGE_002",
+      "source": "DEMO_SRC_01",
+      "target": "DEMO_SRC_02",
+      "type": "lineage",
+      "edgeType": "lineage"
+    },
+    {
+      "id": "DEMO_EDGE_003",
+      "source": "DEMO_SRC_01",
+      "target": "DEMO_SRC_03",
+      "type": "lineage",
+      "edgeType": "lineage"
+    },
+    {
+      "id": "DEMO_EDGE_004",
+      "source": "DEMO_SRC_04",
+      "target": "DEMO_SRC_05",
+      "type": "lineage",
+      "edgeType": "lineage"
+    },
+    {
+      "id": "DEMO_EDGE_005",
+      "source": "DEMO_HARM_01",
+      "target": "DEMO_HARM_02",
+      "type": "lineage",
+      "edgeType": "lineage"
+    },
+    {
+      "id": "DEMO_EDGE_006",
+      "source": "DEMO_HARM_01",
+      "target": "DEMO_HARM_03",
+      "type": "lineage",
+      "edgeType": "lineage"
+    },
+    {
+      "id": "DEMO_EDGE_007",
+      "source": "DEMO_HARM_01",
+      "target": "DEMO_HARM_04",
+      "type": "lineage",
+      "edgeType": "lineage"
+    },
+    {
+      "id": "DEMO_EDGE_008",
+      "source": "DEMO_HARM_01",
+      "target": "DEMO_HARM_05",
+      "type": "lineage",
+      "edgeType": "lineage"
+    },
+    {
+      "id": "DEMO_EDGE_009",
+      "source": "DEMO_HARM_01",
+      "target": "DEMO_HARM_06",
+      "type": "lineage",
+      "edgeType": "lineage"
+    },
+    {
+      "id": "DEMO_EDGE_010",
+      "source": "DEMO_BUS_01",
+      "target": "DEMO_BUS_02",
+      "type": "lineage",
+      "edgeType": "lineage"
+    },
+    {
+      "id": "DEMO_EDGE_011",
+      "source": "DEMO_BUS_03",
+      "target": "DEMO_BUS_01",
+      "type": "lineage",
+      "edgeType": "lineage"
+    },
+    {
+      "id": "DEMO_EDGE_012",
+      "source": "DEMO_BUS_04",
+      "target": "DEMO_BUS_01",
+      "type": "lineage",
+      "edgeType": "lineage"
+    },
+    {
+      "id": "DEMO_EDGE_013",
+      "source": "DEMO_BUS_05",
+      "target": "DEMO_BUS_01",
+      "type": "lineage",
+      "edgeType": "lineage"
+    }
+  ],
+  "columnEdges": [
+    {
+      "source": "DEMO_SRC_01",
+      "sourceColumn": "SRC_COL_01",
+      "target": "DEMO_SRC_02",
+      "targetColumn": "SRC_COL_01",
+      "edgeType": "direct",
+      "expression": ""
+    },
+    {
+      "source": "DEMO_SRC_01",
+      "sourceColumn": "SRC_COL_02",
+      "target": "DEMO_SRC_02",
+      "targetColumn": "SRC_COL_02",
+      "edgeType": "direct",
+      "expression": ""
+    },
+    {
+      "source": "DEMO_SRC_01",
+      "sourceColumn": "SRC_COL_03",
+      "target": "DEMO_SRC_02",
+      "targetColumn": "SRC_COL_03",
+      "edgeType": "computed",
+      "expression": "UPPER(\"s\".\"SRC_COL_03\")"
+    },
+    {
+      "source": "DEMO_SRC_01",
+      "sourceColumn": "SRC_COL_04",
+      "target": "DEMO_SRC_02",
+      "targetColumn": "SRC_COL_04",
+      "edgeType": "direct",
+      "expression": ""
+    },
+    {
+      "source": "DEMO_SRC_01",
+      "sourceColumn": "SRC_COL_01",
+      "target": "DEMO_SRC_03",
+      "targetColumn": "SRC_COL_01",
+      "edgeType": "direct",
+      "expression": ""
+    },
+    {
+      "source": "DEMO_SRC_01",
+      "sourceColumn": "SRC_COL_02",
+      "target": "DEMO_SRC_03",
+      "targetColumn": "SRC_COL_02",
+      "edgeType": "computed",
+      "expression": "TRIM(\"s\".\"SRC_COL_02\")"
+    },
+    {
+      "source": "DEMO_SRC_01",
+      "sourceColumn": "SRC_COL_05",
+      "target": "DEMO_SRC_03",
+      "targetColumn": "SRC_COL_03",
+      "edgeType": "direct",
+      "expression": ""
+    },
+    {
+      "source": "DEMO_HARM_01",
+      "sourceColumn": "HARM_COL_01",
+      "target": "DEMO_HARM_02",
+      "targetColumn": "HARM_COL_01",
+      "edgeType": "direct",
+      "expression": ""
+    },
+    {
+      "source": "DEMO_HARM_01",
+      "sourceColumn": "HARM_COL_02",
+      "target": "DEMO_HARM_02",
+      "targetColumn": "HARM_COL_02",
+      "edgeType": "computed",
+      "expression": "\"h\".\"HARM_COL_02\" * 100"
+    },
+    {
+      "source": "DEMO_HARM_01",
+      "sourceColumn": "HARM_COL_03",
+      "target": "DEMO_HARM_02",
+      "targetColumn": "HARM_COL_03",
+      "edgeType": "direct",
+      "expression": ""
+    },
+    {
+      "source": "DEMO_HARM_01",
+      "sourceColumn": "HARM_COL_04",
+      "target": "DEMO_HARM_02",
+      "targetColumn": "HARM_COL_04",
+      "edgeType": "computed",
+      "expression": "COALESCE(\"h\".\"HARM_COL_04\")"
+    },
+    {
+      "source": "DEMO_BUS_03",
+      "sourceColumn": "BUS_COL_01",
+      "target": "DEMO_BUS_01",
+      "targetColumn": "BUS_COL_01",
+      "edgeType": "direct",
+      "expression": ""
+    },
+    {
+      "source": "DEMO_BUS_04",
+      "sourceColumn": "BUS_COL_02",
+      "target": "DEMO_BUS_01",
+      "targetColumn": "BUS_COL_02",
+      "edgeType": "direct",
+      "expression": ""
+    },
+    {
+      "source": "DEMO_BUS_05",
+      "sourceColumn": "BUS_COL_03",
+      "target": "DEMO_BUS_01",
+      "targetColumn": "BUS_COL_03",
+      "edgeType": "computed",
+      "expression": "SUM(\"b5\".\"BUS_COL_03\")"
+    },
+    {
+      "source": "DEMO_BUS_03",
+      "sourceColumn": "BUS_COL_02",
+      "target": "DEMO_BUS_01",
+      "targetColumn": "BUS_COL_04",
+      "edgeType": "computed",
+      "expression": "\"b3\".\"BUS_COL_02\" + \"b4\".\"BUS_COL_03\""
+    },
+    {
+      "source": "DEMO_BUS_04",
+      "sourceColumn": "BUS_COL_03",
+      "target": "DEMO_BUS_01",
+      "targetColumn": "BUS_COL_04",
+      "edgeType": "computed",
+      "expression": "\"b3\".\"BUS_COL_02\" + \"b4\".\"BUS_COL_03\""
+    },
+    {
+      "source": "DEMO_BUS_01",
+      "sourceColumn": "BUS_COL_01",
+      "target": "DEMO_BUS_02",
+      "targetColumn": "BUS_COL_01",
+      "edgeType": "direct",
+      "expression": ""
+    },
+    {
+      "source": "DEMO_BUS_01",
+      "sourceColumn": "BUS_COL_03",
+      "target": "DEMO_BUS_02",
+      "targetColumn": "BUS_COL_03",
+      "edgeType": "computed",
+      "expression": "ROUND(\"b1\".\"BUS_COL_03\")"
+    },
+    {
+      "source": "DEMO_BUS_01",
+      "sourceColumn": "BUS_COL_04",
+      "target": "DEMO_BUS_02",
+      "targetColumn": "BUS_COL_04",
+      "edgeType": "direct",
+      "expression": ""
+    }
+  ],
+  "columnEdgeMeta": {
+    "totalEdges": 19,
+    "coverage": {
+      "mapped": 18,
+      "unmapped": 76,
+      "ratio": 0.19,
+      "derived": {
+        "mapped": 18,
+        "unmapped": 66,
+        "ratio": 0.21
+      }
+    },
+    "unmappedObjects": [
+      "DEMO_BUS_03",
+      "DEMO_BUS_04",
+      "DEMO_BUS_05",
+      "DEMO_BUS_06",
+      "DEMO_HARM_01",
+      "DEMO_HARM_03",
+      "DEMO_HARM_04",
+      "DEMO_HARM_05",
+      "DEMO_HARM_06",
+      "DEMO_SRC_01",
+      "DEMO_SRC_04",
+      "DEMO_SRC_05",
+      "DEMO_SRC_06"
+    ]
+  }
+}

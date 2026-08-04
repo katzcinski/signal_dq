@@ -1,0 +1,6 @@
+product: commercial_core
+owners:
+- team-commercial
+output_ports:
+- dataset: DEMO_BUS_01
+inbound: []

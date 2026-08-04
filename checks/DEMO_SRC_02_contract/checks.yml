@@ -1,0 +1,27 @@
+# contract_hash: 0e8dc6feb40b1495
+# library_version: 6
+# compiler_hash: 29dbffd04ae530b2
+dataset: DEMO_SRC_02
+schema: '{schema}'
+contract_version: 1.0.0
+checks:
+- name: schema_columns
+  sql: SELECT COUNT(*) FROM (SELECT COLUMN_NAME FROM "SYS"."TABLE_COLUMNS" WHERE SCHEMA_NAME
+    = '{schema}' AND TABLE_NAME = 'DEMO_SRC_02' UNION ALL SELECT COLUMN_NAME FROM
+    "SYS"."VIEW_COLUMNS" WHERE SCHEMA_NAME = '{schema}' AND VIEW_NAME = 'DEMO_SRC_02')
+    catalog_columns
+  expect: = 6
+  severity: critical
+  timeout_s: 60
+  enabled: true
+  type: schema
+  kind: consumer_contract
+- name: freshness_SRC_COL_03
+  sql: SELECT SECONDS_BETWEEN(MAX("SRC_COL_03"), CURRENT_TIMESTAMP) FROM "{schema}"."DEMO_SRC_02"
+  expect: < 86400
+  severity: warn
+  timeout_s: 60
+  enabled: true
+  type: freshness
+  unit: s
+  kind: consumer_contract
