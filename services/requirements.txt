@@ -1,0 +1,13 @@
+fastapi>=0.111
+uvicorn[standard]>=0.29
+pydantic>=2.7
+pydantic-settings>=2.3
+pyyaml>=6
+httpx>=0.27
+# Optional HANA driver — required for live HANA connections (dq_core get_connection).
+# Kept optional so the API still installs without the native driver; absence is
+# fail-closed (RuntimeError) rather than a silent mock fallback (S-13).
+# hdbcli
+# Optional — column-level lineage SQL parsing (dq_core.lineage). Degrades
+# gracefully (HAS_SQLGLOT gate) when absent; CSN-based lineage needs no parser.
+# sqlglot>=25.0
