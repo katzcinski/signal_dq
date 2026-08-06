@@ -1,0 +1,1067 @@
+/* ────────────────────────────────────────────────────────────────────────
+   THEMES
+   The cockpit ships two visual identities, switched via a data-theme attribute
+   on <html> (see store/ui.ts + Shell). Everything is token-driven, so a theme
+   is just a set of CSS-variable values — components never branch on the theme.
+
+   • :root (default, "classic")  — the original blue-graphite cockpit.
+   • [data-theme="signal"]       — an instrument-grade phosphor identity.
+   ──────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Backgrounds — slight blue undertone for contrast with the indigo cont. */
+  --bg-0: #090B0F;
+  --bg-1: #111520;
+  --bg-2: #1B2130;
+  --bg-3: #222C3E;
+
+  /* Borders */
+  --line: #2A3242;
+  --line-2: #36445A;
+
+  /* Foregrounds */
+  --fg: #E7EBF2;
+  --fg-2: #98A2B2;
+  /* UX-F4: kept clear of AA 4.5:1 on --bg-1 for tertiary text at <18px. */
+  --fg-3: #7C8696;
+
+  /* Family accent colours — semantic, distinctive against each other */
+  --obs: #F59E0B;   /* amber: "instrument warning" heat */
+  --qual: #00D4AA;  /* mint-teal: "clean data" read */
+  --cont: #7B6FEE;  /* indigo: "document/agreement" read */
+
+  /* Status — ok stays green so it reads as "pass", distinct from qual's teal */
+  --status-ok: #3FB07A;
+  --status-warn: #E0B23E;
+  --status-fail: #E2783C;
+  --status-crit: #E5484D;
+  --status-stale: #646E7C;
+  --status-unknown: #646E7C;
+
+  /* Typography */
+  --font-ui: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --fs-page-title: 20px;
+  --fs-eyebrow: 11px;
+  --fs-h1: 24px;
+  --fs-h2: 18px;
+  --fs-body: 13px;
+  --fs-meta: 12px;
+  --lh-tight: 1.2;
+  --lh-body: 1.5;
+  --lh-meta: 1.35;
+
+  /* Radius */
+  --r: 4px;
+  --r-md: 6px;
+  --r-lg: 8px;
+  --r-full: 999px;   /* pills, toggles, round dots */
+
+  /* Spacing scale (UX-F6): single source for padding/gap — stop hardcoding
+     16/20/24 in inline styles. Steps are 4px-based. */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 20px;
+  --s6: 24px;
+  --page-pad: clamp(12px, 1.25vw, 28px);
+
+  /* Elevation */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.30);
+  --shadow-2: 0 10px 30px rgba(0, 0, 0, 0.45);
+
+  /* Transitions */
+  --t: 150ms ease;
+
+  /* ── Theme-bridge tokens ───────────────────────────────────────────────
+     Shared rules and chrome read these so the signal theme can re-skin them
+     without duplicating selectors. Classic defaults reproduce the old look. */
+  --focus: var(--cont);              /* keyboard-focus ring colour */
+  --scroll-track: var(--bg-1);
+  --scroll-hover: var(--fg-3);
+  --nav-active-bar: transparent;     /* left signal-bar on the active route */
+  --nav-active-icon: var(--fg);      /* active nav icon tint */
+  --cmdk-active-shadow: none;        /* command-palette selected-item accent */
+  --grid-image: none;                /* blueprint texture under the chrome */
+  --grid-size: 22px;
+  --selection-bg: rgba(123, 111, 238, 0.30);
+  --selection-fg: var(--fg);
+  /* Signal family — only the signal theme actually paints with these, but the
+     wordmark dot references them, so give classic a graceful fallback. */
+  --signal: var(--cont);
+  --signal-bright: var(--cont);
+  --signal-dim: transparent;
+  --signal-line: var(--line-2);
+
+  /* R6-7 density tokens (comfortable default) */
+  --row-pad-y: 7px;
+  --row-pad-x: 12px;
+  --cell-fs: 13px;
+}
+
+.tooltip-root {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.tooltip-full {
+  width: 100%;
+}
+
+.tooltip-root:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--r);
+}
+
+.tooltip-bubble {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  z-index: 80;
+  max-width: min(var(--tooltip-max, 260px), calc(100vw - 24px));
+  width: max-content;
+  padding: 6px 8px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-md);
+  background: var(--bg-3);
+  color: var(--fg);
+  box-shadow: var(--shadow-2);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0;
+  white-space: normal;
+  text-transform: none;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 4px);
+  transition: opacity var(--t), transform var(--t), visibility var(--t);
+}
+
+.tooltip-bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 8px;
+  height: 8px;
+  border-right: 1px solid var(--line-2);
+  border-bottom: 1px solid var(--line-2);
+  background: var(--bg-3);
+  transform: translate(-50%, -4px) rotate(45deg);
+}
+
+.tooltip-root:hover > .tooltip-bubble,
+.tooltip-root:focus-within > .tooltip-bubble {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tooltip-bubble {
+    transition: none;
+  }
+}
+
+/* ── Signal: instrument-grade identity ────────────────────────────────────
+   A precision-panel aesthetic — cool graphite (not blue slate), hairline
+   structure, a single phosphor-lime "signal" accent that reads like an
+   oscilloscope trace. Deliberately not the generic dark+violet+glass look. */
+[data-theme="signal"] {
+  --bg-0: #0A0C0F;  /* chassis / app void */
+  --bg-1: #0F1318;  /* primary surface */
+  --bg-2: #161B22;  /* raised surface */
+  --bg-3: #1F262F;  /* hover / inset */
+
+  --line: #232A33;  /* true hairlines; structure is drawn with lines, not glow */
+  --line-2: #333D49;
+
+  --fg: #E9EDF2;
+  --fg-2: #98A2B0;
+  --fg-3: #79828F;
+
+  /* Family colours stay semantic but are retuned for the graphite base. */
+  --obs: #F5A524;   /* amber */
+  --qual: #2DD4BF;  /* teal */
+  --cont: #8B7CF6;  /* indigo */
+
+  /* Signature phosphor accent — used sparingly (focus, active nav, selection). */
+  --signal: #B5E853;
+  --signal-bright: #CDF06A;
+  --signal-dim: rgba(181, 232, 83, 0.12);
+  --signal-line: rgba(181, 232, 83, 0.32);
+
+  /* Crisp, instrument-panel corners (away from soft rounded-2xl). */
+  --r: 3px;
+  --r-md: 4px;
+  --r-lg: 6px;
+
+  /* Crisp, low-glow elevation: a hairline highlight + a tight shadow. */
+  --shadow-1: 0 1px 0 rgba(255, 255, 255, 0.02), 0 1px 2px rgba(0, 0, 0, 0.40);
+  --shadow-2: 0 12px 34px rgba(0, 0, 0, 0.55);
+
+  /* Re-skin the bridged chrome. */
+  --focus: var(--signal);
+  --scroll-track: transparent;
+  --scroll-hover: var(--signal-line);
+  --nav-active-bar: var(--signal);
+  --nav-active-icon: var(--signal);
+  --cmdk-active-shadow: inset 2px 0 0 var(--signal);
+  --grid-image: radial-gradient(rgba(150, 180, 210, 0.035) 1px, transparent 1px);
+  --selection-bg: var(--signal-dim);
+  --selection-fg: var(--signal-bright);
+}
+
+/* ── Blueprint: cyanotype / technical-drawing ─────────────────────────────
+   Deep Prussian navy under a faint construction grid, cyan accent, off-white
+   ink. Reads like an engineering plan / CAD viewport. */
+[data-theme="blueprint"] {
+  --bg-0: #071726;
+  --bg-1: #0B2034;
+  --bg-2: #112B43;
+  --bg-3: #173651;
+
+  --line: #1E3F5C;
+  --line-2: #2C5478;
+
+  --fg: #DCEBF7;
+  --fg-2: #90B4CF;
+  --fg-3: #6189A6;
+
+  --obs: #F2A93B;
+  --qual: #36D6BD;
+  --cont: #6AA8FF;
+
+  --status-ok: #46B98A;
+  --status-warn: #E0B23E;
+  --status-fail: #E2783C;
+  --status-crit: #E5484D;
+  --status-stale: #5A7C97;
+  --status-unknown: #5A7C97;
+
+  --signal: #5BC8F0;
+  --signal-bright: #8FE0FF;
+  --signal-dim: rgba(91, 200, 240, 0.14);
+  --signal-line: rgba(91, 200, 240, 0.34);
+
+  --r: 3px;
+  --r-md: 4px;
+  --r-lg: 6px;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.38);
+  --shadow-2: 0 14px 36px rgba(0, 0, 0, 0.55);
+
+  --focus: var(--signal);
+  --scroll-track: transparent;
+  --scroll-hover: var(--signal-line);
+  --nav-active-bar: var(--signal);
+  --nav-active-icon: var(--signal);
+  --cmdk-active-shadow: inset 2px 0 0 var(--signal);
+  /* Cross-hatch construction grid (two hairline gradients). */
+  --grid-image:
+    linear-gradient(rgba(91, 200, 240, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91, 200, 240, 0.05) 1px, transparent 1px);
+  --grid-size: 26px;
+  --selection-bg: var(--signal-dim);
+  --selection-fg: var(--signal-bright);
+}
+
+/* ── Daylight: Swiss-editorial / paper & ink ──────────────────────────────
+   The light identity. Warm paper, near-black ink, a single terracotta accent.
+   High-contrast and typographic — the antidote to the dark-neon default. */
+[data-theme="daylight"] {
+  --bg-0: #E9E4DA;  /* paper */
+  --bg-1: #F7F4EE;  /* card */
+  --bg-2: #FFFFFF;  /* raised */
+  --bg-3: #EDE7DB;  /* inset / hover */
+
+  --line: #DBD3C5;
+  --line-2: #C6BCA8;
+
+  --fg: #211D17;
+  --fg-2: #574F44;
+  --fg-3: #857B6D;
+
+  --obs: #B5760F;
+  --qual: #0F8A74;
+  --cont: #3F5BB0;
+
+  --status-ok: #2F7D4F;
+  --status-warn: #B07A14;
+  --status-fail: #C0492B;
+  --status-crit: #A21B1B;
+  --status-stale: #8A8073;
+  --status-unknown: #8A8073;
+
+  --signal: #C0492B;          /* terracotta — the lone accent */
+  --signal-bright: #9C2F18;
+  --signal-dim: rgba(192, 73, 43, 0.10);
+  --signal-line: rgba(192, 73, 43, 0.30);
+
+  --r: 4px;
+  --r-md: 6px;
+  --r-lg: 8px;
+
+  /* Soft, warm shadows for the light surface. */
+  --shadow-1: 0 1px 2px rgba(40, 30, 20, 0.10);
+  --shadow-2: 0 14px 34px rgba(40, 30, 20, 0.16);
+
+  --focus: var(--signal);
+  --scroll-track: transparent;
+  --scroll-hover: var(--signal-line);
+  --nav-active-bar: var(--signal);
+  --nav-active-icon: var(--signal);
+  --cmdk-active-shadow: inset 2px 0 0 var(--signal);
+  --grid-image: none;
+  --selection-bg: var(--signal-dim);
+  --selection-fg: var(--signal-bright);
+}
+
+/* ── Amber CRT: phosphor terminal ─────────────────────────────────────────
+   Monochrome amber on near-black with faint scanlines. Retro-instrument /
+   oscilloscope. Status keeps just enough hue to stay legible. */
+[data-theme="amber"] {
+  --bg-0: #0A0805;
+  --bg-1: #110C06;
+  --bg-2: #1A1309;
+  --bg-3: #251A0D;
+
+  --line: #3A2A14;
+  --line-2: #553B1B;
+
+  --fg: #F4C77B;
+  --fg-2: #C0913F;
+  --fg-3: #9C7833;
+
+  --obs: #FFB643;
+  --qual: #8FB63A;
+  --cont: #E9A23B;
+
+  --status-ok: #8FB63A;
+  --status-warn: #E9A23B;
+  --status-fail: #E5552E;
+  --status-crit: #E5384D;
+  --status-stale: #7A5E2E;
+  --status-unknown: #7A5E2E;
+
+  --signal: #FFB643;
+  --signal-bright: #FFD884;
+  --signal-dim: rgba(255, 182, 67, 0.14);
+  --signal-line: rgba(255, 182, 67, 0.34);
+
+  --r: 3px;
+  --r-md: 4px;
+  --r-lg: 6px;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-2: 0 14px 36px rgba(0, 0, 0, 0.60);
+
+  --focus: var(--signal);
+  --scroll-track: transparent;
+  --scroll-hover: var(--signal-line);
+  --nav-active-bar: var(--signal);
+  --nav-active-icon: var(--signal);
+  --cmdk-active-shadow: inset 2px 0 0 var(--signal);
+  --grid-image: radial-gradient(rgba(255, 182, 67, 0.05) 1px, transparent 1px);
+  --grid-size: 22px;
+  --selection-bg: var(--signal-dim);
+  --selection-fg: var(--signal-bright);
+}
+
+/* Amber CRT scanline overlay — a faint static raster across the whole panel.
+   pointer-events:none keeps it purely cosmetic; kept subtle for readability. */
+[data-theme="amber"] .shell-root { position: relative; }
+[data-theme="amber"] .shell-root::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    transparent 0 2px, rgba(0, 0, 0, 0.16) 2px 3px);
+}
+
+/* R6-7 compact density: denser rows, slightly smaller text. */
+[data-density="compact"] {
+  --row-pad-y: 3px;
+  --row-pad-x: 10px;
+  --cell-fs: 12px;
+}
+
+/* R6-3 skeleton shimmer. */
+@keyframes skeleton-shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-2) 25%, var(--bg-3) 37%, var(--bg-2) 63%);
+  background-size: 400px 100%;
+  animation: skeleton-shimmer 1.2s ease-in-out infinite;
+  border-radius: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
+
+/* R6-5 cmdk command palette. */
+[cmdk-input] {
+  width: 100%; background: none; border: none;
+  border-bottom: 1px solid var(--line); padding: 14px 16px;
+  font-size: 14px; color: var(--fg); font-family: var(--font-ui);
+}
+[cmdk-group-heading] {
+  padding: 8px 14px 4px; font-size: 10px; color: var(--fg-3);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+[cmdk-item] {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px; font-size: 13px; color: var(--fg);
+  cursor: pointer; border-radius: 6px; margin: 1px 6px;
+}
+[cmdk-item][data-selected="true"] {
+  background: var(--bg-3);
+  box-shadow: var(--cmdk-active-shadow);
+}
+[cmdk-empty] { padding: 24px; text-align: center; color: var(--fg-3); font-size: 13px; }
+[cmdk-list] { max-height: 360px; overflow-y: auto; padding-bottom: 6px; }
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* dvh fallback: on mobile browsers 100vh includes the browser chrome,
+   so 100dvh (dynamic viewport height) gives the true visible area.
+   Two declarations let older browsers fall back to 100vh. */
+.shell-root {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.topbar {
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: 0 var(--s4);
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg-1) 92%, var(--bg-0));
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+.topbar-control-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.topbar-command-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbar-kbd {
+  flex-shrink: 0;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r);
+  background: var(--bg-0);
+  color: var(--fg-3);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 1px 5px;
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    gap: var(--s2);
+    padding: 0 var(--s3);
+  }
+
+  .topbar-command {
+    width: 32px !important;
+    min-width: 32px !important;
+    padding: 0 !important;
+  }
+
+  .topbar-command-label,
+  .topbar-kbd,
+  .topbar-control-text {
+    display: none;
+  }
+}
+
+.page-full {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.product-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+}
+
+.product-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.95fr);
+  gap: var(--s4);
+  align-items: start;
+}
+
+.product-lineage-card {
+  min-height: 100%;
+}
+
+.product-profile-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s3);
+}
+
+.product-profile-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding: var(--s3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg-2);
+}
+
+.product-profile-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: var(--s3);
+  border-top: 1px solid var(--line);
+}
+
+.product-summary-link {
+  transition: background var(--t), border-color var(--t), transform var(--t);
+}
+
+.product-summary-link:hover,
+.product-summary-link:focus-visible {
+  background: color-mix(in srgb, var(--cont) 10%, var(--bg-2));
+  border-color: color-mix(in srgb, var(--cont) 40%, var(--line-2));
+  transform: translateY(-1px);
+}
+
+.product-insights {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s4);
+  align-items: start;
+}
+
+.product-body-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s4);
+  align-items: start;
+}
+
+.product-body-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+}
+
+.object-detail-section {
+  animation: object-detail-reveal 160ms ease-out;
+}
+
+@keyframes object-detail-reveal {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.object-detail-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s5);
+  margin-bottom: 24px;
+  padding: var(--s5);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--bg-1);
+  box-shadow: var(--shadow-1);
+}
+
+.object-detail-hero-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s4);
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.object-detail-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.object-detail-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  color: var(--fg-3);
+  font-size: var(--fs-meta);
+  line-height: var(--lh-meta);
+}
+
+.object-detail-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, max-content));
+  gap: var(--s4);
+  color: var(--fg-2);
+  font-size: var(--fs-meta);
+}
+
+.object-detail-actions {
+  display: flex;
+  gap: var(--s2);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.object-detail-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--s3);
+}
+
+.object-summary-card {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--bg-1);
+  padding: var(--s4);
+  box-shadow: var(--shadow-1);
+}
+
+.object-detail-local-skeleton {
+  display: grid;
+  gap: var(--s4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--bg-1);
+  padding: var(--s5);
+}
+
+.object-detail-inline-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  flex-wrap: wrap;
+}
+
+.object-detail-lineage-skeleton,
+.object-detail-column-lineage-skeleton,
+.object-detail-schedule-mode-skeleton {
+  display: grid;
+  gap: var(--s3);
+}
+
+.object-detail-lineage-skeleton {
+  grid-template-columns: 144px minmax(40px, 90px) 144px minmax(40px, 90px) 144px;
+  align-items: center;
+  overflow-x: auto;
+}
+
+.object-detail-column-lineage-skeleton,
+.object-detail-schedule-mode-skeleton {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.object-detail-section-stack {
+  display: grid;
+  gap: var(--s4);
+}
+
+/* DQ-first cockpit: responsive dashboard grids. Inline styles stay the house
+   idiom elsewhere, but media-query reflow needs real CSS, so the cockpit's
+   column layouts live here and collapse to a single column on narrow screens. */
+.dash-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--s4);
+}
+.dash-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr);
+  gap: var(--s4);
+  align-items: stretch;
+}
+.dash-2col {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s4);
+  align-items: start;
+}
+/* Contract-Workbench: Inhalt + „Vertragsblatt". Auf schmalen Screens stapeln
+   (§2.8), sonst starb die Inhalts-Spalte auf 0px, weil das Vertragsblatt seine
+   Mindestbreite behielt. */
+.workbench-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+  gap: var(--s4);
+  align-items: start;
+}
+.env-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  gap: var(--s4);
+  align-items: start;
+}
+.env-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: var(--s3);
+}
+@media (max-width: 1120px) {
+  .product-hero,
+  .product-body-grid,
+  .workbench-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .object-detail-hero-head {
+    flex-direction: column;
+  }
+
+  .object-detail-actions {
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 980px) {
+  .dash-hero, .dash-2col { grid-template-columns: minmax(0, 1fr); }
+  .env-layout { grid-template-columns: minmax(0, 1fr); }
+
+  .object-detail-column-lineage-skeleton,
+  .object-detail-schedule-mode-skeleton {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 720px) {
+  .product-profile-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .object-detail-hero {
+    padding: var(--s4);
+  }
+
+  .object-detail-summary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .object-detail-lineage-skeleton {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .env-form-grid { grid-template-columns: minmax(0, 1fr); }
+
+  .object-detail-actions,
+  .object-detail-actions > button,
+  .object-detail-actions > span {
+    width: 100%;
+  }
+
+  .object-detail-actions > button {
+    justify-content: center;
+  }
+
+  .object-detail-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .object-detail-section {
+    animation: none;
+  }
+}
+
+html, body, #root {
+  height: 100%;
+  background: var(--bg-0);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: var(--s3);
+  left: var(--s3);
+  z-index: 1100;
+  padding: var(--s2) var(--s3);
+  border-radius: var(--r-md);
+  border: 1px solid var(--line-2);
+  background: var(--bg-1);
+  color: var(--fg);
+  transform: translateY(-160%);
+  transition: transform var(--t);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* The signal theme leans into a data-instrument feel: line up digits across
+   tables, KPIs and charts. Scoped to the theme so classic stays untouched. */
+[data-theme="signal"], [data-theme="signal"] body {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'cv01' 1, 'ss01' 1;
+}
+
+/* Blueprint dot grid — a faint engineering surface under the chrome.
+   It sits only on the app void; panels (var(--bg-1)+) paint over it. The
+   grid image is a theme-bridge token, so classic resolves it to `none`. */
+.shell-root {
+  background-color: var(--bg-0);
+  background-image: var(--grid-image);
+  background-size: var(--grid-size) var(--grid-size);
+  background-position: -1px -1px;
+}
+
+/* Mono "instrument label" — uppercase, tracked, for eyebrows & metadata. */
+.mono-label {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 10px;
+  color: var(--fg-3);
+}
+
+::selection {
+  background: var(--selection-bg);
+  color: var(--selection-fg);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  /* UX-F8: every button transitions, so hover/active read as a state change
+     rather than an instant jump. */
+  transition: filter var(--t), background var(--t), border-color var(--t),
+    color var(--t), opacity var(--t);
+}
+
+/* UX-F8: universal, background-agnostic interaction feedback. `brightness`
+   works on inline-styled buttons across every theme without the rule needing
+   to know their colours — hover lifts, active presses, disabled blocks. */
+button:not(:disabled):hover { filter: brightness(1.12); }
+button:not(:disabled):active { filter: brightness(0.94); }
+button:disabled { cursor: not-allowed; }
+
+/* A11y floor: visible keyboard focus everywhere (theme-bridged ring colour). */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track { background: var(--scroll-track); }
+::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scroll-hover); }
+
+/* UX-F9: slim, theme-tinted scrollbars in Firefox (WebKit handled above).
+   Both properties are inherited, so setting them on html cascades everywhere. */
+html {
+  color-scheme: dark;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) var(--scroll-track);
+}
+
+html[data-theme="daylight"] {
+  color-scheme: light;
+}
+
+/* UX-F9: table row hover/keyboard-focus as a CSS state (≥100 ms transition),
+   so focusing an interactive cell highlights its row too (:focus-within). */
+.tbl-row { transition: background 120ms ease; }
+.tbl-row:hover,
+.tbl-row:focus-within { background: var(--bg-2); }
+
+/* ── Schaltplan-Lineage (Circuit-Board-Ansicht) ───────────────────────────
+   Farben kommen ausschließlich aus Theme-Vars; Positionen/Pfad-Geometrie
+   setzt der Renderer inline. */
+.schem-stage { position: relative; width: 100%; height: 100%; }
+.schem-board { display: block; width: 100%; height: 100%; user-select: none; cursor: grab; }
+.schem-board:active { cursor: grabbing; }
+
+/* Zoom-Steuerung schwebt unten rechts über dem Board. */
+.schem-zoom {
+  position: absolute; right: 14px; bottom: 14px;
+  display: flex; flex-direction: column; gap: 1px;
+  background: var(--line); border: 1px solid var(--line-2);
+  border-radius: var(--r-md); overflow: hidden; box-shadow: var(--shadow-1);
+}
+.schem-zoom button {
+  width: 30px; height: 30px; display: grid; place-items: center;
+  background: var(--bg-2); color: var(--fg-2); border: none; cursor: pointer;
+  font-size: 16px; line-height: 1; transition: background 0.12s ease, color 0.12s ease;
+}
+.schem-zoom button:hover { background: var(--bg-3); color: var(--fg); }
+
+.schem-lane-band {
+  opacity: 0.055;
+}
+.schem-lane-bands {
+  pointer-events: none;
+}
+.schem-lane-label {
+  fill: var(--fg-3);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.schem-chip-body {
+  fill: color-mix(in srgb, var(--bg-2) 92%, var(--bg-3));
+  stroke: var(--line-2);
+  stroke-width: 1;
+  transition: stroke 0.12s ease, fill 0.12s ease, filter 0.12s ease;
+}
+.schem-chip:hover .schem-chip-body {
+  fill: var(--bg-3);
+  stroke: color-mix(in srgb, var(--cont) 45%, var(--line-2));
+}
+/* Abgesetztes Kopfband + Trennlinie geben dem Chip Struktur statt einer flachen Fläche. */
+.schem-chip-header { fill: color-mix(in srgb, var(--bg-3) 85%, var(--bg-2)); }
+.schem-divider { stroke: var(--line); stroke-width: 1; }
+.schem-lane { opacity: 0.9; }
+.schem-chip.is-selected .schem-chip-body { stroke: var(--signal); stroke-width: 2; }
+.schem-chip.is-dimmed { opacity: 0.2; }
+
+.schem-tag { fill: var(--fg-3); font-size: 9px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+.schem-title { fill: var(--fg); font-size: 12.5px; font-weight: 650; }
+.schem-sub { fill: var(--fg-2); font-size: 10.5px; }
+.schem-status-badge { opacity: 0.96; }
+.schem-status-badge rect { fill-opacity: 0.2; }
+.schem-status-badge circle { fill-opacity: 1; }
+.schem-status-text {
+  fill: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.schem-contract-badge rect {
+  fill: color-mix(in srgb, var(--cont) 16%, var(--bg-3));
+  stroke: var(--cont);
+  stroke-width: 1;
+}
+.schem-contract-badge text {
+  fill: var(--cont);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+/* Spalten-Expander im Kopf — eigenständige Affordance, getrennt vom
+   Nachbar-Expand-Handle. Chevron rotiert beim Aufklappen. */
+.schem-col-toggle-hit {
+  fill: var(--bg-2);
+  stroke: var(--line-2);
+  stroke-width: 1;
+  transition: fill 0.12s ease, stroke 0.12s ease;
+}
+.schem-col-toggle:hover .schem-col-toggle-hit {
+  fill: color-mix(in srgb, var(--cont) 16%, var(--bg-2));
+  stroke: var(--cont);
+}
+.schem-col-toggle-icon {
+  fill: none;
+  stroke: var(--fg-2);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.schem-col-toggle:hover .schem-col-toggle-icon { stroke: var(--cont); }
+.schem-col-toggle.is-open .schem-col-toggle-icon { stroke: var(--cont); }
+
+.schem-pin-rowbg { fill: transparent; }
+.schem-pin-rowbg:hover { fill: color-mix(in srgb, var(--cont) 11%, transparent); }
+.schem-pin-label { fill: var(--fg-2); font-size: 11px; }
+.schem-pin-label.is-active { fill: var(--cont); font-weight: 600; }
+.schem-pin-type { fill: var(--fg-3); font-size: 9px; }
+.schem-pin-dot { stroke: var(--bg-2); stroke-width: 1.2; }
+.schem-pin-dot.is-active { stroke: var(--bg-1); }
+
+.schem-trace {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.62;
+}
+.schem-trace.is-derived { stroke-dasharray: 4 3; }
+.schem-trace.is-dimmed { opacity: 0.07; }
+.schem-trace.is-active {
+  stroke-width: 2.6;
+  opacity: 1;
+  stroke-dasharray: 6 6;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--cont) 55%, transparent));
+  animation: schem-flow 0.9s linear infinite;
+}
+.schem-obj-trace {
+  fill: none;
+  stroke: var(--line-2);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.5;
+}
+.schem-obj-trace.is-dimmed { opacity: 0.08; }
+
+@keyframes schem-flow { to { stroke-dashoffset: -24; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .schem-trace.is-active { animation: none; }
+}
