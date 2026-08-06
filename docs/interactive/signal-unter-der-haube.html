@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Signal — Unter der Haube</title>
+<style>
+  :root{
+    --bg:#0b0f17; --bg2:#0e1420; --panel:#131b2a; --panel2:#172235;
+    --line:#22304a; --line2:#2c3e5e;
+    --ink:#e6edf6; --muted:#93a4bd; --faint:#64748b;
+    --accent:#38bdf8; --accent2:#818cf8;
+    --green:#34d399; --amber:#fbbf24; --red:#f87171; --grey:#64748b;
+    --crit:#fb7185; --fail:#f87171; --warn:#fbbf24;
+    --mono:"SFMono-Regular",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:radial-gradient(1200px 700px at 80% -10%,#13203a 0%,var(--bg) 55%);color:var(--ink);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code,pre,.mono{font-family:var(--mono)}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+
+  /* nav */
+  header.topbar{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);background:rgba(11,15,23,.82);border-bottom:1px solid var(--line)}
+  .topbar .wrap{display:flex;align-items:center;gap:18px;height:58px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+  .brand .pulse{width:11px;height:11px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:pulse 2.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.55)}70%{box-shadow:0 0 0 9px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+  nav.sections{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+  nav.sections::-webkit-scrollbar{display:none}
+  nav.sections a{color:var(--muted);font-size:13px;padding:6px 10px;border-radius:7px;white-space:nowrap}
+  nav.sections a:hover{color:var(--ink);background:var(--panel);text-decoration:none}
+
+  /* hero */
+  .hero{padding:74px 0 30px;position:relative}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-weight:600}
+  h1{font-size:clamp(34px,6vw,60px);line-height:1.04;margin:14px 0 8px;letter-spacing:-1px}
+  h1 .grad{background:linear-gradient(95deg,var(--accent),var(--accent2) 60%,var(--green));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:clamp(16px,2.4vw,20px);color:var(--muted);max-width:760px}
+  .lede strong{color:var(--ink)}
+
+  section{padding:54px 0;border-top:1px solid var(--line)}
+  .kicker{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);font-weight:700}
+  h2{font-size:clamp(24px,3.6vw,34px);margin:8px 0 6px;letter-spacing:-.5px}
+  h3{font-size:18px;margin:0 0 8px}
+  .sub{color:var(--muted);max-width:780px;margin:0 0 26px}
+
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:860px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:14px;padding:18px}
+  .card h3{display:flex;align-items:center;gap:9px}
+  .card p{color:var(--muted);margin:6px 0 0;font-size:14.5px}
+  .num{font-family:var(--mono);font-size:12px;color:var(--accent);border:1px solid var(--line2);border-radius:6px;padding:1px 7px}
+
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid var(--line2);color:var(--muted)}
+  .pill .dot{width:8px;height:8px;border-radius:50%}
+  .dot.green{background:var(--green)} .dot.amber{background:var(--amber)} .dot.red{background:var(--red)} .dot.grey{background:var(--grey)} .dot.blue{background:var(--accent)}
+  .sev-critical{color:var(--crit);border-color:#5b2330} .sev-fail{color:var(--fail);border-color:#5a2730} .sev-warn{color:var(--warn);border-color:#5a4a1e}
+
+  pre{background:#0a0f1a;border:1px solid var(--line);border-radius:11px;padding:14px 16px;overflow:auto;font-size:12.7px;line-height:1.5;color:#d7e2f2}
+  pre .c{color:#6b7d99} .k{color:#7dd3fc} .s{color:#86efac} .n{color:#fca5a5} .t{color:#c4b5fd}
+  kbd{font-family:var(--mono);font-size:11px;background:#0a0f1a;border:1px solid var(--line2);border-bottom-width:2px;border-radius:5px;padding:1px 6px}
+
+  .btn{appearance:none;cursor:pointer;font-family:var(--sans);font-weight:600;font-size:14px;color:#06121f;background:linear-gradient(180deg,#58c7fb,#33a7e8);border:0;border-radius:10px;padding:10px 16px;transition:transform .08s ease,filter .15s}
+  .btn:hover{filter:brightness(1.07)} .btn:active{transform:translateY(1px)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line2)}
+  .btn.sm{padding:6px 11px;font-size:12.5px;border-radius:8px}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+
+  /* pipeline */
+  .pipe{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin-top:8px}
+  .stage{flex:1 1 132px;min-width:132px;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 12px;margin:6px;cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .2s}
+  .stage:hover{transform:translateY(-3px);border-color:var(--line2)}
+  .stage.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 10px 30px -12px rgba(56,189,248,.55)}
+  .stage .si{font-size:11px;color:var(--faint);font-family:var(--mono)}
+  .stage .sn{font-weight:700;font-size:14px;margin-top:3px}
+  .stage .sd{font-size:11.5px;color:var(--muted);margin-top:4px}
+  .stage .gate{position:absolute;top:-9px;right:9px;font-size:9.5px;font-weight:700;letter-spacing:.5px;color:#06121f;background:var(--amber);border-radius:5px;padding:1px 5px}
+  .flowtok{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--green);box-shadow:0 0 14px 3px rgba(52,211,153,.7);top:50%;left:0;transform:translate(-50%,-50%);opacity:0;pointer-events:none;z-index:5}
+  .stagebox{margin-top:14px;background:var(--panel2);border:1px solid var(--line2);border-radius:13px;padding:18px;min-height:120px}
+  .stagebox h3{color:var(--accent)}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:820px){.twocol{grid-template-columns:1fr}}
+
+  /* compiler lab */
+  .lab{display:grid;grid-template-columns:340px 1fr;gap:18px;margin-top:8px}
+  @media(max-width:920px){.lab{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:14px}
+  .panel h3{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+  .gtoggle{border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:9px;background:var(--bg2);transition:border-color .15s,opacity .15s}
+  .gtoggle.off{opacity:.5}
+  .gtoggle .gh{display:flex;align-items:center;gap:9px;cursor:pointer;font-weight:600;font-size:13.5px}
+  .gtoggle .gh input{accent-color:var(--accent);width:15px;height:15px}
+  .gtoggle .gb{margin-top:8px;display:grid;gap:6px}
+  .gtoggle.off .gb{display:none}
+  .gtoggle label.f{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted)}
+  .gtoggle .f input,.gtoggle .f select{flex:1;background:#0a0f1a;border:1px solid var(--line2);color:var(--ink);border-radius:7px;padding:5px 8px;font-family:var(--mono);font-size:12px}
+  .gtoggle .fam{font-size:10px;font-family:var(--mono);color:var(--faint);margin-left:auto}
+
+  .check{border:1px solid var(--line);border-left-width:3px;border-radius:10px;padding:11px 13px;margin-bottom:10px;background:var(--bg2)}
+  .check.lc{border-left-color:var(--accent)}
+  .check .ch{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .check .cn{font-family:var(--mono);font-weight:600;font-size:13px;color:var(--ink)}
+  .check .ct{font-size:10.5px;font-family:var(--mono);color:var(--accent2);border:1px solid var(--line2);padding:0 6px;border-radius:5px}
+  .check pre{margin:9px 0 0;font-size:11.7px;padding:9px 11px}
+  .check .meta{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .exp{font-family:var(--mono);font-size:11.5px;background:#0a0f1a;border:1px solid var(--line2);border-radius:6px;padding:1px 7px;color:#a5b4fc}
+  .actual{width:84px;background:#0a0f1a;border:1px solid var(--line2);color:var(--ink);border-radius:6px;padding:3px 7px;font-family:var(--mono);font-size:12px}
+  .res{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px}
+  .res.pass{color:#04150d;background:var(--green)} .res.fail{color:#1a0608;background:var(--red)} .res.skip{color:#10131a;background:var(--grey)}
+
+  .statusbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:13px 16px;border-radius:12px;border:1px solid var(--line2);background:var(--panel2);margin-top:4px}
+  .big{font-size:22px;font-weight:800;letter-spacing:-.3px}
+  .toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .hash{font-family:var(--mono);font-size:11px;color:var(--faint)}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.6px}
+  td .mono{font-size:12.5px}
+  tr:hover td{background:rgba(56,189,248,.04)}
+  .tbl-wrap{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+
+  /* state machines */
+  .sm{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:860px){.sm{grid-template-columns:1fr}}
+  .node{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600;margin:3px;background:var(--bg2)}
+  .arrow{color:var(--faint);font-family:var(--mono);font-size:12px;padding:2px 0}
+
+  /* gates */
+  .gate-card{cursor:pointer;border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--panel);transition:.18s}
+  .gate-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .gate-card .gid{font-family:var(--mono);font-weight:800;font-size:20px;color:var(--accent)}
+  .gate-card h4{margin:6px 0 0;font-size:14px}
+  .gate-card .gx{font-size:12.5px;color:var(--muted);margin-top:7px;display:none}
+  .gate-card.open .gx{display:block}
+  .gate-card.open{border-color:var(--accent)}
+
+  .expl{border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-top:8px}
+  .expl .eh{cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 15px;background:var(--panel);font-weight:600;font-size:14px}
+  .expl .eh:hover{background:var(--panel2)}
+  .expl .eb{padding:0 15px;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;color:var(--muted);font-size:13.5px}
+  .expl.open .eb{max-height:600px;padding:4px 15px 16px}
+  .expl .chev{margin-left:auto;transition:transform .25s;color:var(--faint)}
+  .expl.open .chev{transform:rotate(90deg)}
+
+  .three{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
+  @media(max-width:860px){.three{grid-template-columns:1fr}}
+  .store{border-radius:13px;padding:16px;border:1px solid var(--line)}
+  .store.git{background:linear-gradient(180deg,#1a2030,var(--bg2));border-color:#3a3050}
+  .store.res{background:linear-gradient(180deg,#101d22,var(--bg2));border-color:#1f4a45}
+  .store.hana{background:linear-gradient(180deg,#1d1620,var(--bg2));border-color:#4a2030}
+  .store h4{margin:0 0 4px;font-size:15px}
+  .store .tag{font-size:11px;color:var(--faint);font-family:var(--mono)}
+  .store ul{margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:13px}
+  .store li{margin:3px 0}
+
+  .eyeline{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--bg2);border:1px dashed var(--line2);border-radius:9px;padding:9px 13px;margin-top:14px;flex-wrap:wrap}
+  .eyeline b{color:var(--green)}
+
+  footer{padding:46px 0 70px;color:var(--faint);font-size:13px;border-top:1px solid var(--line)}
+  .callout{border-left:3px solid var(--accent);background:var(--panel);border-radius:0 10px 10px 0;padding:12px 16px;color:var(--muted);font-size:14px;margin:10px 0}
+  .callout b{color:var(--ink)}
+  .tiny{font-size:12px;color:var(--faint)}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .spacer{height:6px}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><span class="pulse"></span> Signal · <span style="color:var(--muted);font-weight:500">Unter der Haube</span></div>
+    <nav class="sections">
+      <a href="#denkmodell">Denkmodell</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#labor">Compiler-Labor</a>
+      <a href="#familien">Garantie-Familien</a>
+      <a href="#grammatik">Expectation-Grammatik</a>
+      <a href="#zustand">Zustandsachsen</a>
+      <a href="#compliance">Compliance &amp; SLA</a>
+      <a href="#observability">Observability</a>
+      <a href="#gates">Gates</a>
+      <a href="#persistenz">Persistenz</a>
+      <a href="#api">API</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap hero">
+  <span class="eyebrow"><span class="dot green" style="width:9px;height:9px;border-radius:50%;display:inline-block"></span> Data Quality &amp; Observability Cockpit · SAP Datasphere</span>
+  <h1>Wie <span class="grad">Signal</span> denkt &amp; arbeitet</h1>
+  <p class="lede">Signal verwandelt <strong>semantische Garantien</strong> über Datasphere-Objekte in <strong>deterministisch kompilierte, ausführbare Quality-Checks</strong>, fährt sie <strong>ausschließlich lesend</strong> gegen HANA und macht den Zustand als Cockpit, Compliance-Ampel und Coverage-Map sichtbar. Diese Seite zeigt die Mechanik — interaktiv, vom Contract bis zum Lauf.</p>
+  <div class="row" style="margin-top:20px">
+    <span class="pill"><span class="dot blue"></span> Kein SQL im Contract (G1)</span>
+    <span class="pill"><span class="dot green"></span> HANA nur lesend</span>
+    <span class="pill"><span class="dot amber"></span> Deterministischer Compiler</span>
+    <span class="pill"><span class="dot grey"></span> Ein Code · zwei Deployments</span>
+  </div>
+  <p class="tiny" style="margin-top:16px">Tipp: Die Kästen weiter unten sind anklickbar. Das <b style="color:var(--accent)">Compiler-Labor</b> kompiliert echte Garantien live im Browser — mit derselben Logik wie <code>dq_core/contract/compiler.py</code>.</p>
+</div>
+
+<!-- ============================ DENKMODELL ============================ -->
+<section id="denkmodell">
+<div class="wrap">
+  <div class="kicker">01 · Die Denkweise</div>
+  <h2>Vier Leitprinzipien, die alles erklären</h2>
+  <p class="sub">Bevor man die Mechanik versteht, muss man die Haltung dahinter verstehen. Jede Designentscheidung in Signal lässt sich auf einen dieser vier Sätze zurückführen.</p>
+  <div class="grid g2">
+    <div class="card">
+      <h3><span class="num">A</span> Contracts tragen Garantien, nie SQL</h3>
+      <p>Ein Contract ist SQL-freies YAML — er beschreibt <em>was</em> gelten soll (Schlüssel eindeutig, Daten frisch, Spalte vollständig), nicht <em>wie</em> man es misst. Der <b style="color:var(--ink)">einzige</b> Ort, an dem SQL entsteht, ist der Compiler. So darf ein Fachverantwortlicher Zusagen formulieren, ohne je SQL zu schreiben — und SQL-Injection über Contracts ist strukturell ausgeschlossen (Gate&nbsp;G1).</p>
+    </div>
+    <div class="card">
+      <h3><span class="num">B</span> Die Engine ist eingefroren &amp; frameworkfrei</h3>
+      <p><code>dq_core</code> importiert nie FastAPI. Die Check-Engine und die Expectation-Grammatik sind <code>[ENGINE-FROZEN]</code>: man <em>erweitert</em> über die Check-Bibliothek, statt die Engine zu ändern. Dadurch läuft derselbe Kern in der API, in der CLI und im Cron-Job — und Regressionen werden von der bestehenden Test-Suite verboten (Gate&nbsp;G5/G7).</p>
+    </div>
+    <div class="card">
+      <h3><span class="num">C</span> Drei Zustands-Achsen, strikt getrennt</h3>
+      <p>Ein Objekt hat nicht <em>einen</em> Status, sondern drei unabhängige: <span class="pill"><span class="dot blue"></span>Lifecycle</span> (Erstellung) · <span class="pill"><span class="dot green"></span>Compliance</span> (hält die Zusage?) · <span class="pill"><span class="dot amber"></span>Coverage</span> (wie gut abgedeckt?). Sie zu vermischen ist der häufigste Denkfehler in DQ-Tools — Signal hält sie konsequent auseinander.</p>
+    </div>
+    <div class="card">
+      <h3><span class="num">D</span> Ein Code, zwei Deployments</h3>
+      <p>Berater-lokal (SQLite, NoAuth, <code>127.0.0.1</code>) und Kunde (HANA, OIDC, Multi-Worker) laufen aus <b style="color:var(--ink)">demselben Code</b> — über eine Auth- und Store-Abstraktion, ohne Code-Zweige. Was lokal grün ist, ist beim Kunden identisch verdrahtet.</p>
+    </div>
+  </div>
+  <div class="callout"><b>Merksatz:</b> Garantie ist semantisch · Check ist generiert · Schema wird erst zur Laufzeit gebunden · Compliance lebt nur im Store. Diese vier Trennungen ziehen sich durch jede Zeile.</div>
+</div>
+</section>
+
+<!-- ============================ PIPELINE ============================ -->
+<section id="pipeline">
+<div class="wrap">
+  <div class="kicker">02 · Der Weg eines Contracts</div>
+  <h2>Die Pipeline — von der Zusage zum Cockpit</h2>
+  <p class="sub">Klicke eine Station an, um zu sehen, was dort genau passiert und wie die Daten dabei ihre Form ändern. Oder lass den Impuls einmal durchlaufen.</p>
+  <div class="toolbar">
+    <button class="btn sm" id="playPipe">▶ Impuls durch die Pipeline senden</button>
+    <span class="tiny">Gelbe Marken = ein Gate greift an dieser Station.</span>
+  </div>
+  <div class="pipe" id="pipe">
+    <div class="flowtok" id="flowtok"></div>
+  </div>
+  <div class="stagebox" id="stagebox"></div>
+</div>
+</section>
+
+<!-- ============================ COMPILER LABOR ============================ -->
+<section id="labor">
+<div class="wrap">
+  <div class="kicker">03 · Live-Mechanik</div>
+  <h2>Das Compiler-Labor</h2>
+  <p class="sub">Schalte Garantien an/aus, ändere Felder und drücke <b>Kompilieren</b>. Was du siehst, erzeugt dieselbe Logik wie <code>compile_contract()</code> im Backend: jede Garantie-Familie wird auf ein Bibliotheks-Template gemappt, Identifier werden validiert (S2), und <code>{schema}</code> bleibt wörtlich stehen (G2) — bis du es bindest. Danach kannst du einen Mock-Lauf auswerten und siehst, wie daraus Compliance wird.</p>
+
+  <div class="lab">
+    <!-- builder -->
+    <div class="panel">
+      <h3>Contract (SQL-frei)</h3>
+      <label class="f" style="display:flex;gap:8px;align-items:center;margin:8px 0 12px">
+        <span style="font-size:12px;color:var(--muted);min-width:60px">dataset</span>
+        <input id="ds" class="actual" style="width:auto;flex:1" value="DS_SALES_ORDERS"/>
+      </label>
+      <div id="builder"></div>
+      <details style="margin-top:6px"><summary class="tiny" style="cursor:pointer">YAML-Ansicht (read-only)</summary>
+        <pre id="yaml" style="margin-top:8px"></pre>
+      </details>
+    </div>
+
+    <!-- output -->
+    <div class="panel">
+      <div class="toolbar">
+        <button class="btn" id="compileBtn">⚙ Kompilieren</button>
+        <button class="btn ghost sm" id="bindBtn" disabled>🔗 Schema binden</button>
+        <input id="schemaIn" class="actual" style="width:120px" value="CORE_DWH"/>
+        <button class="btn ghost sm" id="runBtn" disabled>▶ Mock-Lauf auswerten</button>
+      </div>
+      <div id="hashline" class="hash"></div>
+      <div id="output" style="margin-top:12px"></div>
+      <div id="runStatus"></div>
+    </div>
+  </div>
+  <p class="tiny" style="margin-top:10px">Hinweis: Der Determinismus-Hash hier ist eine browserseitige Illustration desselben Prinzips — im Backend ist es <code>SHA256(Contract-Hash : Library-Version)</code>. Gleiche Eingabe ⇒ byte-identische <code>checks.yml</code>.</p>
+</div>
+</section>
+
+<!-- ============================ FAMILIEN ============================ -->
+<section id="familien">
+<div class="wrap">
+  <div class="kicker">04 · Die Übersetzung</div>
+  <h2>Garantie-Familien → Checks</h2>
+  <p class="sub">Sieben semantische Familien, jede mit einem festen Template, einer abgeleiteten Expectation und einer Default-Severity. Genau diese Tabelle ist im Compiler verdrahtet.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Familie</th><th>Template</th><th>Expectation</th><th>Default-Severity</th><th>Bedeutung</th></tr></thead>
+      <tbody id="famTable"></tbody>
+    </table>
+  </div>
+  <div class="callout"><b>Bewusst kein Check:</b> <code>volume.baseline: rolling</code> ist Observability-Konfiguration (Baselines), kein kompilierbarer Check. Der Compiler erzeugt dafür <em>nichts</em> — die Auswertung übernimmt der Miner.</div>
+</div>
+</section>
+
+<!-- ============================ GRAMMATIK ============================ -->
+<section id="grammatik">
+<div class="wrap">
+  <div class="kicker">05 · Die eingefrorene Grammatik</div>
+  <h2>Expectation-Grammatik — probier sie aus</h2>
+  <p class="sub">Eine Expectation ist die Bestehensregel eines Checks. Der Parser ist regex-basiert, ohne <code>eval()</code>, und eingefroren. Wähle eine Form, gib einen Ist-Wert ein und sieh, wie <code>evaluate()</code> entscheidet — exakt wie die Engine.</p>
+  <div class="twocol">
+    <div class="panel">
+      <div class="row" style="margin-bottom:12px">
+        <select id="grSel" class="actual" style="width:auto;flex:1"></select>
+      </div>
+      <label class="f" style="display:flex;gap:9px;align-items:center;color:var(--muted);font-size:13px">Ist-Wert (actual)
+        <input id="grActual" class="actual" value="0"/>
+      </label>
+      <label class="f" id="grPrevWrap" style="display:none;gap:9px;align-items:center;color:var(--muted);font-size:13px;margin-top:9px">previous_value
+        <input id="grPrev" class="actual" value="100"/>
+      </label>
+      <div class="statusbar" style="margin-top:14px">
+        <span style="color:var(--muted);font-size:13px">Ausdruck:</span>
+        <span class="exp" id="grExpr">= 0</span>
+        <span style="margin-left:auto" class="res" id="grRes">—</span>
+      </div>
+      <p class="tiny" id="grNote" style="margin-top:10px"></p>
+    </div>
+    <div class="panel">
+      <h3>Alle Formen</h3>
+      <div class="tbl-wrap" style="border:none">
+        <table><tbody id="grTable"></tbody></table>
+      </div>
+      <p class="tiny" style="margin-top:10px">Neue Operatoren entstehen <b>nur</b> über <code>expectation.py</code> + <code>validate_expectation</code> + Tests — nie ad hoc.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ============================ ZUSTAND ============================ -->
+<section id="zustand">
+<div class="wrap">
+  <div class="kicker">06 · Drei Achsen, drei Maschinen</div>
+  <h2>Lifecycle · Compliance · Coverage</h2>
+  <p class="sub">Der Kern des Denkmodells, ausbuchstabiert. Drei unabhängige Zustandsräume — keiner darf den anderen überschreiben.</p>
+  <div class="sm">
+    <div class="card">
+      <h3><span class="dot blue" style="display:inline-block"></span> Lifecycle <span class="tiny">· im YAML / Git</span></h3>
+      <p class="tiny">Erstellungszustand. <code>PUT</code> erzeugt immer einen Draft; <code>approve</code>/<code>certify</code> aktivieren.</p>
+      <div class="spacer"></div>
+      <div><span class="node">draft</span><span class="arrow"> → </span><span class="node" style="border-color:#2f6f4f">active</span><span class="arrow"> → </span><span class="node">deprecated</span></div>
+      <p class="tiny" style="margin-top:10px"><b>Niemals</b> compliance! Lifecycle sagt nichts darüber aus, ob die Zusage gehalten wird.</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot green" style="display:inline-block"></span> Compliance <span class="tiny">· nur im Store</span></h3>
+      <p class="tiny">Hält die aktive Zusage? Abgeleitet aus dem letzten Lauf, lebt ausschließlich im Result-Store (A1).</p>
+      <div class="spacer"></div>
+      <div><span class="node">unknown</span><span class="arrow"> → </span><span class="node" style="border-color:#2f6f4f">compliant</span><span class="arrow"> ⇄ </span><span class="node" style="border-color:#5a2730">breached</span></div>
+      <p class="tiny" style="margin-top:10px"><code>breached</code> bei ≥1 nicht bestandenem Check mit Severity ∈ {<span class="sev-fail">fail</span>, <span class="sev-critical">critical</span>}. Auto-Recovery beim nächsten grünen Lauf. Jeder Übergang ist ein Event; ein Neu-Breach öffnet ein Incident.</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot amber" style="display:inline-block"></span> Coverage <span class="tiny">· abgeleitet</span></h3>
+      <p class="tiny">Wie gut ist ein Objekt überhaupt abgedeckt?</p>
+      <div class="spacer"></div>
+      <div style="line-height:2.2">
+        <span class="node" style="border-color:#2f6f4f">covered</span> <span class="tiny">active + Checks</span><br/>
+        <span class="node" style="border-color:#5a4a1e">partial</span> <span class="tiny">active, keine Checks</span><br/>
+        <span class="node" style="border-color:#5a2730">gap</span> <span class="tiny">Contract, nicht active</span><br/>
+        <span class="node">out_of_scope</span> <span class="tiny">kein Contract</span>
+      </div>
+    </div>
+  </div>
+  <div class="eyeline">
+    <span>Mapping-freier Identitäts-Join:</span>
+    <code>lineage.node.id</code> <b>≡</b> <code>inventory.technicalName</code> <b>≡</b> <code>dq_object_status.object_name</code> <b>≡</b> <code>product</code>
+  </div>
+</div>
+</section>
+
+<!-- ============================ COMPLIANCE ============================ -->
+<section id="compliance">
+<div class="wrap">
+  <div class="kicker">07 · Zusage halten</div>
+  <h2>Compliance, SLA &amp; Incidents</h2>
+  <p class="sub">Wie aus Check-Ergebnissen ein verbindlicher Zustand wird — und wie eine Verletzung zu einer nachverfolgbaren Episode wird.</p>
+  <div class="twocol">
+    <div>
+      <div class="panel">
+        <h3>Die Regel (v1)</h3>
+        <pre><span class="c"># dq_core/contract/compliance.py</span>
+BREACHING_SEVERITIES = {<span class="s">"fail"</span>, <span class="s">"critical"</span>}
+
+<span class="k">def</span> compute_compliance(results):
+  <span class="k">if not</span> results: <span class="k">return</span> <span class="s">"unknown"</span>
+  <span class="k">for</span> r <span class="k">in</span> results:
+    <span class="k">if</span> r.severity <span class="k">in</span> BREACHING_SEVERITIES \
+       <span class="k">and not</span> r.passed:
+      <span class="k">return</span> <span class="s">"breached"</span>
+  <span class="k">return</span> <span class="s">"compliant"</span></pre>
+        <p class="tiny" style="margin-top:8px"><span class="sev-warn">warn</span> zählt <b>nie</b> zum Breach — Warnungen sind informativ, nicht vertragsverletzend.</p>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <h3>Vom Ergebnis zum Incident</h3>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-top:6px">
+          <div class="row"><span class="node" style="border-color:#2f6f4f">Lauf grün</span> <span class="arrow">→</span> <span class="tiny">compliance bleibt/wird <b style="color:var(--green)">compliant</b>, <code>since</code> nur bei Wechsel aktualisiert</span></div>
+          <div class="row"><span class="node" style="border-color:#5a2730">Lauf rot</span> <span class="arrow">→</span> <span class="tiny"><b style="color:var(--red)">breached</b>: Event geloggt (<code>from→to</code>), <b>Incident geöffnet</b></span></div>
+          <div class="row"><span class="node">Incident</span> <span class="arrow">→</span> <span class="tiny">open → acknowledged → investigating → resolved, mit Timeline je Aktion</span></div>
+          <div class="row"><span class="node" style="border-color:#2f6f4f">Recovery</span> <span class="arrow">→</span> <span class="tiny">grüner Folgelauf ⇒ Auto-Recovery, Incident wird aufgelöst</span></div>
+        </div>
+        <div class="callout" style="margin-top:14px"><b>SLA-Fenster</b> (<code>GET …/sla</code>) rechnen über die Übergangs-Zeitstempel: weil <code>since</code> die <em>letzte Transition</em> markiert, lässt sich der Compliant-Anteil über 7/30/90 Tage exakt bestimmen.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ============================ OBSERVABILITY ============================ -->
+<section id="observability">
+<div class="wrap">
+  <div class="kicker">08 · Der Kreis schließt sich</div>
+  <h2>Observability &amp; der Proposal-Miner</h2>
+  <p class="sub">Signal beobachtet nicht nur — es lernt aus der Historie und schlägt schärfere Garantien vor. Operative Daten fließen zurück in Governance (Shift-Left).</p>
+  <div class="g3 grid">
+    <div class="card">
+      <h3><span class="dot blue" style="display:inline-block"></span> Rolling-Baselines</h3>
+      <p>Pro <code>(dataset, metric)</code> werden laufende Statistiken geführt: <code>mean</code>, <code>stddev</code>, <code>p01</code>/<code>p99</code>, robuster <code>MAD</code>. In der <b>Warm-up-Phase</b> bestehen <code>DELTA</code>-Expectations automatisch — kein Fehlalarm ohne Basis.</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot amber" style="display:inline-block"></span> Miner</h3>
+      <p>Aus der Actual-Value-Historie eines Checks leitet der Miner Vorschläge ab, typisch <code>BETWEEN p01 AND p99</code> — mit Evidenz (n, min/max, mean, stddev) und einem <b>Confidence</b>-Wert, der mit der Stichprobengröße wächst.</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot green" style="display:inline-block"></span> Steward entscheidet</h3>
+      <p>Vorschläge landen als Inbox: <code>accept</code> / <code>reject</code> / <code>snooze</code>. Ein Accept patcht die Garantie im Contract-YAML → nächster Compile nutzt die neue Schranke. <b>Der Regelkreis schließt sich.</b></p>
+    </div>
+  </div>
+  <div class="eyeline" style="margin-top:18px">
+    <b>Loop:</b> <code>Lauf-Historie</code> → <code>Miner</code> → <code>Proposal (BETWEEN p01 AND p99)</code> → <code>Steward accept</code> → <code>Contract-Patch</code> → <code>Compile</code> → <code>schärferer Check</code>
+  </div>
+</div>
+</section>
+
+<!-- ============================ GATES ============================ -->
+<section id="gates">
+<div class="wrap">
+  <div class="kicker">09 · Die Leitplanken</div>
+  <h2>Sicherheits-Gates G1–G8</h2>
+  <p class="sub">Erzwungene Invarianten — in CI <b>und</b> auf dem Server. Klicke eine Kachel für die Mechanik dahinter.</p>
+  <div class="grid g4" id="gateGrid"></div>
+  <div class="callout" style="margin-top:16px"><b>Weitere Leitplanken:</b> Auth fail-closed (S5, <code>0.0.0.0</code> nur mit echtem Auth) · serverseitige Autorisierung <code>Rolle × owned_by × owners</code> (S3) · dreistufige Identifier-Verteidigung im Compiler (S2) · Webhook-SSRF-Allowlist (S6) · Interna nie in HTTP-Responses (RFC-7807). HANA wird <b>ausschließlich lesend</b> angesprochen.</div>
+</div>
+</section>
+
+<!-- ============================ PERSISTENZ ============================ -->
+<section id="persistenz">
+<div class="wrap">
+  <div class="kicker">10 · Wo was liegt</div>
+  <h2>Drei getrennte Persistenzorte</h2>
+  <p class="sub">Signal vermischt nie Wahrheit, Messung und Rohdaten. Drei Orte, drei Verantwortungen.</p>
+  <div class="three">
+    <div class="store git">
+      <div class="tag">Versionskontrolle</div>
+      <h4>① Git</h4>
+      <span class="tag">= die Wahrheit über Zusagen</span>
+      <ul>
+        <li><code>contracts/&lt;product&gt;.yaml</code></li>
+        <li>zertifizierte Snapshots <code>.active.yml</code></li>
+        <li>kompilierte <code>checks/&lt;product&gt;/checks.yml</code></li>
+      </ul>
+    </div>
+    <div class="store res">
+      <div class="tag">SQLite lokal · HANA-Schema beim Kunden</div>
+      <h4>② Result-Store</h4>
+      <span class="tag">= die Messung</span>
+      <ul>
+        <li><code>dq_runs</code>, <code>dq_check_results</code></li>
+        <li><code>dq_compliance</code> (+ Events), <code>contract_index</code></li>
+        <li><code>dq_baselines</code>, <code>dq_proposals</code>, Incidents</li>
+        <li><code>dq_diagnostics</code> — PII-Kanal, default leer</li>
+      </ul>
+    </div>
+    <div class="store hana">
+      <div class="tag">SAP Datasphere / HANA</div>
+      <h4>③ HANA</h4>
+      <span class="tag">= die geprüften Daten · nur lesend</span>
+      <ul>
+        <li>die echten Geschäftsdaten</li>
+        <li>nie verändert, nie kopiert</li>
+        <li>Rohzeilen verlassen HANA nur über das PII-Gate</li>
+      </ul>
+    </div>
+  </div>
+  <p class="sub" style="margin-top:22px">Das Result-Store-Schema wächst nur über nummerierte, idempotente Migrationen:</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Migration</th><th>Inhalt</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">001_initial_schema</td><td><code>dq_runs</code>, <code>dq_check_results</code>, <code>dq_diagnostics</code></td></tr>
+        <tr><td class="mono">002_state_stats_lineage_compliance</td><td><code>state</code>-Spalte, Contract-Linkage, <code>dq_check_stats</code>, <code>dq_baselines</code>, <code>dq_proposals</code>, <code>dq_compliance</code>, <code>contract_index</code></td></tr>
+        <tr><td class="mono">003_compliance_events_run_guard</td><td>Compliance-Event-Log + Doppellauf-Guard</td></tr>
+        <tr><td class="mono">004_incident_lifecycle</td><td>Incident-Tabellen + Timeline</td></tr>
+        <tr><td class="mono">005_notification_routing</td><td>Notification-Kanäle / Regeln / Mutes</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</section>
+
+<!-- ============================ API ============================ -->
+<section id="api">
+<div class="wrap">
+  <div class="kicker">11 · Die Oberfläche</div>
+  <h2>API — was man anfassen kann</h2>
+  <p class="sub">FastAPI unter <code>/api</code>, RFC-7807-Fehler, OpenAPI unter <code>/api/openapi.json</code> (das Frontend zieht daraus seine Typen, Gate G4). Eine Auswahl der zentralen Ressourcen:</p>
+  <div id="apiAccordion"></div>
+  <div class="g2 grid" style="margin-top:20px">
+    <div class="card">
+      <h3>Lite vs. Full</h3>
+      <table style="font-size:13px">
+        <tr><td></td><td><b>Lite</b></td><td><b>Full</b></td></tr>
+        <tr><td class="tiny">Aktivierung</td><td class="mono">…/certify <span class="tiny">(1 Schritt)</span></td><td class="mono">PUT→approve→compile</td></tr>
+        <tr><td class="tiny">Versionierung</td><td>keine Pflicht</td><td>SemVer, Breaking⇒Major</td></tr>
+        <tr><td class="tiny">Breaking-Gate</td><td>nur f. zertifizierte</td><td>immer blockierend</td></tr>
+      </table>
+      <p class="tiny" style="margin-top:8px">Beide Modi teilen Engine, Compiler, Bibliothek und die scharfen Gates — sie unterscheiden sich nur in der Zeremonie.</p>
+    </div>
+    <div class="card">
+      <h3>Ein Lauf, drei Wege</h3>
+      <p>Die API triggert Läufe nur ad hoc (<code>POST …/run → 202 {run_id}</code>). Regelmäßige Läufe plant ein externer Scheduler über die <b>CLI</b> (<code>cli/dq_check_runner.py</code>). Beim Kunden schützt eine Run-Registry im Store gegen Doppelläufe bei ≥2 Workern. Fortschritt streamt live per SSE.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<footer>
+<div class="wrap">
+  <p><b style="color:var(--ink)">Signal — Unter der Haube.</b> Diese Seite ist generiert aus dem implementierten Stand (Compiler, Engine, Compliance, Check-Bibliothek). Bei Konflikt mit Planungsdokumenten gewinnt der Code.</p>
+  <p class="tiny">Quellen im Repo: <code>packages/dq_core/contract/compiler.py</code> · <code>engine/expectation.py</code> · <code>contract/compliance.py</code> · <code>library/check_library.json</code> · <code>docs/Tooldokumentation.md</code>. Selbstständige Einzeldatei, keine externen Abhängigkeiten.</p>
+</div>
+</footer>
+
+<script>
+"use strict";
+
+/* ===================================================================
+   FAITHFUL JS PORT of dq_core mechanics (compiler + expectation + compliance)
+   =================================================================== */
+
+// --- Check library (subset actually emitted by the compiler) ---
+const LIBRARY_VERSION = 2;
+const TEMPLATES = {
+  schema:               `SELECT COUNT(*) FROM "SYS"."TABLE_COLUMNS" WHERE SCHEMA_NAME = '{schema}' AND TABLE_NAME = '{dataset}'`,
+  duplicate:            `SELECT COUNT(*) - COUNT(DISTINCT "<SPALTE>") FROM "{schema}"."{dataset}"`,
+  duplicate_composite:  `SELECT COUNT(*) - COUNT(DISTINCT <KEY_EXPR>) FROM "{schema}"."{dataset}"`,
+  reference_integrity:  `SELECT COUNT(*) FROM "{schema}"."{dataset}" f LEFT JOIN "{schema}"."<DIMENSION>" d ON f."<FK>" = d."<PK>" WHERE d."<PK>" IS NULL`,
+  missing:              `SELECT COUNT(*) FROM "{schema}"."{dataset}" WHERE "<SPALTE>" IS NULL`,
+  completeness_pct:     `SELECT ROUND(100.0 * COUNT(CASE WHEN "<SPALTE>" IS NULL THEN 1 END) / NULLIF(COUNT(*), 0), 2) FROM "{schema}"."{dataset}"`,
+  freshness:            `SELECT SECONDS_BETWEEN(MAX("<SPALTE>"), CURRENT_TIMESTAMP) FROM "{schema}"."{dataset}"`,
+  row_count:            `SELECT COUNT(*) FROM "{schema}"."{dataset}"`,
+};
+
+const SAFE_IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const ISO_DURATION = /^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/;
+const UNBOUND_TOKEN = /:?<[A-Za-z0-9_]+>/;
+const VALID_SEVERITIES = new Set(["critical","fail","warn"]);
+
+class CompileError extends Error {}
+
+function ident(value, where){
+  const s = String(value==null?"":value).trim();
+  if(!SAFE_IDENTIFIER.test(s)) throw new CompileError(`[S2] Unsicherer Identifier '${s}' in ${where}`);
+  return s.replace(/"/g,'""');
+}
+function idents(values, where){
+  const out = values.map(v=>ident(v,where));
+  if(!out.length) throw new CompileError(`Leere Identifier-Liste in ${where}`);
+  return out;
+}
+function parseIsoDuration(s){
+  const m = ISO_DURATION.exec(String(s||""));
+  if(!m || !m.slice(1).some(x=>x!==undefined)) throw new CompileError(`max_age muss ISO-8601-Dauer sein (z. B. PT24H), nicht '${s}'`);
+  const [d,h,mi,sec] = m.slice(1).map(x=>parseInt(x||0,10));
+  return d*86400 + h*3600 + mi*60 + sec;
+}
+function bind(templateId, dataset, params){
+  const tmpl = TEMPLATES[templateId];
+  if(!tmpl) throw new CompileError(`Unbekannte templateId '${templateId}'`);
+  let sql = tmpl.replace(/\{dataset\}/g, dataset);
+  // längste Tokens zuerst
+  const keys = Object.keys(params).sort((a,b)=>b.length-a.length);
+  for(const tok of keys){ sql = sql.split(tok).join(String(params[tok])); }
+  const leftover = UNBOUND_TOKEN.exec(sql);
+  if(leftover) throw new CompileError(`${templateId}: ungebundener Parameter '${leftover[0]}'`);
+  return sql;
+}
+function severity(g, def){
+  const sev = String(g.severity || def);
+  if(!VALID_SEVERITIES.has(sev)) throw new CompileError(`Unbekannte severity '${sev}'`);
+  return sev;
+}
+function mk(templateId, dataset, params, {name,expect,sev,unit=""}){
+  return {name, type:templateId, sql:bind(templateId,dataset,params), expect, severity:sev, unit};
+}
+
+// faithful port of compile_contract()
+function compileContract(contract){
+  const dataset = ident(contract.dataset || contract.product, "dataset");
+  const g = contract.guarantees || {};
+  const checks = [];
+
+  if(g.schema){
+    const expected = idents(g.schema.columns||[], "guarantees.schema.columns");
+    const closed = (g.schema.mode || "closed") === "closed";
+    checks.push(mk("schema", dataset, {}, {
+      name:"schema_columns",
+      expect: (closed ? "= " : ">= ") + expected.length,
+      sev: severity(g.schema, "critical")
+    }));
+  }
+  (g.keys||[]).forEach((key,i)=>{
+    const kcols = idents(key.columns||[], `guarantees.keys[${i}].columns`);
+    const sev = severity(key, "critical");
+    if(kcols.length===1){
+      checks.push(mk("duplicate", dataset, {"<SPALTE>":kcols[0]}, {name:`key_${kcols[0]}_unique`, expect:"= 0", sev}));
+    }else{
+      const keyExpr = kcols.map(c=>`"${c}"`).join(" || '|' || ");
+      checks.push(mk("duplicate_composite", dataset, {"<KEY_EXPR>":keyExpr}, {name:"key_"+kcols.join("_")+"_unique", expect:"= 0", sev}));
+    }
+  });
+  (g.referential||[]).forEach((ref,i)=>{
+    const where=`guarantees.referential[${i}]`;
+    const fk = idents(ref.fk||[], `${where}.fk`);
+    const pk = idents(ref.parent_key||[], `${where}.parent_key`);
+    const parent = ident(ref.parent, `${where}.parent`);
+    if(fk.length!==1||pk.length!==1) throw new CompileError(`${where}: zusammengesetzte FKs sind in v1 nicht unterstützt`);
+    checks.push(mk("reference_integrity", dataset, {"<DIMENSION>":parent,"<FK>":fk[0],"<PK>":pk[0]},
+      {name:`ref_${fk[0]}_${parent}`, expect:"= 0", sev:severity(ref,"fail")}));
+  });
+  if(g.freshness){
+    const col = ident(g.freshness.column, "guarantees.freshness.column");
+    const seconds = parseIsoDuration(g.freshness.max_age);
+    checks.push(mk("freshness", dataset, {"<SPALTE>":col}, {name:`freshness_${col}`, expect:`< ${seconds}`, sev:severity(g.freshness,"warn"), unit:"s"}));
+  }
+  if(g.volume && g.volume.min_rows!=null){
+    const minRows = parseInt(g.volume.min_rows,10);
+    checks.push(mk("row_count", dataset, {}, {name:"volume_min_rows", expect:`>= ${minRows}`, sev:severity(g.volume,"warn")}));
+  }
+  (g.completeness||[]).forEach((comp,i)=>{
+    const col = ident(comp.column, `guarantees.completeness[${i}].column`);
+    const maxNull = Math.round((100 - parseFloat(comp.min_pct!=null?comp.min_pct:100))*10000)/10000;
+    checks.push(mk("completeness_pct", dataset, {"<SPALTE>":col}, {name:`completeness_${col}`, expect:`<= ${maxNull}`, sev:severity(comp,"warn"), unit:"%"}));
+  });
+  (g.not_null||[]).forEach((nn,i)=>{
+    const sev = severity(nn,"fail");
+    idents(nn.columns||[], `guarantees.not_null[${i}].columns`).forEach(col=>{
+      checks.push(mk("missing", dataset, {"<SPALTE>":col}, {name:`${col}_not_null`, expect:"= 0", sev}));
+    });
+  });
+  return {dataset, schema:"{schema}", checks};
+}
+function bindSchema(config, schema){
+  const bound = ident(schema, "environment.schema");
+  config.schema = bound;
+  config.checks.forEach(c=>{ c.sql = c.sql.split("{schema}").join(bound); });
+  return config;
+}
+// illustrative determinism hash (FNV-1a) over canonical contract + lib version
+function fnv(str){let h=0x811c9dc5;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,0x01000193);}return (h>>>0).toString(16).padStart(8,"0");}
+function compilerHash(contract){
+  const canon = JSON.stringify(contract, Object.keys(contract).sort?undefined:undefined);
+  const ch = fnv(stableStringify(contract));
+  return fnv(ch+":"+LIBRARY_VERSION);
+}
+function stableStringify(o){
+  if(o===null||typeof o!=="object") return JSON.stringify(o);
+  if(Array.isArray(o)) return "["+o.map(stableStringify).join(",")+"]";
+  return "{"+Object.keys(o).sort().map(k=>JSON.stringify(k)+":"+stableStringify(o[k])).join(",")+"}";
+}
+
+// faithful port of expectation.evaluate()
+const _NUM = String.raw`-?\d+(?:\.\d+)?`;
+const _OP = String.raw`[><!]?=|[><]`;
+const P_CMP = new RegExp(`^(${_OP})\\s*(${_NUM})$`,"i");
+const P_BETWEEN = new RegExp(`^BETWEEN\\s+(${_NUM})\\s+AND\\s+(${_NUM})$`,"i");
+const P_DELTA = new RegExp(`^DELTA\\s+(${_OP})\\s*(${_NUM})\\s*%$`,"i");
+const P_ISNULL = /^IS\s+NULL$/i;
+const P_ISNOTNULL = /^IS\s+NOT\s+NULL$/i;
+const P_IN = /^(?:NOT\s+)?IN\s*\(.+\)$/i;
+const P_MATCHES = /^MATCHES\s+\/.+\/$/i;
+const P_APPROX = new RegExp(`^=\\s*(${_NUM})\\s*[+-]\\s*(${_NUM})$`,"i");
+const OPS = {"=":(a,b)=>a===b,"!=":(a,b)=>a!==b,">":(a,b)=>a>b,">=":(a,b)=>a>=b,"<":(a,b)=>a<b,"<=":(a,b)=>a<=b};
+
+function validateExpectation(expr){
+  expr=(expr||"").trim();
+  if(!expr) throw new Error("leer");
+  for(const p of [P_CMP,P_BETWEEN,P_DELTA,P_ISNULL,P_ISNOTNULL,P_IN,P_MATCHES,P_APPROX]) if(p.test(expr)) return;
+  throw new Error("unsupported");
+}
+function evaluate(actual, expr, previous){
+  expr=(expr||"").trim();
+  if(P_ISNULL.test(expr)) return actual===null||actual===undefined;
+  if(P_ISNOTNULL.test(expr)) return actual!==null&&actual!==undefined;
+  let m;
+  if((m=P_MATCHES.exec(expr))){ const inner=/\/(.+)\/$/.exec(expr); return inner?new RegExp(inner[1]).test(String(actual)):false; }
+  if((m=P_DELTA.exec(expr))){ const op=m[1],pct=parseFloat(m[2]); if(previous===null||previous===undefined||parseFloat(previous)===0) return true; const d=Math.abs(parseFloat(actual)-parseFloat(previous))/Math.abs(parseFloat(previous))*100; return OPS[op]?OPS[op](d,pct):false; }
+  if((m=P_BETWEEN.exec(expr))){ return parseFloat(m[1])<=parseFloat(actual)&&parseFloat(actual)<=parseFloat(m[2]); }
+  if((m=P_APPROX.exec(expr))){ return Math.abs(parseFloat(actual)-parseFloat(m[1]))<=parseFloat(m[2]); }
+  if(P_IN.test(expr)){ const neg=expr.toUpperCase().startsWith("NOT"); const inner=/\((.+)\)/.exec(expr); if(inner){ const vals=inner[1].split(",").map(v=>v.trim().replace(/^['"]|['"]$/g,"")); const c=vals.includes(String(actual)); return neg?!c:c; } return false; }
+  if((m=P_CMP.exec(expr))){ const op=m[1],val=parseFloat(m[2]); return OPS[op]?OPS[op](parseFloat(actual),val):false; }
+  throw new Error("could not evaluate "+expr);
+}
+// faithful port of compute_compliance()
+const BREACHING = new Set(["fail","critical"]);
+function computeCompliance(results){
+  if(!results.length) return "unknown";
+  for(const r of results){ if(BREACHING.has(r.severity) && !r.passed) return "breached"; }
+  return "compliant";
+}
+// overall status (state-aware)
+function overallStatus(results){
+  const ex = results.filter(r=>r.state!=="skipped_stale");
+  const failedSev = ex.filter(r=>!r.passed).map(r=>r.severity);
+  if(failedSev.includes("critical")) return "critical";
+  if(failedSev.includes("fail")) return "fail";
+  if(failedSev.includes("warn")) return "warn";
+  return "pass";
+}
+
+/* ===================================================================
+   DATA for static, generated sections
+   =================================================================== */
+const FAMILIES = [
+  ["schema (closed/open)","schema","= N / >= N Spalten","critical","Genau (oder mindestens) diese Spalten existieren."],
+  ["keys","duplicate / duplicate_composite","= 0","critical","Schlüssel ist eindeutig — keine Duplikate."],
+  ["referential","reference_integrity","= 0 Orphans","fail","Jede Fact-Zeile hat einen gültigen Dimensionsbezug."],
+  ["not_null","missing","= 0","fail","Pflichtspalte ist nie NULL."],
+  ["completeness","completeness_pct","<= (100 − min_pct)%","warn","NULL-Quote bleibt unter der Toleranz."],
+  ["freshness","freshness","< max_age (Sek.)","warn","Daten nicht älter als das Frische-Fenster."],
+  ["volume.min_rows","row_count",">= min_rows","warn","Tabelle hat mindestens so viele Zeilen."],
+];
+const GRAMMAR = [
+  {label:"= N  (Gleichheit)", expr:"= 0", actual:"0", note:"Genau gleich. Klassisch für Duplikate / NULL-Counts."},
+  {label:"!= N", expr:"!= 0", actual:"3"},
+  {label:"> N", expr:"> 0", actual:"5"},
+  {label:">= N", expr:">= 1000", actual:"1500", note:"Volume: mindestens N Zeilen."},
+  {label:"< N", expr:"< 86400", actual:"3600", note:"Freshness: Alter in Sekunden < Fenster."},
+  {label:"<= N", expr:"<= 0.5", actual:"0.2", note:"Completeness: NULL-Quote ≤ Toleranz."},
+  {label:"BETWEEN a AND b", expr:"BETWEEN 10 AND 10000", actual:"480", note:"Aggregat im Korridor (Verteilungsdrift)."},
+  {label:"= N ±T  (Toleranz)", expr:"= 1000 ± 50", actual:"1030", note:"Näherungsgleichheit mit Toleranz T."},
+  {label:"IN(...)", expr:"IN('A','B','C')", actual:"B"},
+  {label:"NOT IN(...)", expr:"NOT IN('X','Y')", actual:"A"},
+  {label:"IS NULL", expr:"IS NULL", actual:""},
+  {label:"IS NOT NULL", expr:"IS NOT NULL", actual:"42"},
+  {label:"MATCHES /regex/", expr:"MATCHES /^[A-Z0-9]+$/", actual:"DE12"},
+  {label:"DELTA <op> N%  (nutzt previous)", expr:"DELTA < 5%", actual:"103", prev:true, note:"Prozentuale Änderung vs. previous_value. Ohne Basis (Warm-up) ⇒ besteht."},
+];
+const GATES = [
+  ["G1","Kein SQL im Contract","jsonschema + Lint auf <code>contracts/*.yml</code>; jede Garantie muss auf ein Library-Template mappen. <code>type: sql</code> existiert nicht. Der Compiler ist der einzige SQL-Ursprung."],
+  ["G2","Kein hartkodiertes Schema","Der Compiler gibt wörtlich <code>{schema}</code> aus; <code>bind_schema()</code> ist der einzige Ort, an dem der Platzhalter — erst zur Laufzeit — aufgelöst wird."],
+  ["G3","Breaking ⇒ Major","<code>dq_core.contract.diff</code> erkennt brechende Änderungen (Spalte entfernt, Typ verengt, Key entfernt) — server- und CI-seitig blockierend."],
+  ["G4","Kein FE/BE-Typ-Drift","<code>openapi-typescript</code> generiert FE-Typen aus der OpenAPI; <code>git diff --exit-code</code> verhindert Drift."],
+  ["G5","Engine-Regress","Die bestehende pytest-Suite bleibt unverändert grün; die Engine ist <code>[ENGINE-FROZEN]</code>."],
+  ["G6","Gating sichtbar","Übersprungene Checks werden mit <code>state='skipped_stale'</code> persistiert — nie wie <code>pass</code> behandelt, eigene neutrale Darstellung."],
+  ["G7","Framework-Isolation","Kein <code>import fastapi/flask/starlette</code> in <code>dq_core/</code> — per CI-Grep erzwungen."],
+  ["G8","PII-Gate","Ohne <code>ALLOW_LOCAL_DIAGNOSTICS</code> verlässt keine Rohzeile HANA; mit Flag nur Allowlist-Spalten, sonst nichts persistiert."],
+];
+const API = [
+  ["Objekte & Läufe","var(--green)",[
+    ["GET","/api/objects","Rollup je Objekt (Status, Familien, Coverage, letzter Lauf)"],
+    ["GET","/api/objects/{id}/checks/{name}/history","actual_value-Zeitreihe (Sparkline)"],
+    ["POST","/api/objects/{id}/run","Lauf auslösen → 202 {run_id}  [AUTHZ]"],
+    ["GET","/api/runs/{id}/results · /diagnostics · /events","Ergebnisse · PII-gated Rohzeilen · SSE-Stream"],
+  ]],
+  ["Contracts","var(--accent)",[
+    ["GET/PUT","/api/contracts/{product}","Lesen / Draft schreiben (G1)  [AUTHZ]"],
+    ["POST","/api/contracts/{product}/certify","Lite: save → active → compile in einem Schritt  [AUTHZ]"],
+    ["POST","/api/contracts/{product}/approve","Full: Draft → active (G3 + 1 Commit)  [AUTHZ]"],
+    ["POST","/api/contracts/{product}/compile?dry_run=","Garantien → Checks (persistiert nur active)"],
+    ["GET","/api/contracts/{product}/sla","SLA-%-Fenster (7/30/90 d)"],
+    ["GET","/api/contracts/{product}/export/odcs","ODCS-3.1-Export"],
+  ]],
+  ["Checks & Extrakt","var(--accent2)",[
+    ["POST","/api/checks/{dataset}/dry-run","Kompilieren + gegen HANA laufen, nicht persistiert  [AUTHZ]"],
+    ["POST","/api/extract","Analyzer-Kette → inventory/lineage"],
+    ["GET","/api/inventory · /environments · /library","Objekt-Picker · Environments · Check-Bibliothek"],
+  ]],
+  ["Lineage · Incidents · Proposals","var(--amber)",[
+    ["GET","/api/lineage/graph · /coverage/heatmap","Graph & Coverage-Aggregate"],
+    ["GET","/api/incidents · /{id} · POST /{id}/transition","Breach-Incidents + Timeline"],
+    ["GET","/api/proposals · POST /{id}/accept|reject|snooze","Miner-Vorschläge (Inbox)"],
+    ["GET","/api/badge/{product}","einbettbares Status-Badge"],
+  ]],
+];
+
+/* ===================================================================
+   PIPELINE
+   =================================================================== */
+const STAGES = [
+  {id:"contract", n:"Contract", si:"contracts/*.yaml", sd:"SQL-freie Garantien", gate:"G1",
+   detail:`<h3>① Contract — die Zusage</h3>
+   <p class="sub">Ein Mensch (Steward/Owner) beschreibt <b>semantisch</b>, was gelten soll. Kein SQL, keine Umgebung, kein Schema — nur Garantie-Familien.</p>
+   <pre><span class="k">product</span>: DS_SALES_ORDERS
+<span class="k">guarantees</span>:
+  <span class="k">schema</span>: { columns: [ORDER_ID, CUSTOMER_ID, NET_AMOUNT], mode: closed }
+  <span class="k">keys</span>:   [{ columns: [ORDER_ID], severity: critical }]
+  <span class="k">freshness</span>: { column: ORDER_DATE, max_age: PT26H }</pre>
+   <p class="tiny"><b>Gate G1</b> greift hier: jsonschema + Lint lehnen jedes SQL-Schmuggeln ab.</p>`},
+  {id:"validate", n:"Validator", si:"validator.py", sd:"G1 · Lint · Schema", gate:"G1",
+   detail:`<h3>② Validator — fail-closed</h3>
+   <p class="sub">Bevor irgendetwas kompiliert: jsonschema-Prüfung + ein Lint, der SQL-Muster (<code>SELECT</code>, <code>;</code>, <code>--</code>, Quotes …) in Identifier-Feldern zurückweist. Freitextfelder wie <code>description</code> sind ausgenommen.</p>
+   <p class="tiny">Ergebnis: ein <b>validiertes Contract-Dict</b> oder ein sprechender Fehler — nie halb-gültiger Input weiter.</p>`},
+  {id:"compile", n:"Compiler", si:"compiler.py", sd:"Garantie → CheckDef", gate:"G2",
+   detail:`<h3>③ Compiler — der einzige SQL-Ursprung</h3>
+   <p class="sub">Jede Garantie-Familie wird auf ein Bibliotheks-Template gemappt, Identifier dreistufig verteidigt (S2: Regex → Inventar → Escaping), Parameter gebunden. <code>{schema}</code> bleibt <b>wörtlich</b> stehen (G2).</p>
+   <pre><span class="c"># aus keys:[{columns:[ORDER_ID]}]</span>
+CheckDef(name=<span class="s">"key_ORDER_ID_unique"</span>, type=<span class="s">"duplicate"</span>,
+  sql=<span class="s">'SELECT COUNT(*) - COUNT(DISTINCT "ORDER_ID") FROM "{schema}"."DS_SALES_ORDERS"'</span>,
+  expect=<span class="s">"= 0"</span>, severity=<span class="s">"critical"</span>)</pre>
+   <p class="tiny"><b>Deterministisch:</b> gleicher Input ⇒ byte-identische <code>checks.yml</code> (Header-Hash). → Probier es im <a href="#labor">Compiler-Labor</a>.</p>`},
+  {id:"bind", n:"bind_schema", si:"compiler.py", sd:"{schema} → CORE_DWH", gate:"G2",
+   detail:`<h3>④ Schema-Bindung — erst zur Laufzeit</h3>
+   <p class="sub">Aus der Environments-Datei kommt das Ziel-Schema. <code>bind_schema()</code> ist der <b>einzige</b> Ort, der <code>{schema}</code> auflöst — derselbe Contract läuft so gegen DEV, TEST, PROD ohne Duplikat.</p>
+   <pre><span class="s">'… FROM "{schema}"."DS_SALES_ORDERS"'</span>
+        ↓ bind_schema(cfg, <span class="s">"CORE_DWH"</span>)
+<span class="s">'… FROM "CORE_DWH"."DS_SALES_ORDERS"'</span></pre>`},
+  {id:"engine", n:"Engine", si:"check_engine.py", sd:"lesend gegen HANA", gate:"G6",
+   detail:`<h3>⑤ Engine — lesend ausführen</h3>
+   <p class="sub">Jeder Check liefert <b>genau einen Skalar</b>. Den vergleicht <code>evaluate()</code> mit der Expectation. Modi: <code>batch</code> (ein Round-Trip), <code>isolated</code> (eine Query je Check), <code>auto</code> (Batch mit Fallback).</p>
+   <p class="sub"><b>Gating (G6):</b> billige Gate-Checks (freshness) laufen zuerst. Sind die Daten <em>stale</em>, werden teure Checks mit <code>state='skipped_stale'</code> markiert — sichtbar übersprungen, nie als <code>pass</code> getarnt.</p>
+   <p class="tiny">HANA wird ausschließlich <b>lesend</b> angesprochen. Rohzeilen nur über das PII-Gate (G8).</p>`},
+  {id:"store", n:"Result-Store", si:"sqlite/hana", sd:"Läufe · Compliance", gate:"G8",
+   detail:`<h3>⑥ Result-Store — die Messung</h3>
+   <p class="sub">Der Lauf wird persistiert: <code>dq_runs</code> (Header), <code>dq_check_results</code> (je Check inkl. <code>state</code>), optional <code>dq_diagnostics</code> (PII-Kanal, default leer — Gate G8).</p>
+   <p class="sub">Aus den Ergebnissen wird <b>Compliance</b> berechnet (<code>compliant/breached</code>) und — bei Wechsel — als Event geloggt; ein Neu-Breach öffnet ein <b>Incident</b>.</p>`},
+  {id:"cockpit", n:"Cockpit", si:"React 18 · API", sd:"Status · Coverage · SLA", gate:"",
+   detail:`<h3>⑦ Cockpit — sichtbar machen</h3>
+   <p class="sub">Status-Grid (Objekt × Familie), Lineage-/Coverage-Map, Run-Detail mit Live-Log (SSE), Incidents-Timeline, Proposal-Inbox. Die Status-Ampel (grün/gelb/rot/grau) ist <b>exklusiv</b>; <code>skipped_stale</code> hat seine eigene neutrale Farbe (G6).</p>
+   <p class="tiny">Konsumenten ziehen ein einbettbares <code>/api/badge/{product}</code>. Das Frontend bezieht seine Typen aus der OpenAPI (G4).</p>`},
+];
+
+function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;}
+
+// build pipeline
+const pipe=document.getElementById("pipe"), stagebox=document.getElementById("stagebox"), flowtok=document.getElementById("flowtok");
+STAGES.forEach((s,i)=>{
+  const d=el("div","stage");d.dataset.idx=i;
+  d.innerHTML=`${s.gate?`<span class="gate">${s.gate}</span>`:""}<div class="si">${s.si}</div><div class="sn">${s.n}</div><div class="sd">${s.sd}</div>`;
+  d.addEventListener("click",()=>selectStage(i));
+  pipe.insertBefore(d, flowtok);
+});
+function selectStage(i){
+  document.querySelectorAll(".stage").forEach((s,j)=>s.classList.toggle("active",j===i));
+  stagebox.innerHTML=STAGES[i].detail;
+}
+selectStage(0);
+document.getElementById("playPipe").addEventListener("click",()=>{
+  const stages=[...document.querySelectorAll(".stage")];let i=0;
+  function step(){ if(i>=stages.length){return;} selectStage(i);
+    const r=stages[i].getBoundingClientRect(), pr=pipe.getBoundingClientRect();
+    flowtok.style.transition="none"; flowtok.style.opacity="1";
+    flowtok.style.left=(r.left-pr.left+r.width/2)+"px";
+    flowtok.style.top=(r.top-pr.top+r.height/2)+"px";
+    i++; if(i<stages.length) setTimeout(step,560); else setTimeout(()=>{flowtok.style.transition="opacity .5s";flowtok.style.opacity="0";},700);
+  } step();
+});
+
+/* ===================================================================
+   COMPILER LAB — interactive builder
+   =================================================================== */
+const state = {
+  schema:{on:true, columns:"ORDER_ID, CUSTOMER_ID, NET_AMOUNT", mode:"closed", severity:"critical"},
+  keys:{on:true, columns:"ORDER_ID", severity:"critical"},
+  referential:{on:false, fk:"CUSTOMER_ID", parent:"Customers_View", parent_key:"CUSTOMER_ID", severity:"fail"},
+  not_null:{on:true, columns:"ORDER_ID, NET_AMOUNT", severity:"fail"},
+  completeness:{on:true, column:"NET_AMOUNT", min_pct:"99.5", severity:"warn"},
+  freshness:{on:true, column:"ORDER_DATE", max_age:"PT26H", severity:"warn"},
+  volume:{on:true, min_rows:"1000", severity:"warn"},
+};
+const FIELDS = {
+  schema:[["columns","Spalten (kommagetrennt)","text"],["mode","Modus","select:closed,open"],["severity","Severity","select:critical,fail,warn"]],
+  keys:[["columns","Schlüssel-Spalten","text"],["severity","Severity","select:critical,fail,warn"]],
+  referential:[["fk","FK-Spalte","text"],["parent","Parent-Objekt","text"],["parent_key","Parent-Key","text"],["severity","Severity","select:fail,critical,warn"]],
+  not_null:[["columns","Spalten","text"],["severity","Severity","select:fail,critical,warn"]],
+  completeness:[["column","Spalte","text"],["min_pct","min_pct (%)","text"],["severity","Severity","select:warn,fail,critical"]],
+  freshness:[["column","Zeitstempelspalte","text"],["max_age","max_age (ISO)","text"],["severity","Severity","select:warn,fail,critical"]],
+  volume:[["min_rows","min_rows","text"],["severity","Severity","select:warn,fail,critical"]],
+};
+const LABELS = {schema:"schema",keys:"keys",referential:"referential",not_null:"not_null",completeness:"completeness",freshness:"freshness",volume:"volume.min_rows"};
+
+const builder=document.getElementById("builder");
+function renderBuilder(){
+  builder.innerHTML="";
+  Object.keys(state).forEach(fam=>{
+    const st=state[fam];
+    const box=el("div","gtoggle"+(st.on?"":" off"));
+    const head=el("label","gh");
+    head.innerHTML=`<input type="checkbox" ${st.on?"checked":""}/> ${fam} <span class="fam">→ ${LABELS[fam]}</span>`;
+    head.querySelector("input").addEventListener("change",e=>{st.on=e.target.checked;box.classList.toggle("off",!st.on);syncYaml();});
+    box.appendChild(head);
+    const body=el("div","gb");
+    FIELDS[fam].forEach(([key,label,type])=>{
+      const row=el("label","f");
+      if(type.startsWith("select")){
+        const opts=type.split(":")[1].split(",");
+        row.innerHTML=`<span style="min-width:78px">${label}</span><select>${opts.map(o=>`<option ${st[key]===o?"selected":""}>${o}</option>`).join("")}</select>`;
+        row.querySelector("select").addEventListener("change",e=>{st[key]=e.target.value;syncYaml();});
+      }else{
+        row.innerHTML=`<span style="min-width:78px">${label}</span><input value="${st[key]}"/>`;
+        row.querySelector("input").addEventListener("input",e=>{st[key]=e.target.value;syncYaml();});
+      }
+      body.appendChild(row);
+    });
+    box.appendChild(body);
+    builder.appendChild(box);
+  });
+}
+function buildContract(){
+  const ds=document.getElementById("ds").value.trim();
+  const c={product:ds,dataset:ds,version:"1.0.0",guarantees:{}};
+  const g=c.guarantees;
+  const list=s=>s.split(",").map(x=>x.trim()).filter(Boolean);
+  if(state.schema.on) g.schema={columns:list(state.schema.columns),mode:state.schema.mode,severity:state.schema.severity};
+  if(state.keys.on) g.keys=[{columns:list(state.keys.columns),severity:state.keys.severity}];
+  if(state.referential.on) g.referential=[{fk:[state.referential.fk],parent:state.referential.parent,parent_key:[state.referential.parent_key],severity:state.referential.severity}];
+  if(state.not_null.on) g.not_null=[{columns:list(state.not_null.columns),severity:state.not_null.severity}];
+  if(state.completeness.on) g.completeness=[{column:state.completeness.column,min_pct:parseFloat(state.completeness.min_pct),severity:state.completeness.severity}];
+  if(state.freshness.on) g.freshness={column:state.freshness.column,max_age:state.freshness.max_age,severity:state.freshness.severity};
+  if(state.volume.on) g.volume={min_rows:parseInt(state.volume.min_rows,10),severity:state.volume.severity};
+  return c;
+}
+function syncYaml(){
+  const c=buildContract();
+  let y=`product: ${c.product}\ndataset: ${c.dataset}\nversion: "1.0.0"\nguarantees:\n`;
+  const g=c.guarantees;
+  if(g.schema) y+=`  schema:       { columns: [${g.schema.columns.join(", ")}], mode: ${g.schema.mode} }\n`;
+  if(g.keys) y+=`  keys:         [{ columns: [${g.keys[0].columns.join(", ")}], severity: ${g.keys[0].severity} }]\n`;
+  if(g.referential) y+=`  referential:  [{ fk: [${g.referential[0].fk}], parent: ${g.referential[0].parent}, parent_key: [${g.referential[0].parent_key}], severity: ${g.referential[0].severity} }]\n`;
+  if(g.not_null) y+=`  not_null:     [{ columns: [${g.not_null[0].columns.join(", ")}], severity: ${g.not_null[0].severity} }]\n`;
+  if(g.completeness) y+=`  completeness: [{ column: ${g.completeness[0].column}, min_pct: ${g.completeness[0].min_pct}, severity: ${g.completeness[0].severity} }]\n`;
+  if(g.freshness) y+=`  freshness:    { column: ${g.freshness.column}, max_age: ${g.freshness.max_age}, severity: ${g.freshness.severity} }\n`;
+  if(g.volume) y+=`  volume:       { min_rows: ${g.volume.min_rows}, severity: ${g.volume.severity} }\n`;
+  document.getElementById("yaml").textContent=y;
+}
+
+let compiled=null, bound=false;
+const output=document.getElementById("output"), hashline=document.getElementById("hashline"), runStatus=document.getElementById("runStatus");
+
+function sevClass(s){return "pill sev-"+s;}
+function renderChecks(){
+  output.innerHTML="";
+  if(!compiled) return;
+  const head=el("div","row");
+  head.innerHTML=`<span class="pill"><span class="dot blue"></span>${compiled.checks.length} Checks erzeugt</span> <span class="pill"><span class="dot ${bound?"green":"amber"}"></span>schema = ${bound?compiled.schema:"{schema}"}</span>`;
+  output.appendChild(head);
+  compiled.checks.forEach((c,i)=>{
+    const card=el("div","check lc");card.dataset.i=i;
+    card.innerHTML=`<div class="ch"><span class="cn">${c.name}</span><span class="ct">${c.type}</span><span class="${sevClass(c.severity)}" style="margin-left:auto">${c.severity}</span></div>
+    <pre>${escapeHtml(c.sql)}</pre>
+    <div class="meta"><span class="tiny">expect</span><span class="exp">${escapeHtml(c.expect)}${c.unit?` <span style="color:var(--faint)">${c.unit}</span>`:""}</span>
+      <span class="tiny" style="margin-left:auto">actual</span><input class="actual" data-actual="${i}" value="${defaultActual(c)}"/>
+      <span class="res" data-res="${i}">—</span></div>`;
+    output.appendChild(card);
+  });
+}
+function defaultActual(c){ // a value that PASSES, so first run is green
+  const e=c.expect;
+  if(e.startsWith("= ")) return e.slice(2).trim();
+  if(e.startsWith(">= ")) return e.slice(3).trim();
+  if(e.startsWith("< ")) return String(Math.max(0,parseFloat(e.slice(2))-1));
+  if(e.startsWith("<= ")) return "0";
+  return "0";
+}
+function escapeHtml(s){return String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));}
+
+document.getElementById("compileBtn").addEventListener("click",()=>{
+  runStatus.innerHTML=""; bound=false;
+  try{
+    const c=buildContract();
+    compiled=compileContract(c);
+    hashline.innerHTML=`Determinismus-Hash: <b style="color:var(--accent)">${compilerHash(c)}</b> &nbsp;·&nbsp; library v${LIBRARY_VERSION} &nbsp;·&nbsp; gleicher Input ⇒ byte-identische checks.yml`;
+    renderChecks();
+    document.getElementById("bindBtn").disabled=false;
+    document.getElementById("runBtn").disabled=false;
+  }catch(err){
+    compiled=null; hashline.textContent="";
+    output.innerHTML=`<div class="check" style="border-left-color:var(--red)"><b style="color:var(--red)">CompileError</b><br/><span class="tiny">${escapeHtml(err.message)}</span></div>`;
+    document.getElementById("bindBtn").disabled=true; document.getElementById("runBtn").disabled=true;
+  }
+});
+document.getElementById("bindBtn").addEventListener("click",()=>{
+  if(!compiled) return;
+  try{ bindSchema(compiled, document.getElementById("schemaIn").value.trim()); bound=true; renderChecks(); }
+  catch(err){ runStatus.innerHTML=`<div class="callout" style="border-color:var(--red)"><b style="color:var(--red)">${escapeHtml(err.message)}</b></div>`; }
+});
+document.getElementById("runBtn").addEventListener("click",()=>{
+  if(!compiled) return;
+  const results=compiled.checks.map((c,i)=>{
+    const raw=document.querySelector(`[data-actual="${i}"]`).value;
+    let actual = raw==="" ? null : (isNaN(parseFloat(raw))?raw:parseFloat(raw));
+    let passed; try{ passed=evaluate(actual,c.expect,null);}catch(e){passed=false;}
+    return {name:c.name,severity:c.severity,passed,state:"executed"};
+  });
+  results.forEach((r,i)=>{
+    const badge=document.querySelector(`[data-res="${i}"]`);
+    badge.className="res "+(r.passed?"pass":"fail");
+    badge.textContent=r.passed?"PASS":"FAIL";
+  });
+  const status=overallStatus(results);
+  const comp=computeCompliance(results);
+  const statusColor={pass:"var(--green)",warn:"var(--amber)",fail:"var(--red)",critical:"var(--crit)"}[status];
+  runStatus.innerHTML=`<div class="statusbar">
+    <span style="color:var(--muted);font-size:13px">overall_status</span>
+    <span class="big" style="color:${statusColor}">${status.toUpperCase()}</span>
+    <span style="color:var(--muted);font-size:13px;margin-left:18px">compliance</span>
+    <span class="big" style="color:${comp==="compliant"?"var(--green)":comp==="breached"?"var(--red)":"var(--grey)"}">${comp}</span>
+    <span class="tiny" style="margin-left:auto">${comp==="breached"?"⚠ ein Incident würde geöffnet (Severity fail/critical fehlgeschlagen)":"alle fail/critical-Checks bestehen"}</span>
+  </div>
+  <p class="tiny" style="margin-top:8px">Ändere oben einen <code>actual</code>-Wert (z. B. den Duplikat-Count auf <code>3</code>) und werte erneut aus — beobachte, wie <code>warn</code> die Compliance <b>nicht</b> kippt, <code>fail</code>/<code>critical</code> aber sofort.</p>`;
+});
+
+renderBuilder(); syncYaml();
+document.getElementById("ds").addEventListener("input",syncYaml);
+
+/* ===================================================================
+   FAMILIES TABLE
+   =================================================================== */
+const famTable=document.getElementById("famTable");
+FAMILIES.forEach(([fam,tmpl,exp,sev,mean])=>{
+  const tr=el("tr");
+  tr.innerHTML=`<td><b>${fam}</b></td><td class="mono" style="color:var(--accent2)">${tmpl}</td><td><span class="exp">${exp}</span></td><td><span class="${sevClass(sev)}">${sev}</span></td><td class="tiny">${mean}</td>`;
+  famTable.appendChild(tr);
+});
+
+/* ===================================================================
+   GRAMMAR PLAYGROUND
+   =================================================================== */
+const grSel=document.getElementById("grSel"), grActual=document.getElementById("grActual"),
+  grPrevWrap=document.getElementById("grPrevWrap"), grPrev=document.getElementById("grPrev"),
+  grExpr=document.getElementById("grExpr"), grRes=document.getElementById("grRes"), grNote=document.getElementById("grNote"),
+  grTable=document.getElementById("grTable");
+GRAMMAR.forEach((g,i)=>{ const o=el("option");o.value=i;o.textContent=g.label;grSel.appendChild(o); });
+GRAMMAR.forEach(g=>{ const tr=el("tr"); tr.innerHTML=`<td class="mono" style="font-size:12px;color:#a5b4fc;white-space:nowrap">${escapeHtml(g.expr)}</td><td class="tiny">${g.note||g.label}</td>`; grTable.appendChild(tr); });
+function grRun(){
+  const g=GRAMMAR[parseInt(grSel.value,10)];
+  // normalize ± and spaces for engine
+  let expr=g.expr.replace("±","+");
+  grExpr.textContent=g.expr;
+  grPrevWrap.style.display=g.prev?"flex":"none";
+  let raw=grActual.value;
+  let actual= raw==="" ? null : (isNaN(parseFloat(raw))?raw:parseFloat(raw));
+  let prev = g.prev ? parseFloat(grPrev.value) : null;
+  let ok; try{ ok=evaluate(actual,expr,prev);}catch(e){ok=null;}
+  grRes.className="res "+(ok===null?"skip":ok?"pass":"fail");
+  grRes.textContent=ok===null?"—":ok?"PASS":"FAIL";
+  grNote.innerHTML=g.note?("<b>Hinweis:</b> "+g.note):"";
+}
+grSel.addEventListener("change",()=>{ const g=GRAMMAR[parseInt(grSel.value,10)]; grActual.value=g.actual; grRun(); });
+[grActual,grPrev].forEach(x=>x.addEventListener("input",grRun));
+grSel.value="0"; grActual.value=GRAMMAR[0].actual; grRun();
+
+/* ===================================================================
+   GATES
+   =================================================================== */
+const gateGrid=document.getElementById("gateGrid");
+GATES.forEach(([id,title,mech])=>{
+  const c=el("div","gate-card");
+  c.innerHTML=`<div class="gid">${id}</div><h4>${title}</h4><div class="gx">${mech}</div>`;
+  c.addEventListener("click",()=>c.classList.toggle("open"));
+  gateGrid.appendChild(c);
+});
+
+/* ===================================================================
+   API ACCORDION
+   =================================================================== */
+const apiAcc=document.getElementById("apiAccordion");
+API.forEach(([group,color,rows],gi)=>{
+  const ex=el("div","expl"+(gi===0?" open":""));
+  const head=el("div","eh");
+  head.innerHTML=`<span class="dot" style="width:9px;height:9px;border-radius:50%;background:${color};display:inline-block"></span> ${group} <span class="tiny">· ${rows.length} Endpunkte</span><span class="chev">▸</span>`;
+  head.addEventListener("click",()=>ex.classList.toggle("open"));
+  const body=el("div","eb");
+  const tbl=el("table");tbl.style.marginTop="6px";
+  tbl.innerHTML="<tbody>"+rows.map(([m,p,d])=>`<tr><td style="width:64px"><span class="pill" style="font-size:10px">${m}</span></td><td class="mono" style="font-size:12px;color:var(--accent)">${escapeHtml(p)}</td><td class="tiny">${escapeHtml(d)}</td></tr>`).join("")+"</tbody>";
+  body.appendChild(tbl);
+  ex.appendChild(head); ex.appendChild(body); apiAcc.appendChild(ex);
+});
+</script>
+</body>
+</html>

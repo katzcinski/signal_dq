@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal — Checks, Statuses &amp; Flows</title>
+<style>
+:root{
+  --bg0:#090B0F;--bg1:#111520;--bg2:#1B2130;--bg3:#222C3E;
+  --line:#2A3242;--line2:#36445A;
+  --fg:#E7EBF2;--fg2:#98A2B2;--fg3:#7C8696;
+  --obs:#F59E0B;--qual:#00D4AA;--cont:#7B6FEE;
+  --ok:#3FB07A;--warn:#E0B23E;--fail:#E2783C;--crit:#E5484D;
+  --stale:#646E7C;--err:#9B6CF0;
+  --mono:"JetBrains Mono","Fira Code","SFMono-Regular",monospace;
+  --sans:"Space Grotesk",system-ui,sans-serif;
+  --r:4px;--r-md:6px;--r-lg:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg0);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ── nav ── */
+header{position:sticky;top:0;z-index:100;background:rgba(9,11,15,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.hdr{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:16px;height:52px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:15px;white-space:nowrap;flex-shrink:0}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(63,176,122,.6);animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,176,122,.55)}70%{box-shadow:0 0 0 8px rgba(63,176,122,0)}100%{box-shadow:0 0 0 0 rgba(63,176,122,0)}}
+nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
+nav::-webkit-scrollbar{display:none}
+nav a{color:var(--fg3);font-size:12.5px;padding:5px 9px;border-radius:var(--r-md);white-space:nowrap;text-decoration:none;transition:color .15s,background .15s}
+nav a:hover{color:var(--fg);background:var(--bg2)}
+nav a.active{color:var(--fg);background:var(--bg3)}
+
+/* ── layout ── */
+.wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+section{padding:72px 0 48px}
+section+section{border-top:1px solid var(--line)}
+.sec-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cont);font-weight:600;margin-bottom:10px}
+h2{font-size:clamp(22px,4vw,32px);line-height:1.1;letter-spacing:-.5px;margin-bottom:8px}
+h3{font-size:16px;font-weight:600;margin-bottom:10px;color:var(--fg)}
+p{color:var(--fg2);margin-bottom:14px;max-width:72ch}
+p:last-child{margin-bottom:0}
+.muted{color:var(--fg3)}
+code{font-family:var(--mono);font-size:12px;background:var(--bg3);padding:1px 5px;border-radius:3px;color:var(--fg)}
+
+/* ── hero ── */
+#hero{padding:80px 0 56px;border-bottom:1px solid var(--line)}
+.hero-sub{font-size:16px;color:var(--fg2);max-width:60ch;margin-top:14px}
+.jump-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:32px}
+.jump-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;background:var(--bg2);border:1px solid var(--line2);border-radius:999px;font-size:13px;color:var(--fg2);text-decoration:none;transition:all .15s}
+.jump-chip:hover{color:var(--fg);background:var(--bg3);border-color:var(--cont)}
+.chip-num{font-family:var(--mono);font-size:11px;color:var(--cont)}
+
+/* ── cards ── */
+.card{background:var(--bg1);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 20px}
+.card-grid{display:grid;gap:12px}
+.card-grid.c2{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.card-grid.c3{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+
+/* ── tags/pills ── */
+.tag{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.3px}
+.tag.gate{background:rgba(245,158,11,.15);color:var(--obs);border:1px solid rgba(245,158,11,.3)}
+.tag.expensive{background:rgba(229,72,77,.15);color:var(--crit);border:1px solid rgba(229,72,77,.3)}
+.tag.standard{background:rgba(100,110,124,.15);color:var(--fg3);border:1px solid rgba(100,110,124,.3)}
+.tag.obs{background:rgba(245,158,11,.1);color:var(--obs)}
+.tag.qual{background:rgba(0,212,170,.1);color:var(--qual)}
+.tag.cont{background:rgba(123,111,238,.1);color:var(--cont)}
+.tag.ok{background:rgba(63,176,122,.15);color:var(--ok)}
+.tag.warn{background:rgba(224,178,62,.15);color:var(--warn)}
+.tag.fail{background:rgba(226,120,60,.15);color:var(--fail)}
+.tag.crit{background:rgba(229,72,77,.15);color:var(--crit)}
+.tag.stale{background:rgba(100,110,124,.15);color:var(--stale)}
+.tag.err{background:rgba(155,108,240,.15);color:var(--err)}
+
+/* ── pipeline section ── */
+.pipeline{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:32px 0}
+.pipe-box{background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r-lg);padding:14px 18px;min-width:140px;text-align:center;position:relative;flex-shrink:0}
+.pipe-box .pname{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--fg3);margin-bottom:4px}
+.pipe-box .plabel{font-size:13px;font-weight:600;color:var(--fg)}
+.pipe-box .psub{font-size:11px;color:var(--fg3);margin-top:3px;font-family:var(--mono)}
+.pipe-arrow{display:flex;align-items:center;padding:0 4px;color:var(--line2);font-size:18px;flex-shrink:0;position:relative}
+.pipe-arrow::after{content:'';position:absolute;inset:0;background:inherit}
+
+/* animated flow dot */
+.flow-line{position:relative;display:flex;align-items:center;padding:0 4px;width:48px;flex-shrink:0}
+.flow-line::before{content:'';position:absolute;left:8px;right:8px;height:1px;background:var(--line2)}
+.flow-dot{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--cont);left:8px;animation:flow-anim 2s linear infinite;opacity:0}
+@keyframes flow-anim{0%{left:8px;opacity:0}10%{opacity:1}90%{opacity:1}100%{left:calc(100% - 16px);opacity:0}}
+.pipe-box.highlight{border-color:var(--cont);box-shadow:0 0 0 1px var(--cont),0 0 20px rgba(123,111,238,.2)}
+
+/* ── STATE EXPLORER ── */
+.state-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin:24px 0}
+.state-card{background:var(--bg2);border:2px solid var(--line);border-radius:var(--r-lg);padding:16px;cursor:pointer;transition:all .2s;user-select:none}
+.state-card:hover{transform:translateY(-2px)}
+.state-card.active{transform:translateY(-2px)}
+.state-card .s-icon{font-size:22px;margin-bottom:8px}
+.state-card .s-name{font-family:var(--mono);font-size:12px;font-weight:700;margin-bottom:4px}
+.state-card .s-summary{font-size:12px;color:var(--fg3);line-height:1.4}
+.state-card[data-s=executed]{border-color:rgba(63,176,122,.4)}
+.state-card[data-s=executed].active{border-color:var(--ok);background:rgba(63,176,122,.08);box-shadow:0 0 20px rgba(63,176,122,.15)}
+.state-card[data-s=error]{border-color:rgba(155,108,240,.4)}
+.state-card[data-s=error].active{border-color:var(--err);background:rgba(155,108,240,.08);box-shadow:0 0 20px rgba(155,108,240,.15)}
+.state-card[data-s=skipped_stale]{border-color:rgba(100,110,124,.4)}
+.state-card[data-s=skipped_stale].active{border-color:var(--stale);background:rgba(100,110,124,.1);box-shadow:0 0 16px rgba(100,110,124,.2)}
+.state-card[data-s=skipped_dependency]{border-color:rgba(100,110,124,.4)}
+.state-card[data-s=skipped_dependency].active{border-color:var(--stale);background:rgba(100,110,124,.1);box-shadow:0 0 16px rgba(100,110,124,.2)}
+.state-card[data-s=downgraded]{border-color:rgba(224,178,62,.3)}
+.state-card[data-s=downgraded].active{border-color:var(--warn);background:rgba(224,178,62,.07);box-shadow:0 0 16px rgba(224,178,62,.15)}
+
+.state-detail{background:var(--bg1);border:1px solid var(--line2);border-radius:var(--r-lg);padding:24px 28px;margin-top:4px;display:none}
+.state-detail.visible{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.state-detail h3{margin-bottom:14px}
+.detail-row{display:flex;gap:32px;flex-wrap:wrap;margin-top:16px}
+.detail-col{flex:1;min-width:180px}
+.detail-col dt{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--fg3);margin-bottom:5px;font-weight:600}
+.detail-col dd{font-size:13px;color:var(--fg)}
+
+/* ── GATING SIMULATOR ── */
+.gating-wrap{margin:28px 0}
+.gating-phase{display:flex;align-items:flex-start;gap:0}
+.phase-label{writing-mode:vertical-rl;transform:rotate(180deg);font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--fg3);padding:12px 8px;border-right:1px solid var(--line);margin-right:16px;align-self:stretch;display:flex;align-items:center}
+.checks-row{display:flex;gap:10px;flex-wrap:wrap}
+.check-tile{background:var(--bg2);border:2px solid var(--line);border-radius:var(--r-lg);padding:14px 16px;min-width:148px;cursor:pointer;transition:all .25s;position:relative;user-select:none}
+.check-tile:hover{border-color:var(--line2)}
+.check-tile .ct-name{font-size:13px;font-weight:600;margin-bottom:6px}
+.check-tile .ct-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.check-tile .ct-result{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.5px;padding:4px 8px;border-radius:var(--r);text-align:center;opacity:0;transition:all .3s;transform:translateY(4px)}
+.check-tile .ct-result.show{opacity:1;transform:translateY(0)}
+.check-tile.failing{border-color:rgba(229,72,77,.5);background:rgba(229,72,77,.06)}
+.check-tile.ct-pass .ct-result{background:rgba(63,176,122,.15);color:var(--ok);opacity:1;transform:none}
+.check-tile.ct-fail .ct-result{background:rgba(229,72,77,.15);color:var(--crit);opacity:1;transform:none}
+.check-tile.ct-stale .ct-result{background:rgba(100,110,124,.15);color:var(--stale);opacity:1;transform:none}
+.check-tile.ct-warn .ct-result{background:rgba(224,178,62,.15);color:var(--warn);opacity:1;transform:none}
+.check-tile.running::after{content:'';position:absolute;inset:0;border-radius:calc(var(--r-lg) - 2px);background:linear-gradient(90deg,transparent 0%,rgba(123,111,238,.15) 50%,transparent 100%);animation:shimmer .8s infinite;pointer-events:none}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.check-tile.running{background-size:200% 100%}
+
+.gating-divider{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 16px;gap:4px;flex-shrink:0}
+.gating-divider .gd-line{width:1px;flex:1;background:var(--line2)}
+.gating-divider .gd-label{font-size:10px;color:var(--fg3);letter-spacing:1px;white-space:nowrap;padding:4px 0}
+
+.sim-controls{display:flex;align-items:center;gap:12px;margin:20px 0 16px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--r-md);border:1px solid var(--line2);background:var(--bg2);color:var(--fg);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.btn:hover{background:var(--bg3);border-color:var(--cont);color:var(--cont)}
+.btn.primary{background:var(--cont);border-color:var(--cont);color:#fff}
+.btn.primary:hover{background:#6a5fd8;border-color:#6a5fd8;color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.sim-hint{font-size:12px;color:var(--fg3)}
+
+.sim-banner{margin-top:16px;padding:12px 16px;border-radius:var(--r-md);border-left:3px solid;font-size:13px;display:none}
+.sim-banner.show{display:block;animation:fadeIn .2s ease}
+.sim-banner.ok{background:rgba(63,176,122,.08);border-color:var(--ok);color:var(--ok)}
+.sim-banner.warn{background:rgba(100,110,124,.08);border-color:var(--stale);color:var(--fg2)}
+
+/* ── STATUS ROLLUP ── */
+.severity-ladder{display:flex;flex-direction:column;gap:8px;margin:24px 0;max-width:560px}
+.sev-row{display:flex;align-items:center;gap:16px;padding:12px 18px;border-radius:var(--r-lg);border:1px solid var(--line)}
+.sev-score{font-family:var(--mono);font-size:20px;font-weight:700;width:32px;text-align:center;flex-shrink:0}
+.sev-badge{min-width:80px}
+.sev-desc{font-size:12px;color:var(--fg3)}
+.sev-row[data-s=error]{border-color:rgba(155,108,240,.3);background:rgba(155,108,240,.06)}
+.sev-row[data-s=critical]{border-color:rgba(229,72,77,.3);background:rgba(229,72,77,.06)}
+.sev-row[data-s=fail]{border-color:rgba(226,120,60,.3);background:rgba(226,120,60,.06)}
+.sev-row[data-s=warn]{border-color:rgba(224,178,62,.2);background:rgba(224,178,62,.05)}
+.sev-row[data-s=pass]{border-color:rgba(63,176,122,.2);background:rgba(63,176,122,.05)}
+
+/* ── COMPLIANCE FLOW ── */
+.compliance-machine{margin:28px 0;overflow-x:auto}
+.compliance-machine svg{max-width:100%}
+
+/* ── STALENESS COLUMNS ── */
+.stale-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin:24px 0}
+.stale-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px}
+.stale-card .s-num{font-family:var(--mono);font-size:28px;font-weight:700;color:var(--cont);margin-bottom:10px;opacity:.6}
+.stale-card h3{font-size:15px;margin-bottom:8px}
+.stale-card .s-where{font-size:11px;font-family:var(--mono);color:var(--fg3);margin-top:12px;padding:6px 10px;background:var(--bg3);border-radius:var(--r)}
+
+/* ── BLAST RADIUS ── */
+.blast-wrap{margin:28px 0}
+.blast-controls{display:flex;gap:10px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+.blast-canvas{background:var(--bg1);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;overflow:auto}
+.blast-canvas svg{display:block;margin:0 auto}
+.blast-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:12px;color:var(--fg3)}
+.blast-legend span{display:flex;align-items:center;gap:6px}
+
+/* ── COVERAGE FLAGS ── */
+.cov-grid{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+.cov-flag{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 20px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-lg);min-width:120px;cursor:default}
+.cov-glyph{font-size:28px;line-height:1}
+.cov-name{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.cov-desc{font-size:11px;color:var(--fg3);text-align:center;max-width:110px}
+
+/* ── REFERENCE TABLE ── */
+.ref-table{width:100%;border-collapse:collapse;margin-top:20px}
+.ref-table th{text-align:left;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--fg3);padding:8px 12px;border-bottom:1px solid var(--line2)}
+.ref-table td{padding:9px 12px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:top}
+.ref-table td:first-child{color:var(--fg);font-weight:500}
+.ref-table td:nth-child(2){font-family:var(--mono);font-size:11px;color:var(--fg3)}
+.ref-table td:nth-child(3){color:var(--fg2)}
+.ref-table tr:hover td{background:var(--bg2)}
+
+/* ── AXIS DIAGRAM ── */
+.axis-diagram{margin:24px 0;padding:20px;background:var(--bg1);border:1px solid var(--line);border-radius:var(--r-lg)}
+.axis-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+.axis-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--fg3);min-width:120px}
+.axis-cells{display:flex;gap:8px;flex-wrap:wrap}
+.axis-cell{padding:6px 14px;border-radius:var(--r-md);font-size:12px;font-weight:600;font-family:var(--mono)}
+
+/* ── scroll spy ── */
+.toc-progress{position:fixed;right:0;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;padding:8px 6px;z-index:90}
+.toc-dot{width:6px;height:6px;border-radius:50%;background:var(--line2);cursor:pointer;transition:all .2s}
+.toc-dot.active{background:var(--cont);transform:scale(1.6)}
+
+@media(max-width:700px){
+  .pipeline{flex-direction:column}
+  .flow-line{transform:rotate(90deg);margin:4px auto}
+  .toc-progress{display:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <div class="brand"><div class="dot"></div>Signal</div>
+    <nav id="topnav">
+      <a href="#pipeline">Pipeline</a>
+      <a href="#states">States</a>
+      <a href="#gating">Gating</a>
+      <a href="#rollup">Rollup</a>
+      <a href="#compliance">Compliance</a>
+      <a href="#staleness">Staleness</a>
+      <a href="#blastradius">Blast Radius</a>
+      <a href="#reference">Reference</a>
+    </nav>
+  </div>
+</header>
+
+<div class="toc-progress" id="tocDots"></div>
+
+<section id="hero">
+<div class="wrap">
+  <div class="sec-label">Signal · Data Quality &amp; Observability</div>
+  <h2>Checks, Statuses &amp; Flows</h2>
+  <p class="hero-sub">How the engine reasons about every check: from contract to verdict, from failure to incident, from object to downstream blast radius.</p>
+  <div class="jump-grid">
+    <a class="jump-chip" href="#pipeline"><span class="chip-num">01</span>Pipeline overview</a>
+    <a class="jump-chip" href="#states"><span class="chip-num">02</span>Check result states</a>
+    <a class="jump-chip" href="#gating"><span class="chip-num">03</span>Gating flow</a>
+    <a class="jump-chip" href="#rollup"><span class="chip-num">04</span>Status rollup</a>
+    <a class="jump-chip" href="#compliance"><span class="chip-num">05</span>Compliance &amp; incidents</a>
+    <a class="jump-chip" href="#staleness"><span class="chip-num">06</span>Staleness (3 kinds)</a>
+    <a class="jump-chip" href="#blastradius"><span class="chip-num">07</span>Blast radius</a>
+    <a class="jump-chip" href="#reference"><span class="chip-num">08</span>Reference</a>
+  </div>
+</div>
+</section>
+
+<!-- ─────────────────── §1 PIPELINE ─────────────────── -->
+<section id="pipeline">
+<div class="wrap">
+  <div class="sec-label">01 · Overview</div>
+  <h2>The pipeline end-to-end</h2>
+  <p>A semantic contract is compiled into read-only SQL checks. A run executes them, produces check results, rolls up to an object status, and — for active contracts — updates compliance and potentially opens an incident.</p>
+
+  <div class="pipeline">
+    <div class="pipe-box highlight">
+      <div class="pname">Input</div>
+      <div class="plabel">Contract YAML</div>
+      <div class="psub">guarantees: { … }</div>
+    </div>
+    <div class="flow-line"><div class="flow-dot"></div></div>
+    <div class="pipe-box">
+      <div class="pname">Compiler</div>
+      <div class="plabel">Check SQL</div>
+      <div class="psub">compiler.py + bind_schema</div>
+    </div>
+    <div class="flow-line"><div class="flow-dot" style="animation-delay:.4s"></div></div>
+    <div class="pipe-box">
+      <div class="pname">Engine</div>
+      <div class="plabel">Run</div>
+      <div class="psub">check_engine.py</div>
+    </div>
+    <div class="flow-line"><div class="flow-dot" style="animation-delay:.8s"></div></div>
+    <div class="pipe-box">
+      <div class="pname">Results</div>
+      <div class="plabel">CheckResult[]</div>
+      <div class="psub">state + verdict</div>
+    </div>
+    <div class="flow-line"><div class="flow-dot" style="animation-delay:1.2s"></div></div>
+    <div class="pipe-box">
+      <div class="pname">Store</div>
+      <div class="plabel">Status rollup</div>
+      <div class="psub">worst-of per family</div>
+    </div>
+    <div class="flow-line"><div class="flow-dot" style="animation-delay:1.6s"></div></div>
+    <div class="pipe-box">
+      <div class="pname">Side-effects</div>
+      <div class="plabel">Compliance → Incident</div>
+      <div class="psub">breach → notify</div>
+    </div>
+  </div>
+
+  <div class="card-grid c2" style="margin-top:28px">
+    <div class="card">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:20px">🔒</span>
+        <div>
+          <h3 style="margin-bottom:6px">G1 — No SQL in contracts</h3>
+          <p style="font-size:13px">Contracts are semantic YAML (<code>guarantees:</code> families). SQL is produced exclusively by the compiler. The schema (<code>CENTRAL</code> etc.) is injected at runtime via <code>bind_schema(…)</code> — never hardcoded. CI greps for literals.</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:20px">🧱</span>
+        <div>
+          <h3 style="margin-bottom:6px">G6 — States never silently omitted</h3>
+          <p style="font-size:13px">Every check the engine considers produces a <code>CheckResult</code> row — including those it decided <em>not</em> to execute. Dropping a check is forbidden. Skipped checks are visible with an explicit reason.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ─────────────────── §2 STATES ─────────────────── -->
+<section id="states">
+<div class="wrap">
+  <div class="sec-label">02 · Core concept</div>
+  <h2>Check result states</h2>
+  <p>The <strong>state</strong> of a check result answers "what did the engine decide about this check?" and is orthogonal to the <strong>verdict</strong> (did the SQL expectation hold?). Only two states count toward status and compliance — the rest are visible but neutral.</p>
+
+  <div class="axis-diagram">
+    <div class="axis-row">
+      <div class="axis-label">Counts for status?</div>
+      <div class="axis-cells">
+        <span class="axis-cell" style="background:rgba(63,176,122,.15);color:var(--ok)">executed ✓</span>
+        <span class="axis-cell" style="background:rgba(155,108,240,.15);color:var(--err)">error ✓</span>
+        <span class="axis-cell" style="background:rgba(100,110,124,.1);color:var(--stale)">skipped_stale —</span>
+        <span class="axis-cell" style="background:rgba(100,110,124,.1);color:var(--stale)">skipped_dependency —</span>
+        <span class="axis-cell" style="background:rgba(224,178,62,.1);color:var(--warn)">downgraded ~</span>
+      </div>
+    </div>
+    <div class="axis-row" style="margin-top:4px">
+      <div class="axis-label">Has a verdict?</div>
+      <div class="axis-cells">
+        <span class="axis-cell" style="background:rgba(63,176,122,.15);color:var(--ok)">executed: pass/fail</span>
+        <span class="axis-cell" style="background:rgba(155,108,240,.15);color:var(--err)">error: implicit fail</span>
+        <span class="axis-cell" style="background:rgba(100,110,124,.1);color:var(--stale)">skipped_stale: n/a</span>
+        <span class="axis-cell" style="background:rgba(100,110,124,.1);color:var(--stale)">skipped_dependency: n/a</span>
+        <span class="axis-cell" style="background:rgba(224,178,62,.1);color:var(--warn)">downgraded: varies</span>
+      </div>
+    </div>
+  </div>
+
+  <p style="font-size:12px;color:var(--fg3);margin-bottom:20px">Click a state card to expand details.</p>
+
+  <div class="state-grid">
+    <div class="state-card" data-s="executed" onclick="toggleState(this)">
+      <div class="s-icon">✅</div>
+      <div class="s-name">executed</div>
+      <div class="s-summary">Ran and produced a verdict</div>
+    </div>
+    <div class="state-card" data-s="error" onclick="toggleState(this)">
+      <div class="s-icon">⚠️</div>
+      <div class="s-name">error</div>
+      <div class="s-summary">Ran but threw (SQL error, timeout, shape)</div>
+    </div>
+    <div class="state-card" data-s="skipped_stale" onclick="toggleState(this)">
+      <div class="s-icon">⏭️</div>
+      <div class="s-name">skipped_stale</div>
+      <div class="s-summary">Not run — a freshness/volume gate failed</div>
+    </div>
+    <div class="state-card" data-s="skipped_dependency" onclick="toggleState(this)">
+      <div class="s-icon">⛓️</div>
+      <div class="s-name">skipped_dependency</div>
+      <div class="s-summary">Not run — a declared prerequisite wasn't met</div>
+    </div>
+    <div class="state-card" data-s="downgraded" onclick="toggleState(this)">
+      <div class="s-icon">🔽</div>
+      <div class="s-name">downgraded</div>
+      <div class="s-summary">Ran with a reduced severity for this run</div>
+    </div>
+  </div>
+
+  <div id="stateDetail" class="state-detail"></div>
+</div>
+</section>
+
+<!-- ─────────────────── §3 GATING ─────────────────── -->
+<section id="gating">
+<div class="wrap">
+  <div class="sec-label">03 · Execution flow</div>
+  <h2>Gating — cheap checks gate expensive ones</h2>
+  <p>When <code>gating=True</code> (always on for UI-triggered runs), the engine runs checks in two phases: <strong>gates first</strong>, then evaluates whether the remainder should run. A failed gate means expensive consistency scans would operate on untrusted data — they're skipped and flagged <code>skipped_stale</code>.</p>
+
+  <div class="sim-controls">
+    <button class="btn primary" onclick="runSimulation()">▶ Simulate run</button>
+    <button class="btn" onclick="resetSim()">↺ Reset</button>
+    <span class="sim-hint">Click a check tile to toggle it as failing before running.</span>
+  </div>
+
+  <div class="gating-wrap">
+    <div style="display:flex;gap:0;align-items:stretch">
+
+      <!-- Phase 1: gates -->
+      <div style="flex-shrink:0">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--obs);margin-bottom:10px;padding-left:2px">Phase 1 · Gates</div>
+        <div class="checks-row" id="gateChecks">
+          <div class="check-tile" data-id="freshness" data-gating="gate" data-family="obs" onclick="toggleFail(this)">
+            <div class="ct-name">Freshness</div>
+            <div class="ct-tags"><span class="tag gate">gate</span><span class="tag obs">obs</span></div>
+            <div class="ct-result" id="r-freshness">—</div>
+          </div>
+          <div class="check-tile" data-id="volume_anomaly" data-gating="gate" data-family="obs" onclick="toggleFail(this)">
+            <div class="ct-name">Volume Anomaly</div>
+            <div class="ct-tags"><span class="tag gate">gate</span><span class="tag obs">obs</span></div>
+            <div class="ct-result" id="r-volume_anomaly">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gating-divider">
+        <div class="gd-line"></div>
+        <div class="gd-label" id="gateDecision" style="padding:8px;background:var(--bg0);border:1px solid var(--line);border-radius:var(--r-md);font-size:11px;color:var(--fg3)">if gates pass → run all</div>
+        <div class="gd-line"></div>
+      </div>
+
+      <!-- Phase 2a: standard -->
+      <div style="flex-shrink:0">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--fg3);margin-bottom:10px;padding-left:2px">Standard · always run</div>
+        <div class="checks-row" id="standardChecks">
+          <div class="check-tile" data-id="row_count" data-gating="standard" data-family="obs" onclick="toggleFail(this)">
+            <div class="ct-name">Row Count</div>
+            <div class="ct-tags"><span class="tag standard">standard</span><span class="tag obs">obs</span></div>
+            <div class="ct-result" id="r-row_count">—</div>
+          </div>
+          <div class="check-tile" data-id="missing" data-gating="standard" data-family="qual" onclick="toggleFail(this)">
+            <div class="ct-name">Missing Values</div>
+            <div class="ct-tags"><span class="tag standard">standard</span><span class="tag qual">qual</span></div>
+            <div class="ct-result" id="r-missing">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gating-divider" style="opacity:.4">
+        <div class="gd-line"></div>
+      </div>
+
+      <!-- Phase 2b: expensive -->
+      <div style="flex-shrink:0">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--crit);margin-bottom:10px;padding-left:2px">Expensive · skipped if stale</div>
+        <div class="checks-row" id="expensiveChecks">
+          <div class="check-tile" data-id="duplicate" data-gating="expensive" data-family="qual" onclick="toggleFail(this)">
+            <div class="ct-name">Duplicates</div>
+            <div class="ct-tags"><span class="tag expensive">expensive</span><span class="tag qual">qual</span></div>
+            <div class="ct-result" id="r-duplicate">—</div>
+          </div>
+          <div class="check-tile" data-id="ref_integrity" data-gating="expensive" data-family="qual" onclick="toggleFail(this)">
+            <div class="ct-name">Ref. Integrity</div>
+            <div class="ct-tags"><span class="tag expensive">expensive</span><span class="tag qual">qual</span></div>
+            <div class="ct-result" id="r-ref_integrity">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="simBanner" class="sim-banner"></div>
+
+  <div class="card-grid c2" style="margin-top:28px">
+    <div class="card">
+      <h3>Execution modes</h3>
+      <p style="font-size:13px">Independently of gating, runs have an <code>execution_mode</code>:</p>
+      <ul style="font-size:13px;color:var(--fg2);margin-top:8px;padding-left:18px;display:flex;flex-direction:column;gap:5px">
+        <li><code>batch</code> — all checks in one <code>UNION ALL … FROM DUMMY</code> round-trip</li>
+        <li><code>isolated</code> — one statement per check; slower but pinpoints failures</li>
+        <li><code>auto</code> (default) — try batch; if it throws, fall back to isolated</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>DELTA warm-up</h3>
+      <p style="font-size:13px">Checks using the <code>DELTA &lt;= N%</code> expectation compare the current actual against the <em>previous run's</em> actual. If no previous value exists (first run, or the previous run errored), the check <strong>passes automatically</strong> — warm-up is not a failure. Baselines need ≥ 5 samples before statistics are computed.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ─────────────────── §4 ROLLUP ─────────────────── -->
+<section id="rollup">
+<div class="wrap">
+  <div class="sec-label">04 · Status derivation</div>
+  <h2>Status rollup — worst-of</h2>
+  <p>The object status and family status are both <strong>worst-of</strong> the executed check results from the latest finished run. Only <code>executed</code> and <code>error</code> states contribute — skipped results are excluded before the worst-of calculation.</p>
+
+  <div style="display:flex;gap:32px;flex-wrap:wrap;margin-top:28px">
+    <div style="flex:1;min-width:280px">
+      <h3 style="margin-bottom:14px">Severity scoring</h3>
+      <div class="severity-ladder">
+        <div class="sev-row" data-s="error">
+          <div class="sev-score" style="color:var(--err)">1</div>
+          <div class="sev-badge"><span class="tag err">error</span></div>
+          <div class="sev-desc">SQL exception, wrong shape, timeout — we don't know the answer</div>
+        </div>
+        <div class="sev-row" data-s="warn">
+          <div class="sev-score" style="color:var(--warn)">2</div>
+          <div class="sev-badge"><span class="tag warn">warn</span></div>
+          <div class="sev-desc">Quality issue worth noting; does <em>not</em> breach a contract</div>
+        </div>
+        <div class="sev-row" data-s="fail">
+          <div class="sev-score" style="color:var(--fail)">3</div>
+          <div class="sev-badge"><span class="tag fail">fail</span></div>
+          <div class="sev-desc">Business rule broken; breaches contract if under active contract</div>
+        </div>
+        <div class="sev-row" data-s="critical">
+          <div class="sev-score" style="color:var(--crit)">4</div>
+          <div class="sev-badge"><span class="tag crit">critical</span></div>
+          <div class="sev-desc">Highest severity — e.g. empty table, schema dropped</div>
+        </div>
+        <div class="sev-row" data-s="pass">
+          <div class="sev-score" style="color:var(--ok)">0</div>
+          <div class="sev-badge"><span class="tag ok">pass</span></div>
+          <div class="sev-desc">All executed checks satisfied their expectation</div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--fg3);margin-top:8px"><code>error</code> ranks between <code>warn</code> and <code>fail</code> in the score table, but in <code>_overall_status()</code> it short-circuits first — any exception makes the overall status <code>error</code> regardless of other results.</p>
+    </div>
+    <div style="flex:1;min-width:280px">
+      <h3 style="margin-bottom:14px">Two rollup axes</h3>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="card">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--fg3);margin-bottom:8px;font-weight:600">Object status</div>
+          <p style="font-size:13px">Single worst-of across <em>all</em> check types. Shown in the status grid, the object list, lineage nodes.</p>
+          <div style="margin-top:8px;font-size:12px;font-family:var(--mono);color:var(--fg3)">store.get_object_status()</div>
+        </div>
+        <div class="card">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--fg3);margin-bottom:8px;font-weight:600">Family status</div>
+          <p style="font-size:13px">Same worst-of, but <em>split by family</em>: <span style="color:var(--obs)">observability</span> (freshness/volume/schema checks) vs. <span style="color:var(--qual)">quality</span> (completeness/consistency). An object can be ● obs and ✕ qual simultaneously.</p>
+          <div style="margin-top:8px;font-size:12px;font-family:var(--mono);color:var(--fg3)">store.get_object_family_status()</div>
+        </div>
+        <div class="card">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--fg3);margin-bottom:8px;font-weight:600">Coverage flag</div>
+          <p style="font-size:13px">Third axis for the lineage map: is this object adequately <em>watched?</em> Independent of pass/fail verdict.</p>
+          <div class="cov-grid" style="margin-top:10px">
+            <div class="cov-flag" style="min-width:80px;padding:10px 12px">
+              <span class="cov-glyph">●</span>
+              <span class="cov-name" style="color:var(--ok)">covered</span>
+            </div>
+            <div class="cov-flag" style="min-width:80px;padding:10px 12px">
+              <span class="cov-glyph" style="color:var(--warn)">◐</span>
+              <span class="cov-name" style="color:var(--warn)">partial</span>
+            </div>
+            <div class="cov-flag" style="min-width:80px;padding:10px 12px">
+              <span class="cov-glyph" style="color:var(--fail)">▲</span>
+              <span class="cov-name" style="color:var(--fail)">gap</span>
+            </div>
+            <div class="cov-flag" style="min-width:80px;padding:10px 12px">
+              <span class="cov-glyph" style="color:var(--fg3)">○</span>
+              <span class="cov-name" style="color:var(--fg3)">out-of-scope</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ─────────────────── §5 COMPLIANCE ─────────────────── -->
+<section id="compliance">
+<div class="wrap">
+  <div class="sec-label">05 · Breach flow</div>
+  <h2>Compliance &amp; incidents</h2>
+  <p>After every finished run on an object under an <strong>active contract</strong>, Signal computes a compliance state and handles transitions. <code>warn</code> failures <em>never</em> breach. Skipped checks don't either.</p>
+
+  <div class="compliance-machine" style="margin:28px 0">
+    <svg viewBox="0 0 900 340" width="900" height="340" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;font-family:var(--sans)">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#36445A"/>
+        </marker>
+        <marker id="arr-g" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#3FB07A"/>
+        </marker>
+        <marker id="arr-r" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#E5484D"/>
+        </marker>
+        <marker id="arr-b" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#7B6FEE"/>
+        </marker>
+      </defs>
+
+      <!-- RUN node -->
+      <rect x="20" y="140" width="110" height="60" rx="8" fill="#1B2130" stroke="#36445A" stroke-width="1.5"/>
+      <text x="75" y="163" fill="#7C8696" font-size="10" text-anchor="middle" letter-spacing="1" font-weight="600">ENGINE</text>
+      <text x="75" y="182" fill="#E7EBF2" font-size="13" text-anchor="middle" font-weight="700">Run finished</text>
+
+      <!-- compute compliance -->
+      <rect x="180" y="140" width="130" height="60" rx="8" fill="#1B2130" stroke="#36445A" stroke-width="1.5"/>
+      <text x="245" y="163" fill="#7C8696" font-size="10" text-anchor="middle" letter-spacing="1" font-weight="600">COMPLIANCE</text>
+      <text x="245" y="180" fill="#E7EBF2" font-size="12" text-anchor="middle">compute_compliance</text>
+      <text x="245" y="195" fill="#7C8696" font-size="10" text-anchor="middle">(results)</text>
+      <line x1="130" y1="170" x2="178" y2="170" stroke="#36445A" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- compliant -->
+      <rect x="370" y="60" width="120" height="52" rx="8" fill="rgba(63,176,122,.12)" stroke="#3FB07A" stroke-width="1.5"/>
+      <text x="430" y="82" fill="#3FB07A" font-size="11" text-anchor="middle" font-weight="700">compliant</text>
+      <text x="430" y="98" fill="#7C8696" font-size="10" text-anchor="middle">all fail/crit checks pass</text>
+      <line x1="310" y1="155" x2="430" y2="114" stroke="#3FB07A" stroke-width="1.5" marker-end="url(#arr-g)" stroke-dasharray="0"/>
+
+      <!-- breached -->
+      <rect x="370" y="230" width="120" height="52" rx="8" fill="rgba(229,72,77,.12)" stroke="#E5484D" stroke-width="1.5"/>
+      <text x="430" y="252" fill="#E5484D" font-size="11" text-anchor="middle" font-weight="700">breached</text>
+      <text x="430" y="268" fill="#7C8696" font-size="10" text-anchor="middle">≥1 fail/crit check failed</text>
+      <line x1="310" y1="185" x2="430" y2="228" stroke="#E5484D" stroke-width="1.5" marker-end="url(#arr-r)"/>
+
+      <!-- unknown -->
+      <rect x="370" y="148" width="120" height="44" rx="8" fill="rgba(100,110,124,.1)" stroke="#646E7C" stroke-width="1.5"/>
+      <text x="430" y="172" fill="#646E7C" font-size="11" text-anchor="middle" font-weight="700">unknown</text>
+      <text x="430" y="184" fill="#646E7C" font-size="10" text-anchor="middle">no results</text>
+
+      <!-- auto-resolve arrow -->
+      <path d="M490 256 Q580 256 580 86 Q580 60 492 60" fill="none" stroke="#3FB07A" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arr-g)"/>
+      <text x="590" y="168" fill="#3FB07A" font-size="10" text-anchor="start">auto-resolve</text>
+      <text x="590" y="180" fill="#7C8696" font-size="10" text-anchor="start">on next green run</text>
+
+      <!-- incident box -->
+      <rect x="560" y="200" width="160" height="108" rx="8" fill="#1B2130" stroke="#E5484D" stroke-width="1.5"/>
+      <text x="640" y="222" fill="#7C8696" font-size="10" text-anchor="middle" letter-spacing="1" font-weight="600">INCIDENT</text>
+      <text x="640" y="244" fill="#E5484D" font-size="12" text-anchor="middle" font-weight="700">open</text>
+      <text x="640" y="260" fill="#E7EBF2" font-size="10" text-anchor="middle">→ acknowledged</text>
+      <text x="640" y="274" fill="#E7EBF2" font-size="10" text-anchor="middle">→ investigating</text>
+      <text x="640" y="288" fill="#3FB07A" font-size="10" text-anchor="middle">→ resolved</text>
+      <line x1="490" y1="256" x2="558" y2="256" stroke="#E5484D" stroke-width="1.5" marker-end="url(#arr-r)"/>
+
+      <!-- notify -->
+      <rect x="560" y="80" width="160" height="72" rx="8" fill="#1B2130" stroke="#7B6FEE" stroke-width="1.5"/>
+      <text x="640" y="102" fill="#7C8696" font-size="10" text-anchor="middle" letter-spacing="1" font-weight="600">NOTIFICATION</text>
+      <text x="640" y="122" fill="#7B6FEE" font-size="12" text-anchor="middle" font-weight="700">notify_breach()</text>
+      <text x="640" y="140" fill="#7C8696" font-size="10" text-anchor="middle">Slack / Teams / webhook</text>
+      <line x1="560" y1="200" x2="640" y2="154" stroke="#7B6FEE" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr-b)"/>
+
+      <!-- de-dup note -->
+      <text x="640" y="330" fill="#7C8696" font-size="10" text-anchor="middle">At most 1 open incident per product.</text>
+      <text x="640" y="342" fill="#7C8696" font-size="10" text-anchor="middle">Repeat breach appends a note, doesn't open a new one.</text>
+    </svg>
+  </div>
+
+  <div class="card-grid c3" style="margin-top:8px">
+    <div class="card">
+      <h3>SLA measurement</h3>
+      <p style="font-size:13px">The SLA is the <strong>percentage of wall-clock time</strong> an object spent <code>compliant</code> within a window (7 / 30 / 90 days). It's time-weighted uptime, not a pass-rate per run. Computed from <code>dq_compliance_events</code> transitions.</p>
+    </div>
+    <div class="card">
+      <h3>Contract kinds &amp; breach type</h3>
+      <p style="font-size:13px"><span class="tag cont" style="font-size:11px">consumer/provider contract</span> → <strong>Contract-Breach</strong> incident.<br><span class="tag" style="background:rgba(100,110,124,.15);color:var(--stale);font-size:11px">internal_gate</span> → <strong>Engineering-Signal</strong> incident. Both use the same incident table; the <code>kind</code> field distinguishes them.</p>
+    </div>
+    <div class="card">
+      <h3>warn does not breach</h3>
+      <p style="font-size:13px">Only severities in <code>{"fail", "critical"}</code> count toward a breach. A run where every <code>fail</code>/<code>crit</code> check passes is <strong>compliant</strong> even if <code>warn</code> checks failed — those are surfaced but don't trigger the incident flow.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ─────────────────── §6 STALENESS ─────────────────── -->
+<section id="staleness">
+<div class="wrap">
+  <div class="sec-label">06 · Disambiguation</div>
+  <h2>Staleness — three unrelated things</h2>
+  <p>"Stale" appears in three different places in Signal with three different meanings. Don't conflate them.</p>
+
+  <div class="stale-grid">
+    <div class="stale-card">
+      <div class="s-num">1</div>
+      <h3>Gate staleness <span class="tag gate" style="font-size:10px;vertical-align:middle">gate</span></h3>
+      <p style="font-size:13px;color:var(--fg2)">A freshness or volume gate check <em>failed</em> during a run. Expensive checks for <em>that run</em> become <code>skipped_stale</code>.</p>
+      <p style="font-size:13px;color:var(--fg2);margin-top:8px">Property of a <strong>single run's results</strong>. Nothing persists. The next run starts fresh.</p>
+      <div class="s-where">Per-check: CheckResult.state = "skipped_stale"</div>
+    </div>
+    <div class="stale-card">
+      <div class="s-num">2</div>
+      <h3>Extract staleness <span style="color:var(--fg3);font-size:12px">🗺️</span></h3>
+      <p style="font-size:13px;color:var(--fg2)"><code>data/lineage.json</code> and the inventory are point-in-time extracts from Datasphere. The lineage endpoint reports <code>extract_age</code> (days since file mtime) and flags <code>stale = age &gt; extract_stale_days</code> (default: 7 days).</p>
+      <p style="font-size:13px;color:var(--fg2);margin-top:8px">Says "the <em>map</em> you're looking at may be out of date." Completely independent of DQ verdicts.</p>
+      <div class="s-where">lineage response: { stale: true, extract_age: N }</div>
+    </div>
+    <div class="stale-card">
+      <div class="s-num">3</div>
+      <h3>Run staleness <span style="color:var(--fg3);font-size:12px">🕐</span></h3>
+      <p style="font-size:13px;color:var(--fg2)">An object whose <em>latest finished run</em> is old — visible via <code>last_run</code> on the object status. The UI can warn that the green status is based on an old measurement.</p>
+      <p style="font-size:13px;color:var(--fg2);margin-top:8px">No server-side gate. A green object that hasn't been re-checked in weeks stays green — but the timestamp makes the age visible.</p>
+      <div class="s-where">ObjectOut.last_run (timestamp)</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ─────────────────── §7 BLAST RADIUS ─────────────────── -->
+<section id="blastradius">
+<div class="wrap">
+  <div class="sec-label">07 · Downstream impact</div>
+  <h2>Blast radius</h2>
+  <p><strong>Blast radius = everything downstream that a data quality problem can contaminate.</strong> Signal computes it via BFS over <code>columnEdges</code> in the lineage graph — enriched with ownership and coverage flags so you know <em>who to tell</em> and <em>where the blind spots are</em>.</p>
+
+  <div class="blast-controls">
+    <button class="btn primary" onclick="animateBlast()">▶ Propagate failure</button>
+    <button class="btn" onclick="resetBlast()">↺ Reset</button>
+    <span class="sim-hint">Watch a column failure spread through the downstream graph.</span>
+  </div>
+
+  <div class="blast-canvas">
+    <svg id="blastSvg" viewBox="0 0 780 320" width="780" height="320" xmlns="http://www.w3.org/2000/svg" style="max-width:100%">
+      <defs>
+        <marker id="barr" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+          <polygon points="0 0, 7 2.5, 0 5" fill="#2A3242" id="barrPoly"/>
+        </marker>
+      </defs>
+      <!-- edges drawn by JS -->
+      <g id="blastEdges"></g>
+      <!-- nodes drawn by JS -->
+      <g id="blastNodes"></g>
+    </svg>
+  </div>
+
+  <div class="blast-legend">
+    <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="rgba(229,72,77,.3)" stroke="#E5484D" stroke-width="1.5"/></svg> Source (failing)</span>
+    <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="rgba(226,120,60,.2)" stroke="#E2783C" stroke-width="1.5"/></svg> Depth 1 (direct)</span>
+    <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="rgba(224,178,62,.15)" stroke="#E0B23E" stroke-width="1.5"/></svg> Depth 2</span>
+    <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="rgba(100,110,124,.15)" stroke="#646E7C" stroke-width="1.5"/></svg> Not yet reached</span>
+    <span>Coverage: ● covered &nbsp; ◐ partial &nbsp; ▲ gap &nbsp; ○ out-of-scope</span>
+  </div>
+
+  <div class="card-grid c2" style="margin-top:20px">
+    <div class="card">
+      <h3>How the BFS works</h3>
+      <p style="font-size:13px">Starting from <code>(object, column)</code>, the algorithm traverses <code>columnEdges</code> downstream: each reachable <code>(target_object, target_column)</code> is reported <strong>once at its minimum hop distance</strong>. Cycle-safe via a visited set; bounded by <code>max_depth</code> (default 25). Edges left unexplored at the cap set <code>truncated: true</code>.</p>
+    </div>
+    <div class="card">
+      <h3>Why coverage flags matter in the blast zone</h3>
+      <p style="font-size:13px">A <span style="color:var(--fail)">▲ gap</span> node in the blast radius is where an upstream defect will <strong>silently leak through</strong> — no check will catch it reaching consumers. Blast radius enrichment surfaces these blind spots along with the owner so you know exactly who has an unguarded exposure.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ─────────────────── §8 REFERENCE ─────────────────── -->
+<section id="reference">
+<div class="wrap">
+  <div class="sec-label">08 · Quick reference</div>
+  <h2>State vocabularies</h2>
+  <p>Every status literal used in the engine, store, and API — with its source and allowed values.</p>
+
+  <table class="ref-table">
+    <thead>
+      <tr><th>Concept</th><th>Field / source</th><th>Allowed values</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Check result state</td>
+        <td>CheckResult.state</td>
+        <td><span class="tag ok">executed</span> <span class="tag err">error</span> <span class="tag stale">skipped_stale</span> <span class="tag stale">skipped_dependency</span> <span class="tag warn">downgraded</span></td>
+      </tr>
+      <tr>
+        <td>Check verdict</td>
+        <td>CheckResult.passed</td>
+        <td><code>true</code> / <code>false</code></td>
+      </tr>
+      <tr>
+        <td>Severity</td>
+        <td>CheckResult.severity</td>
+        <td><span class="tag crit">critical</span> <span class="tag fail">fail</span> <span class="tag warn">warn</span></td>
+      </tr>
+      <tr>
+        <td>Run state</td>
+        <td>RunSummary.run_state</td>
+        <td><code>running</code> → <code>finished</code> | <code>error</code></td>
+      </tr>
+      <tr>
+        <td>Object / family status</td>
+        <td>store rollup</td>
+        <td><span class="tag ok">pass</span> <span class="tag warn">warn</span> <span class="tag fail">fail</span> <span class="tag crit">critical</span> <span class="tag err">error</span> <span class="tag stale">unknown</span></td>
+      </tr>
+      <tr>
+        <td>Compliance</td>
+        <td>dq_compliance</td>
+        <td><span class="tag ok">compliant</span> <span class="tag crit">breached</span> <span class="tag stale">unknown</span></td>
+      </tr>
+      <tr>
+        <td>Incident status</td>
+        <td>dq_incidents</td>
+        <td><code>open</code> → <code>acknowledged</code> → <code>investigating</code> → <code>resolved</code></td>
+      </tr>
+      <tr>
+        <td>Proposal status</td>
+        <td>dq_proposals</td>
+        <td><code>open</code> · <code>accepted</code> · <code>rejected</code> · <code>snoozed</code></td>
+      </tr>
+      <tr>
+        <td>Coverage flag</td>
+        <td>get_coverage()</td>
+        <td>● covered &nbsp; ◐ partial &nbsp; ▲ gap &nbsp; ○ out-of-scope</td>
+      </tr>
+      <tr>
+        <td>Gating class</td>
+        <td>check_library.json</td>
+        <td><span class="tag gate">gate</span> <span class="tag expensive">expensive</span> <span class="tag standard">standard</span></td>
+      </tr>
+      <tr>
+        <td>Family</td>
+        <td>check_library.json</td>
+        <td><span class="tag obs">observability</span> <span class="tag qual">quality</span></td>
+      </tr>
+      <tr>
+        <td>Check kind</td>
+        <td>CheckDef.kind</td>
+        <td><code>internal_gate</code> · <code>consumer_contract</code> · <code>provider_contract</code></td>
+      </tr>
+      <tr>
+        <td>Contract lifecycle</td>
+        <td>contract YAML</td>
+        <td><code>draft</code> → <code>active</code> → <code>deprecated</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="card" style="margin-top:28px;border-color:var(--cont);background:rgba(123,111,238,.06)">
+    <h3 style="color:var(--cont);margin-bottom:10px">The one rule to remember</h3>
+    <p>A check result's <strong>state</strong> (did it run?) is independent of its <strong>verdict</strong> (did it pass?). Only <code>executed</code> and <code>error</code> results affect status and compliance. <code>skipped_*</code> and <code>downgraded</code> are <strong>visible but status-neutral</strong> (G6). That single principle is what makes stale-gating, dependencies, and honest rollups all work without lying to the user.</p>
+  </div>
+</div>
+</section>
+
+<div style="height:80px"></div>
+
+<script>
+// ── state explorer ──────────────────────────────────────
+const stateData = {
+  executed: {
+    title: 'executed — ran and produced a verdict',
+    color: 'var(--ok)',
+    desc: 'The check SQL executed against HANA, returned exactly one row with one column, and the expectation was evaluated. The <code>passed</code> field holds the verdict; <code>actual_value</code> holds the scalar result.',
+    countsForStatus: '✓ Yes — contributes to object status and compliance',
+    countsForCompliance: '✓ Yes — fail/critical fails → breached',
+    example: 'Row count check returned 4821 rows; expectation "> 0" passes.',
+    producedBy: '_result_from_actual() in check_engine.py',
+    col: 'rgba(63,176,122,.08)',
+    border: '#3FB07A',
+  },
+  error: {
+    title: 'error — ran but threw an exception',
+    color: 'var(--err)',
+    desc: 'The check SQL raised an exception (timeout, wrong number of rows/columns, HANA error) or the expectation evaluator itself threw. The <code>error</code> field holds the message. <code>passed</code> is always false.',
+    countsForStatus: '✓ Yes — ranks between warn and fail; any error makes overall_status = "error"',
+    countsForCompliance: '✗ No — error ≠ breach (we don\'t know the answer, not that the answer is wrong)',
+    example: 'SQL timeout after 60s; or check returned 2 rows instead of 1.',
+    producedBy: '_error_result() in check_engine.py',
+    col: 'rgba(155,108,240,.08)',
+    border: '#9B6CF0',
+  },
+  skipped_stale: {
+    title: 'skipped_stale — not run because a gate failed',
+    color: 'var(--stale)',
+    desc: 'A freshness or volume_anomaly gate check ran and <em>failed</em>. This signals the data may be stale or broken. Rather than run expensive consistency scans on potentially invalid data, the engine skips them and records this state. The check is still visible in the run — it was just not executed.',
+    countsForStatus: '✗ No — explicitly excluded from worst-of rollup (G6)',
+    countsForCompliance: '✗ No — not executed, verdict is unknown',
+    example: 'Freshness check found data older than 24h → duplicate and ref-integrity checks skip.',
+    producedBy: '_run_with_gating() in check_engine.py — emits explicit CheckResult',
+    col: 'rgba(100,110,124,.08)',
+    border: '#646E7C',
+  },
+  skipped_dependency: {
+    title: 'skipped_dependency — prerequisite not met',
+    color: 'var(--stale)',
+    desc: 'A declared dependency on another check or object wasn\'t satisfied, so this check was not run. The state is first-class: it has a store column, is excluded from rollups, and normalises to "skipped" in the run diff — all the same machinery as skipped_stale.',
+    countsForStatus: '✗ No — status-neutral (G6)',
+    countsForCompliance: '✗ No — not executed',
+    example: 'A downstream check requires an upstream schema check to pass first.',
+    producedBy: 'Declared dependency resolver (machinery in place; producing path being wired)',
+    col: 'rgba(100,110,124,.08)',
+    border: '#646E7C',
+  },
+  downgraded: {
+    title: 'downgraded — ran with reduced severity',
+    color: 'var(--warn)',
+    desc: 'The check executed but its severity was reduced for this run (e.g. from critical to warn). The state is defined and reserved in the model and store schema. The verdict may still be pass or fail, but the impact is softer than the check\'s default severity.',
+    countsForStatus: '~ Partial — see severity used for the run',
+    countsForCompliance: '~ Depends — only fail/critical severities breach',
+    example: 'Reserved state — not yet produced by a live path in this version.',
+    producedBy: 'engine/models.py — state defined, usage path reserved',
+    col: 'rgba(224,178,62,.06)',
+    border: '#E0B23E',
+  },
+};
+
+let activeState = null;
+function toggleState(card) {
+  const s = card.dataset.s;
+  const detail = document.getElementById('stateDetail');
+  document.querySelectorAll('.state-card').forEach(c => c.classList.remove('active'));
+  if (activeState === s) {
+    activeState = null;
+    detail.classList.remove('visible');
+    return;
+  }
+  activeState = s;
+  card.classList.add('active');
+  const d = stateData[s];
+  detail.style.borderColor = d.border;
+  detail.style.background = 'rgba(17,21,32,1)';
+  detail.innerHTML = `
+    <h3 style="color:${d.color};margin-bottom:12px;font-family:var(--mono);font-size:14px">${d.title}</h3>
+    <p style="font-size:13px;color:var(--fg2)">${d.desc}</p>
+    <div class="detail-row">
+      <div class="detail-col">
+        <dt>Counts for status rollup?</dt>
+        <dd style="font-size:13px">${d.countsForStatus}</dd>
+      </div>
+      <div class="detail-col">
+        <dt>Counts for compliance?</dt>
+        <dd style="font-size:13px">${d.countsForCompliance}</dd>
+      </div>
+      <div class="detail-col">
+        <dt>Example</dt>
+        <dd style="font-size:13px;color:var(--fg2)">${d.example}</dd>
+      </div>
+      <div class="detail-col">
+        <dt>Produced by</dt>
+        <dd style="font-family:var(--mono);font-size:11px;color:var(--fg3)">${d.producedBy}</dd>
+      </div>
+    </div>`;
+  detail.classList.add('visible');
+}
+
+// ── gating simulator ────────────────────────────────────
+const checks = {
+  freshness:      { gating:'gate',      pass:true },
+  volume_anomaly: { gating:'gate',      pass:true },
+  row_count:      { gating:'standard',  pass:true },
+  missing:        { gating:'standard',  pass:true },
+  duplicate:      { gating:'expensive', pass:true },
+  ref_integrity:  { gating:'expensive', pass:true },
+};
+let simRunning = false;
+
+function toggleFail(tile) {
+  if (simRunning) return;
+  const id = tile.dataset.id;
+  checks[id].pass = !checks[id].pass;
+  tile.classList.toggle('failing', !checks[id].pass);
+  resetResults();
+}
+
+function resetResults() {
+  Object.keys(checks).forEach(id => {
+    const el = document.getElementById('r-' + id);
+    if (el) { el.textContent = '—'; el.className = 'ct-result'; }
+    const tile = document.querySelector(`[data-id="${id}"]`);
+    if (tile) { tile.classList.remove('running','ct-pass','ct-fail','ct-stale','ct-warn'); }
+  });
+  document.getElementById('simBanner').classList.remove('show');
+  document.getElementById('gateDecision').textContent = 'if gates pass → run all';
+  document.getElementById('gateDecision').style.color = 'var(--fg3)';
+  document.getElementById('gateDecision').style.borderColor = 'var(--line)';
+}
+
+function resetSim() {
+  Object.keys(checks).forEach(id => { checks[id].pass = true; });
+  document.querySelectorAll('.check-tile').forEach(t => t.classList.remove('failing'));
+  resetResults();
+}
+
+async function runSimulation() {
+  if (simRunning) return;
+  simRunning = true;
+  resetResults();
+  await sleep(80);
+
+  // Phase 1: run gates
+  const gates = ['freshness','volume_anomaly'];
+  for (const id of gates) {
+    const tile = document.querySelector(`[data-id="${id}"]`);
+    tile.classList.add('running');
+  }
+  await sleep(700);
+
+  let anyGateFailed = false;
+  for (const id of gates) {
+    const tile = document.querySelector(`[data-id="${id}"]`);
+    const el = document.getElementById('r-' + id);
+    tile.classList.remove('running');
+    if (checks[id].pass) {
+      el.textContent = 'PASS'; tile.classList.add('ct-pass');
+    } else {
+      el.textContent = 'FAIL'; tile.classList.add('ct-fail');
+      anyGateFailed = true;
+    }
+    el.classList.add('show');
+    await sleep(120);
+  }
+
+  // Update decision badge
+  const decBadge = document.getElementById('gateDecision');
+  if (anyGateFailed) {
+    decBadge.textContent = '⚠ gate failed → skip expensive';
+    decBadge.style.color = 'var(--crit)';
+    decBadge.style.borderColor = 'var(--crit)';
+  } else {
+    decBadge.textContent = '✓ gates passed → run all';
+    decBadge.style.color = 'var(--ok)';
+    decBadge.style.borderColor = 'var(--ok)';
+  }
+
+  await sleep(300);
+
+  // Phase 2: standard always runs
+  const standard = ['row_count','missing'];
+  for (const id of standard) {
+    const tile = document.querySelector(`[data-id="${id}"]`);
+    tile.classList.add('running');
+    await sleep(180);
+    const el = document.getElementById('r-' + id);
+    tile.classList.remove('running');
+    if (checks[id].pass) {
+      el.textContent = 'PASS'; tile.classList.add('ct-pass');
+    } else {
+      el.textContent = 'FAIL'; tile.classList.add('ct-fail');
+    }
+    el.classList.add('show');
+    await sleep(100);
+  }
+
+  // Expensive: either run or skip
+  const expensive = ['duplicate','ref_integrity'];
+  for (const id of expensive) {
+    const tile = document.querySelector(`[data-id="${id}"]`);
+    const el = document.getElementById('r-' + id);
+    if (anyGateFailed) {
+      await sleep(80);
+      el.textContent = 'SKIPPED_STALE'; tile.classList.add('ct-stale');
+      el.classList.add('show');
+    } else {
+      tile.classList.add('running');
+      await sleep(220);
+      tile.classList.remove('running');
+      if (checks[id].pass) {
+        el.textContent = 'PASS'; tile.classList.add('ct-pass');
+      } else {
+        el.textContent = 'FAIL'; tile.classList.add('ct-fail');
+      }
+      el.classList.add('show');
+      await sleep(100);
+    }
+  }
+
+  // Banner
+  const banner = document.getElementById('simBanner');
+  if (anyGateFailed) {
+    banner.className = 'sim-banner warn show';
+    const skippedNames = expensive.map(id => document.querySelector(`[data-id="${id}"] .ct-name`).textContent).join(', ');
+    banner.innerHTML = `⏭ <strong>2 expensive checks skipped</strong> — <code>skipped_stale</code> (G6: visible but status-neutral). Stale gate triggered by: ${gates.filter(id => !checks[id].pass).join(', ')}.<br><span style="color:var(--fg3);font-size:12px">Checks skipped: ${skippedNames}. Re-run once data is fresh.</span>`;
+  } else {
+    const failed = [...Object.entries(checks)].filter(([,c]) => !c.pass).map(([id]) => id);
+    banner.className = 'sim-banner ok show';
+    if (failed.length === 0) {
+      banner.innerHTML = '✓ <strong>All checks passed.</strong> No gate failure — expensive scans ran normally. Overall status: <strong>pass</strong>.';
+    } else {
+      banner.innerHTML = `✕ <strong>${failed.length} check(s) failed:</strong> ${failed.join(', ')}. Expensive checks <em>did</em> run (gates were healthy). Overall status depends on severities.`;
+    }
+  }
+
+  simRunning = false;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── blast radius ─────────────────────────────────────────
+const bNodes = [
+  { id:'Orders',      x:80,  y:160, depth:-1, cov:'◐', label:'Orders',      sub:'FACT_ORDERS.order_id',  owner:'platform' },
+  { id:'Revenue',     x:260, y:80,  depth:1,  cov:'●', label:'Revenue',     sub:'REVENUE_AGG.order_id',  owner:'product' },
+  { id:'Shipping',    x:260, y:160, depth:1,  cov:'▲', label:'Shipping',    sub:'SHIPMENTS.ref_id',      owner:'platform' },
+  { id:'Returns',     x:260, y:240, depth:1,  cov:'◐', label:'Returns',     sub:'RETURNS.orig_id',       owner:'product' },
+  { id:'Dashboard',   x:450, y:60,  depth:2,  cov:'●', label:'Dashboard',   sub:'BI_DASH.revenue',       owner:'product' },
+  { id:'Forecast',    x:450, y:130, depth:2,  cov:'▲', label:'Forecast',    sub:'ML_FEAT.ship_flag',     owner:'platform' },
+  { id:'SLA_Report',  x:450, y:200, depth:2,  cov:'▲', label:'SLA Report',  sub:'SLA_RPT.return_cnt',   owner:'product' },
+  { id:'Ops_Alert',   x:450, y:270, depth:2,  cov:'○', label:'Ops Alert',   sub:'ALERTS.ship_delay',     owner:'platform' },
+  { id:'Exec_Report', x:650, y:60,  depth:3,  cov:'●', label:'Exec Report', sub:'EXEC_RPT.revenue_ytd',  owner:'product' },
+  { id:'Risk',        x:650, y:130, depth:3,  cov:'▲', label:'Risk Model',  sub:'RISK.forecast_score',   owner:'platform' },
+];
+const bEdges = [
+  {s:'Orders',s:'Orders',t:'Revenue'},
+  {s:'Orders',t:'Shipping'},
+  {s:'Orders',t:'Returns'},
+  {s:'Revenue',t:'Dashboard'},
+  {s:'Shipping',t:'Forecast'},
+  {s:'Shipping',t:'Ops_Alert'},
+  {s:'Returns',t:'SLA_Report'},
+  {s:'Dashboard',t:'Exec_Report'},
+  {s:'Forecast',t:'Risk'},
+];
+const depthColors = {'-1':'#E5484D', 1:'#E2783C', 2:'#E0B23E', 3:'#7B6FEE'};
+const depthFill   = {'-1':'rgba(229,72,77,.25)', 1:'rgba(226,120,60,.18)', 2:'rgba(224,178,62,.12)', 3:'rgba(123,111,238,.12)'};
+const covColor    = {'●':'#3FB07A','◐':'#E0B23E','▲':'#E2783C','○':'#646E7C'};
+
+function initBlast() {
+  const svg = document.getElementById('blastSvg');
+  const edgesG = document.getElementById('blastEdges');
+  const nodesG = document.getElementById('blastNodes');
+  edgesG.innerHTML = ''; nodesG.innerHTML = '';
+
+  // edges
+  bEdges.forEach((e,i) => {
+    const s = bNodes.find(n=>n.id===e.s);
+    const t = bNodes.find(n=>n.id===e.t);
+    if (!s||!t) return;
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',s.x+68); line.setAttribute('y1',s.y+24);
+    line.setAttribute('x2',t.x);    line.setAttribute('y2',t.y+24);
+    line.setAttribute('stroke','#2A3242'); line.setAttribute('stroke-width','1.5');
+    line.setAttribute('marker-end','url(#barr)');
+    line.id = 'bedge-'+i;
+    edgesG.appendChild(line);
+  });
+
+  // nodes
+  bNodes.forEach(n => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.id = 'bnode-' + n.id;
+    g.setAttribute('transform',`translate(${n.x},${n.y})`);
+
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('width','130'); rect.setAttribute('height','48');
+    rect.setAttribute('rx','7');
+    rect.setAttribute('fill', n.depth===-1 ? depthFill[-1] : 'rgba(17,21,32,.8)');
+    rect.setAttribute('stroke', n.depth===-1 ? depthColors[-1] : '#2A3242');
+    rect.setAttribute('stroke-width','1.5');
+    g.appendChild(rect);
+
+    const nameText = document.createElementNS('http://www.w3.org/2000/svg','text');
+    nameText.setAttribute('x','10'); nameText.setAttribute('y','20');
+    nameText.setAttribute('fill', n.depth===-1 ? '#E5484D' : '#E7EBF2');
+    nameText.setAttribute('font-size','12'); nameText.setAttribute('font-weight','700');
+    nameText.setAttribute('font-family','var(--sans)');
+    nameText.textContent = n.label;
+    g.appendChild(nameText);
+
+    const subText = document.createElementNS('http://www.w3.org/2000/svg','text');
+    subText.setAttribute('x','10'); subText.setAttribute('y','35');
+    subText.setAttribute('fill','#7C8696'); subText.setAttribute('font-size','9');
+    subText.setAttribute('font-family','var(--mono)');
+    subText.textContent = n.sub;
+    g.appendChild(subText);
+
+    const covText = document.createElementNS('http://www.w3.org/2000/svg','text');
+    covText.setAttribute('x','115'); covText.setAttribute('y','17');
+    covText.setAttribute('fill', covColor[n.cov] || '#7C8696');
+    covText.setAttribute('font-size','14'); covText.setAttribute('text-anchor','middle');
+    covText.textContent = n.cov;
+    g.appendChild(covText);
+
+    if (n.depth !== -1) {
+      const depthText = document.createElementNS('http://www.w3.org/2000/svg','text');
+      depthText.setAttribute('x','115'); depthText.setAttribute('y','40');
+      depthText.setAttribute('fill','#36445A'); depthText.setAttribute('font-size','9');
+      depthText.setAttribute('text-anchor','middle'); depthText.setAttribute('font-family','var(--mono)');
+      depthText.textContent = `d${n.depth}`;
+      g.appendChild(depthText);
+    }
+
+    nodesG.appendChild(g);
+  });
+}
+
+async function animateBlast() {
+  initBlast();
+  await sleep(100);
+  const depths = [1, 2, 3];
+  for (const depth of depths) {
+    const atDepth = bNodes.filter(n => n.depth === depth);
+    const edgesAtDepth = bEdges.filter((e,i) => {
+      const t = bNodes.find(n=>n.id===e.t);
+      return t && t.depth === depth;
+    });
+    // highlight edges
+    edgesAtDepth.forEach((_,i) => {
+      const allEdgeEls = document.getElementById('blastEdges').children;
+      Array.from(allEdgeEls).forEach(el => {
+        const ti = bEdges.findIndex(e2 => {
+          const t = bNodes.find(n=>n.id===e2.t);
+          return t && t.depth === depth;
+        });
+        // simpler: find all edges connecting to nodes at this depth
+      });
+    });
+    // color edges
+    let eIdx = 0;
+    bEdges.forEach((e, i) => {
+      const t = bNodes.find(n=>n.id===e.t);
+      if (!t || t.depth !== depth) return;
+      const el = document.getElementById('bedge-'+i);
+      if (el) {
+        el.setAttribute('stroke', depthColors[depth]);
+        el.setAttribute('stroke-width','2');
+        const poly = document.getElementById('barrPoly');
+      }
+    });
+    // animate nodes
+    for (const n of atDepth) {
+      const g = document.getElementById('bnode-' + n.id);
+      if (!g) continue;
+      const rect = g.querySelector('rect');
+      if (rect) {
+        rect.setAttribute('fill', depthFill[depth]);
+        rect.setAttribute('stroke', depthColors[depth]);
+      }
+      const nameText = g.querySelectorAll('text')[0];
+      if (nameText) nameText.setAttribute('fill', depthColors[depth]);
+      await sleep(150);
+    }
+    await sleep(350);
+  }
+}
+
+function resetBlast() { initBlast(); }
+
+// ── scroll spy ──────────────────────────────────────────
+const sections = ['pipeline','states','gating','rollup','compliance','staleness','blastradius','reference'];
+const tocDots = document.getElementById('tocDots');
+sections.forEach((id, i) => {
+  const d = document.createElement('div');
+  d.className = 'toc-dot';
+  d.title = id;
+  d.onclick = () => document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
+  d.id = 'dot-' + id;
+  tocDots.appendChild(d);
+});
+
+const navLinks = document.querySelectorAll('nav a');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    const id = e.target.id;
+    const dot = document.getElementById('dot-' + id);
+    const link = document.querySelector(`nav a[href="#${id}"]`);
+    if (e.isIntersecting) {
+      document.querySelectorAll('.toc-dot').forEach(d => d.classList.remove('active'));
+      navLinks.forEach(l => l.classList.remove('active'));
+      if (dot) dot.classList.add('active');
+      if (link) link.classList.add('active');
+    }
+  });
+}, { threshold: 0.25 });
+
+sections.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) io.observe(el);
+});
+
+// init
+initBlast();
+</script>
+</body>
+</html>

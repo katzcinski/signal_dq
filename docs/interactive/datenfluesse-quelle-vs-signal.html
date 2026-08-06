@@ -1,0 +1,664 @@
+<title>Signal — Datenflüsse: Quelle vs. eigene Artefakte</title>
+
+<style>
+  /* ─────────────────────────────────────────────────────────────────────────
+     Identität: die Blueprint-Variante des Cockpits (Cyanotypie / technische
+     Zeichnung, apps/cockpit/src/index.css → [data-theme="blueprint"]) für den
+     dunklen Grund, die Daylight-Variante (Papier & Tinte) für den hellen.
+     Tokens zuerst, Komponenten ausschließlich über Tokens — damit der
+     Theme-Umschalter in beide Richtungen greift.
+     ───────────────────────────────────────────────────────────────────────── */
+  :root {
+    --paper:      #E9E4DA;
+    --panel:      #F7F4EE;
+    --raised:     #FFFFFF;
+    --rule:       #DBD3C5;
+    --rule-2:     #C6BCA8;
+    --ink:        #211D17;
+    --ink-2:      #574F44;
+    --ink-3:      #857B6D;
+    --accent:     #1B6E8C;
+    --accent-dim: rgba(27, 110, 140, 0.10);
+
+    --zone-a:     #7C8B96;   /* Quelle — bewusst unakzentuiert: nicht Signals */
+    --zone-b:     #1B6E8C;   /* Signal-Schema in HANA */
+    --zone-c:     #0F8A74;   /* Signal-intern */
+    --gated:      #B07A14;   /* Pfad mit ausdrücklichem Opt-in */
+
+    --grid-ink:   rgba(27, 110, 140, 0.045);
+    --grid-size:  26px;
+
+    --sheet:      #F7F5F0;   /* Zeichenblatt — in beiden Themes hell */
+    --sheet-rule: #D9D3C6;
+
+    --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", "IBM Plex Mono", Menlo, Consolas, monospace;
+    --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    --step--1: clamp(0.76rem, 0.74rem + 0.1vw, 0.82rem);
+    --step-0:  clamp(0.95rem, 0.92rem + 0.15vw, 1.02rem);
+    --step-1:  clamp(1.12rem, 1.05rem + 0.35vw, 1.3rem);
+    --step-2:  clamp(1.45rem, 1.3rem + 0.7vw, 1.9rem);
+    --step-3:  clamp(1.9rem, 1.55rem + 1.6vw, 3rem);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:      #071726;
+      --panel:      #0B2034;
+      --raised:     #112B43;
+      --rule:       #1E3F5C;
+      --rule-2:     #2C5478;
+      --ink:        #DCEBF7;
+      --ink-2:      #90B4CF;
+      --ink-3:      #6189A6;
+      --accent:     #5BC8F0;
+      --accent-dim: rgba(91, 200, 240, 0.14);
+
+      --zone-a:     #6189A6;
+      --zone-b:     #5BC8F0;
+      --zone-c:     #36D6BD;
+      --gated:      #E0B23E;
+
+      --grid-ink:   rgba(91, 200, 240, 0.05);
+    }
+  }
+
+  /* Der Umschalter muss die Media-Query in beide Richtungen schlagen. */
+  :root[data-theme="dark"] {
+    --paper: #071726; --panel: #0B2034; --raised: #112B43;
+    --rule: #1E3F5C; --rule-2: #2C5478;
+    --ink: #DCEBF7; --ink-2: #90B4CF; --ink-3: #6189A6;
+    --accent: #5BC8F0; --accent-dim: rgba(91, 200, 240, 0.14);
+    --zone-a: #6189A6; --zone-b: #5BC8F0; --zone-c: #36D6BD; --gated: #E0B23E;
+    --grid-ink: rgba(91, 200, 240, 0.05);
+  }
+  :root[data-theme="light"] {
+    --paper: #E9E4DA; --panel: #F7F4EE; --raised: #FFFFFF;
+    --rule: #DBD3C5; --rule-2: #C6BCA8;
+    --ink: #211D17; --ink-2: #574F44; --ink-3: #857B6D;
+    --accent: #1B6E8C; --accent-dim: rgba(27, 110, 140, 0.10);
+    --zone-a: #7C8B96; --zone-b: #1B6E8C; --zone-c: #0F8A74; --gated: #B07A14;
+    --grid-ink: rgba(27, 110, 140, 0.045);
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--paper);
+    /* Konstruktionsraster — dieselbe Kreuzschraffur wie das Blueprint-Theme. */
+    background-image:
+      linear-gradient(var(--grid-ink) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-ink) 1px, transparent 1px);
+    background-size: var(--grid-size) var(--grid-size);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: var(--step-0);
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 78ch;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 5rem) clamp(1.1rem, 4vw, 2rem) 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.5rem, 5vw, 3.75rem);
+  }
+
+  /* ── Kopf ───────────────────────────────────────────────────────────── */
+  .masthead { display: flex; flex-direction: column; gap: 1rem; }
+  .stamp {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .stamp::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--rule-2), transparent);
+  }
+  h1 {
+    font-family: var(--font-mono);
+    font-size: var(--step-3);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-size: var(--step-1);
+    color: var(--ink-2);
+    margin: 0;
+    max-width: 62ch;
+    text-wrap: pretty;
+  }
+  .meta {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--ink-3);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.2rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  /* ── Abschnitte ─────────────────────────────────────────────────────── */
+  section { display: flex; flex-direction: column; gap: 1.15rem; }
+  h2 {
+    font-family: var(--font-mono);
+    font-size: var(--step-2);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    margin: 0;
+    text-wrap: balance;
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+  h2 .num {
+    font-size: var(--step--1);
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+  }
+  h3 {
+    font-family: var(--font-mono);
+    font-size: var(--step-0);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin: 0;
+    color: var(--ink);
+  }
+  p { margin: 0; max-width: 68ch; text-wrap: pretty; }
+  strong { font-weight: 650; color: var(--ink); }
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    background: var(--accent-dim);
+    color: var(--ink);
+    padding: 0.1em 0.36em;
+    border-radius: 2px;
+  }
+
+  /* ── Zonen-Schlüssel ────────────────────────────────────────────────── */
+  .zones { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+  .zone {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--zc, var(--accent));
+    border-radius: 2px;
+    padding: 0.95rem 1.05rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .zone-a { --zc: var(--zone-a); }
+  .zone-b { --zc: var(--zone-b); }
+  .zone-c { --zc: var(--zone-c); }
+  .zone .label {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--zc);
+  }
+  .zone .what { font-size: var(--step--1); color: var(--ink-2); line-height: 1.5; }
+  .zone .rows {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--ink-3);
+    padding-top: 0.4rem;
+    border-top: 1px dashed var(--rule);
+  }
+
+  /* ── Zeichenblatt: Diagramme auf hellem Papier, in beiden Themes ────── */
+  .sheet {
+    background: var(--sheet);
+    border: 1px solid var(--rule-2);
+    border-radius: 2px;
+    padding: 1.1rem;
+    overflow-x: auto;
+    box-shadow: 0 1px 0 var(--rule);
+  }
+  .sheet pre.mermaid { margin: 0; background: transparent; }
+  .sheet-cap {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--ink-3);
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+  }
+  .sheet-cap::before { content: "▚"; color: var(--accent); }
+
+  /* ── Tabellen ───────────────────────────────────────────────────────── */
+  .table-scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 2px; background: var(--panel); }
+  table { border-collapse: collapse; width: 100%; font-size: var(--step--1); font-variant-numeric: tabular-nums; }
+  thead th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding: 0.6rem 0.85rem;
+    border-bottom: 1px solid var(--rule-2);
+    white-space: nowrap;
+  }
+  tbody td { padding: 0.62rem 0.85rem; border-bottom: 1px solid var(--rule); vertical-align: top; color: var(--ink-2); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody td:first-child { color: var(--ink); }
+  tbody tr[data-zone="a"] td:first-child { box-shadow: inset 3px 0 0 var(--zone-a); }
+  tbody tr[data-zone="b"] td:first-child { box-shadow: inset 3px 0 0 var(--zone-b); }
+  tbody tr[data-zone="c"] td:first-child { box-shadow: inset 3px 0 0 var(--zone-c); }
+  tbody tr[data-zone="gated"] td:first-child { box-shadow: inset 3px 0 0 var(--gated); }
+  .mono { font-family: var(--font-mono); }
+
+  .pill {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.1rem 0.45rem;
+    border-radius: 2px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .pill.rows  { color: var(--gated); }
+  .pill.agg   { color: var(--ink-3); }
+
+  /* ── Merksatz ───────────────────────────────────────────────────────── */
+  .note {
+    background: var(--raised);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    border-radius: 2px;
+    padding: 1rem 1.15rem;
+    font-size: var(--step--1);
+    color: var(--ink-2);
+    line-height: 1.6;
+  }
+  .note strong { color: var(--ink); }
+
+  /* ── Grenzen ────────────────────────────────────────────────────────── */
+  .bounds { display: flex; flex-direction: column; gap: 0.75rem; counter-reset: bound; }
+  .bound {
+    display: grid;
+    grid-template-columns: 2.2rem 1fr;
+    gap: 0.9rem;
+    align-items: start;
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 0.9rem 1rem;
+  }
+  .bound::before {
+    counter-increment: bound;
+    content: counter(bound);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--accent);
+    border: 1px solid var(--rule-2);
+    border-radius: 2px;
+    padding: 0.1rem 0;
+    text-align: center;
+  }
+  .bound p { font-size: var(--step--1); color: var(--ink-2); }
+
+  .refs { font-size: var(--step--1); color: var(--ink-3); font-family: var(--font-mono); line-height: 1.9; }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, .sheet:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="stamp">Signal · Datenfluss-Landkarte</div>
+    <h1>Quelle oder eigenes Artefakt?</h1>
+    <p class="standfirst">
+      Welche Daten Signal aus dem Kunden-Space liest, welche es in seinem eigenen
+      Schema erzeugt — und wer was weiterverarbeitet. Allgemein, und im Detail
+      für Quarantäne, Freigabe und Healing.
+    </p>
+    <div class="meta">
+      <span>Stand 2026-08-03</span>
+      <span>Referenz: ADR-0002 · O10 Custody-Zone</span>
+      <span>Leseregel: der Code gewinnt</span>
+    </div>
+  </header>
+
+  <section>
+    <h2><span class="num">00</span> Drei Zonen</h2>
+    <div class="zones">
+      <div class="zone zone-a">
+        <span class="label">A · Quelle</span>
+        <span class="what">Kunden-Space in HANA/Datasphere. Signal liest, schreibt nie.</span>
+        <span class="rows">Nutzdaten: fremd</span>
+      </div>
+      <div class="zone zone-b">
+        <span class="label">B · Signal-Schema</span>
+        <span class="what">Eigenes Open-SQL-Schema in derselben HANA. Signals technischer Space-User schreibt, der Kunde liest.</span>
+        <span class="rows">Nutzdaten: ja — DQ_CLEAN_* · DQ_Q_* · DQ_PATCH_*</span>
+      </div>
+      <div class="zone zone-c">
+        <span class="label">C · Signal-intern</span>
+        <span class="what">Result-Store und Git. Läufe, Messwerte, Incidents, Episoden-Status, Healing-Audit.</span>
+        <span class="rows">Nutzdaten: nein — eine gegatete Ausnahme</span>
+      </div>
+    </div>
+    <p>
+      Die entscheidende Grenze verläuft <strong>nicht</strong> zwischen „Quelle und Signal",
+      sondern zwischen <strong>B und C</strong>: Zeilen dürfen sich innerhalb HANA bewegen
+      (A&nbsp;→&nbsp;B per <code>INSERT … SELECT</code>), die Datenbank in Richtung C
+      verlassen sie nur mit ausdrücklichem Opt-in.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="num">01</span> Gesamtbild</h2>
+    <div class="sheet" tabindex="0" role="img" aria-label="Flussdiagramm: Quelle liefert Metadaten und Skalare an Signals Result-Store, Zeilen bewegen sich nur innerhalb HANA in die Signal-Artefakte, der Kunden-Flow liest die Signal-Views zurück.">
+<pre class="mermaid">
+flowchart TB
+  subgraph A["A · Quelle — Kunden-Space, strikt read-only"]
+    SRCT["Kundentabellen &amp; -views<br/>Nutzdaten"]
+    DSAPI["Datasphere REST / CLI<br/>Katalog · CSN · Lade-Historie"]
+  end
+
+  subgraph B["B · Signal-Schema in HANA — Signal schreibt, Kunde liest"]
+    GATE["DQ_GATE_STATUS + _HISTORY<br/>V_DQ_GATE_STATUS · P_DQ_ASSERT_GATE"]
+    REG["DQ_OBJECTS · DQ_EPISODES"]
+    CLEAN["DQ_CLEAN_*<br/>gute Zeilen, kontinuierlich"]
+    QROW["DQ_Q_*<br/>geparkte Bad-Zeilen, episodisch"]
+    RELV["V_DQ_RELEASED_*<br/>freigegebene Zeilen"]
+    PATCH["DQ_PATCH_* · V_DQ_HEALED_*<br/>Overlay H3"]
+    HLOG["DQ_HEAL_LOG<br/>Korrektur-Audit"]
+  end
+
+  subgraph C["C · Signal-intern — Result-Store &amp; Git"]
+    STORE["dq_runs · dq_check_results<br/>dq_incidents · dq_quarantine<br/>dq_baselines · dq_healing_*"]
+    DIAG["dq_diagnostics<br/>einzige Rohzeilen — gegated G8"]
+    GITC["contracts/*.yaml in Git"]
+    SNAP["data/inventory.json<br/>data/lineage.json"]
+  end
+
+  DSAPI -->|Metadaten| SNAP
+  SRCT -->|"COUNT(*) — ein Skalar je Check"| STORE
+  SRCT -->|Profil-Aggregate| STORE
+  SRCT -.->|"Rohzeilen NUR mit Opt-in"| DIAG
+  SRCT ==>|"INSERT … SELECT"| CLEAN
+  SRCT ==>|"INSERT … SELECT WHERE bad"| QROW
+  SRCT -->|"LEFT JOIN zur Abfragezeit"| PATCH
+
+  GITC -->|kompiliert| STORE
+  STORE -->|Verdict publizieren| GATE
+  STORE -->|Episoden spiegeln| REG
+  QROW --> RELV
+  REG --> RELV
+  QROW --> HLOG
+
+  GATE -->|"CALL P_DQ_ASSERT_GATE"| KFLOW["Kunden-Flow / Task-Chain"]
+  CLEAN -->|liest| KFLOW
+  RELV -->|liest zurück| KFLOW
+  PATCH -->|"liest statt der Quelle"| KFLOW
+</pre>
+    </div>
+    <p class="sheet-cap">
+      Kantenstärke: <code>==&gt;</code> Zeilen bewegen sich innerhalb HANA ·
+      <code>--&gt;</code> Aggregate und Metadaten ·
+      <code>-.-&gt;</code> nur mit ausdrücklichem Opt-in.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="num">02</span> Was aus der Quelle gelesen wird</h2>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Datenart</th><th>Wie</th><th>Granularität</th><th>Landet in</th></tr>
+        </thead>
+        <tbody>
+          <tr data-zone="a">
+            <td>Objekte, Spalten, Keys, CSN</td>
+            <td>Datasphere REST bzw. CLI</td>
+            <td><span class="pill agg">Metadaten</span></td>
+            <td class="mono">data/inventory.json</td>
+          </tr>
+          <tr data-zone="a">
+            <td>Lineage inkl. Spaltenkanten</td>
+            <td>aus CSN/SQL abgeleitet</td>
+            <td><span class="pill agg">Metadaten</span></td>
+            <td class="mono">data/lineage.json</td>
+          </tr>
+          <tr data-zone="a">
+            <td>Lade-/Run-Historie</td>
+            <td>Datasphere-API</td>
+            <td><span class="pill agg">Metadaten</span></td>
+            <td>Freshness, <span class="mono">on_load</span>-Trigger</td>
+          </tr>
+          <tr data-zone="a">
+            <td><strong>Check-Messwerte</strong></td>
+            <td>kompiliertes Check-SQL, als Batch</td>
+            <td><span class="pill agg">1 Skalar je Check</span></td>
+            <td class="mono">dq_check_results.actual_value</td>
+          </tr>
+          <tr data-zone="a">
+            <td>Profil-Statistiken</td>
+            <td>Profiling-SQL</td>
+            <td><span class="pill agg">Aggregate</span></td>
+            <td class="mono">dq_profile_snapshots</td>
+          </tr>
+          <tr data-zone="a">
+            <td>Schema-Ist-Zustand</td>
+            <td>Inventar-Extrakt</td>
+            <td><span class="pill agg">Spalten + Typen</span></td>
+            <td class="mono">dq_schema_snapshots</td>
+          </tr>
+          <tr data-zone="gated">
+            <td><strong>Diagnose-Rohzeilen</strong></td>
+            <td><span class="mono">SELECT * … LIMIT n</span></td>
+            <td><span class="pill rows">Zeilen</span></td>
+            <td><span class="mono">dq_diagnostics</span> — nur mit <span class="mono">diagnostics_enabled</span> je Check <em>und</em> Spalten-Allowlist</td>
+          </tr>
+          <tr data-zone="gated">
+            <td>Profil-Beispielzeilen</td>
+            <td>Profiling</td>
+            <td><span class="pill rows">Zeilen</span></td>
+            <td>nur mit <span class="mono">ALLOW_PROFILE_SAMPLES</span></td>
+          </tr>
+          <tr data-zone="b">
+            <td>Bad-/Good-Zeilen für den Split</td>
+            <td><span class="mono">INSERT … SELECT</span> innerhalb HANA</td>
+            <td><span class="pill rows">Zeilen</span></td>
+            <td><span class="mono">DQ_Q_*</span> / <span class="mono">DQ_CLEAN_*</span> — verlassen die DB nicht</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <strong>Der Normalfall ist zahlenbasiert.</strong> Ohne Opt-in sieht Signals Prozess
+      von den Nutzdaten nur Zählwerte. Die beiden Zeilen-Pfade sind streng getrennt:
+      Diagnostics <strong>verlässt</strong> HANA — deshalb doppelt gegated. Der
+      Quarantäne-Snapshot <strong>bleibt</strong> in HANA — deshalb TTL und
+      Custody-Review statt App-seitigem Schutz.
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">03</span> Was Signal selbst erzeugt</h2>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Artefakt</th><th>Inhalt</th><th>Geschrieben von</th><th>Gelesen von</th></tr>
+        </thead>
+        <tbody>
+          <tr data-zone="b"><td class="mono">DQ_GATE_STATUS</td><td>Verdict je Objekt: proceed | quarantine | block</td><td>Signal nach jedem Lauf</td><td>Gate-Prozedur, Lesesicht</td></tr>
+          <tr data-zone="b"><td class="mono">P_DQ_ASSERT_GATE</td><td>fail-closed Gate</td><td>— Prozedur</td><td>Kunden-Task-Chain</td></tr>
+          <tr data-zone="b"><td class="mono">DQ_OBJECTS</td><td>Registry verwalteter Artefakte</td><td>Reconciler</td><td>Reconciler, Healing-Guard</td></tr>
+          <tr data-zone="b"><td class="mono">DQ_EPISODES</td><td>Episoden-Status als HANA-Spiegel</td><td>Signal bei jedem Übergang</td><td>Release-View</td></tr>
+          <tr data-zone="b"><td class="mono">DQ_CLEAN_*</td><td><strong>gute Zeilen</strong>, je Lauf neu befüllt</td><td>Signal</td><td>Kunden-Flow als Ersatzquelle</td></tr>
+          <tr data-zone="b"><td class="mono">DQ_Q_*</td><td><strong>geparkte Bad-Zeilen</strong> + <span class="mono">_DQ_*</span>-Systemspalten</td><td>Signal — Snapshot, Healing-UPDATE</td><td>Release-View, Re-Check, Healing</td></tr>
+          <tr data-zone="b"><td class="mono">V_DQ_RELEASED_*</td><td>nur Zeilen freigegebener Episoden</td><td>— View</td><td>Kunden-Flow zur Rückführung</td></tr>
+          <tr data-zone="b"><td class="mono">DQ_PATCH_*</td><td>Overlay-Zeilen (H3)</td><td>Signal — Patch-API</td><td>Healed-View</td></tr>
+          <tr data-zone="b"><td class="mono">V_DQ_HEALED_*</td><td><strong>Quelle + Overlay</strong> per COALESCE</td><td>— View</td><td>Kunden-Flow statt der Quelle</td></tr>
+          <tr data-zone="b"><td class="mono">DQ_HEAL_LOG</td><td>Append-only-Audit jeder Korrektur</td><td>Signal-API + Prozedur-Tür</td><td>Audit / Governance</td></tr>
+          <tr data-zone="c"><td class="mono">dq_quarantine</td><td>Episoden-Lifecycle — <em>nur</em> Zählwerte und Check-Namen</td><td>Signal</td><td>Cockpit, Healing-Workbench</td></tr>
+          <tr data-zone="c"><td class="mono">dq_healing_*</td><td>Korrektur- und Patch-Audit, <span class="mono">applied</span>-Flag</td><td>Signal</td><td>Cockpit, Freigabe-Guard</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>Signal schiebt nie.</strong> Alle Rückwege zum Kunden sind Pull: der
+      Kunden-Flow liest <code>DQ_CLEAN_*</code>, <code>V_DQ_RELEASED_*</code> oder
+      <code>V_DQ_HEALED_*</code> und schreibt selbst in sein Ziel.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">04</span> Ablauf: Lauf, Verdict, Quarantäne</h2>
+    <div class="sheet" tabindex="0" role="img" aria-label="Sequenzdiagramm des Laufpfads: Engine liest Skalare aus der Quelle, schreibt Lauf und Verdict in den Store, publiziert den Verdict ins Signal-Schema und parkt bei Quarantäne die Bad-Zeilen per INSERT SELECT innerhalb HANA.">
+<pre class="mermaid">
+sequenceDiagram
+  autonumber
+  participant Q as Quelle · Zone A
+  participant E as Signal-Engine
+  participant S as Result-Store · Zone C
+  participant B as Signal-Schema · Zone B
+  participant K as Kunden-Flow
+
+  Note over E: Contract aus Git, Compiler erzeugt das SQL
+  E->>Q: SELECT COUNT(*) …  Batch, Schema zur Laufzeit gebunden
+  Q-->>E: Skalare — ein Wert je Check
+  E->>S: Lauf, Messwerte, Zustände
+  E->>S: Verdict-Rollup proceed / quarantine / block
+  E->>B: UPSERT DQ_GATE_STATUS und Historie
+
+  alt Verdict = quarantine
+    E->>B: INSERT…SELECT WHERE bad in DQ_Q_*
+    Note right of B: Zeilen bewegen sich NUR innerhalb HANA
+    B-->>E: COUNT der geparkten Zeilen
+    E->>S: Episode reconciled — nur Zahl und Check-Namen
+    E->>B: UPSERT DQ_EPISODES als Spiegel
+  end
+
+  E->>B: DELETE und INSERT in DQ_CLEAN_*
+  K->>B: CALL P_DQ_ASSERT_GATE
+  B-->>K: OK oder SIGNAL bei block / quarantine
+  K->>B: SELECT aus DQ_CLEAN_*
+</pre>
+    </div>
+    <p class="sheet-cap">Aus der Quelle stammen nur Schritt 2 und die INSERT…SELECT-Statements. Alles Übrige — Verdict, Episode, Zählwerte, Gate-Entscheidung — kommt aus Signals eigenen Artefakten.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">05</span> Healing: zwei Wege</h2>
+    <div class="sheet" tabindex="0" role="img" aria-label="Vergleich: H1 korrigiert geparkte Zeilen in DQ_Q und gibt sie erst nach bestandenem Re-Check frei; H3 legt eine Patch-Tabelle über die live gelesene Quelle.">
+<pre class="mermaid">
+flowchart LR
+  subgraph H1["H1 · Parkbucht-Korrektur — episodisch"]
+    direction TB
+    Q1["DQ_Q_*<br/>geparkte Zeilen"]
+    U1["UPDATE über Signal-API<br/>oder P_DQ_CORRECT_ROW<br/>_DQ_ORIGINAL · _DQ_CORRECTED_*"]
+    RC["Re-Check<br/>COUNT WHERE bad<br/>dasselbe Prädikat"]
+    REL["Freigabe erst bei 0"]
+    Q1 --> U1 --> RC --> REL --> RV["V_DQ_RELEASED_*"]
+  end
+
+  subgraph H3["H3 · Patch-Overlay — dauerhaft"]
+    direction TB
+    SRC3["Quelle — live gelesen"]
+    P3["DQ_PATCH_*<br/>Schlüssel · Patch-Spalten<br/>Gültigkeit · Status"]
+    V3["V_DQ_HEALED_*<br/>COALESCE Patch über Quelle"]
+    SRC3 --> V3
+    P3 --> V3
+  end
+
+  RV --> KF["Kunden-Flow lädt zurück"]
+  V3 --> KF
+</pre>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th></th><th>H1 Parkbucht</th><th>H3 Overlay</th></tr></thead>
+        <tbody>
+          <tr><td>Gelesen / geschrieben</td><td>nur <span class="mono">DQ_Q_*</span> (Zone B)</td><td>Patch in Zone B, Quelle wird live mitgelesen</td></tr>
+          <tr><td>Quelle angefasst</td><td>nein</td><td>nein — nur gelesen</td></tr>
+          <tr><td>Überlebt einen Reload</td><td><strong>nein</strong> — episodisch</td><td><strong>ja</strong></td></tr>
+          <tr><td>Abnahme</td><td>Re-Check gegen das Bad-Prädikat</td><td>keine — gilt bis Verfall oder Rücknahme</td></tr>
+          <tr><td>Rolle</td><td>steward+</td><td>owner+</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <strong>V_DQ_HEALED_* ist das einzige Artefakt, das Quelle und Signal-Daten zur
+      Abfragezeit zusammenführt</strong> — überall sonst sind die Zonen sauber getrennt.
+      Ohne aktiven Patch liefert die View exakt die Quellzeile.
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">06</span> Der Weg einer Bad-Zeile</h2>
+    <div class="sheet" tabindex="0" role="img" aria-label="Zustandsdiagramm einer Bad-Zeile von der Quelle über das Parken, optionale Korrektur und Re-Check bis zur Freigabe, Rückführung oder zum TTL-Ablauf.">
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> InQuelle: verletzt eine Garantie
+  InQuelle --> Geparkt: INSERT…SELECT von A nach B
+  Geparkt --> Korrigiert: H1-UPDATE in DQ_Q, steward+
+  Korrigiert --> ReCheck: Prädikat erneut auswerten
+  ReCheck --> Geparkt: noch Verstöße, Freigabe blockt
+  ReCheck --> Freigegeben: 0 Verstöße und Vier-Augen ok
+  Geparkt --> Freigegeben: Freigabe ohne Korrektur
+  Freigegeben --> Zurueckgefuehrt: Kunden-Flow liest die Release-View
+  Zurueckgefuehrt --> [*]: resolved reprocessed
+  Geparkt --> Abgelaufen: TTL, Default 30 Tage
+  Abgelaufen --> [*]: resolved expired und Purge
+</pre>
+    </div>
+    <p class="sheet-cap">Zustand und Entscheidung liegen in Zone C, die Zeile selbst in Zone B. Das Cockpit zeigt durchgehend nur Zone C.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">07</span> Drei harte Grenzen</h2>
+    <div class="bounds">
+      <div class="bound">
+        <p><strong>Kein Schreiben in der Quelle.</strong> Kein erzeugtes Statement adressiert
+          schreibend eine Kundentabelle; jede DDL und DML trägt das Signal-Schema als Ziel,
+          zur Laufzeit gebunden.</p>
+      </div>
+      <div class="bound">
+        <p><strong>Rohzeilen verlassen HANA nur mit Opt-in.</strong> Der Quarantäne-Snapshot ist
+          deshalb kein Bruch dieser Regel — er bewegt Zeilen innerhalb der Datenbank. Der einzige
+          Ausleitungspfad ist <span class="mono">dq_diagnostics</span>, doppelt gegated.</p>
+      </div>
+      <div class="bound">
+        <p><strong>Rückführung ist Pull, nie Push.</strong> Signal stellt Views bereit; ob und wann
+          der Kunden-Flow sie liest, entscheidet der Kunde.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">08</span> Weiterlesen</h2>
+    <div class="refs">
+      O10_Datenschutz_Review_Custody_Zone.md — Custody-Zone, TTL, Betroffenenrechte<br />
+      Konzept_Datasphere_Integration_Gating_Quarantaene.md — Slices ③–⑦<br />
+      Konzept_Manuelles_Healing.md — maßgebliche Healing-Referenz, Optionen H1–H5<br />
+      Konzept_Quarantaene_Healing.md — Proposal 2026-07, historisch<br />
+      ADR-0002_Datasphere-DB-Zugriff.md — DB-Identität und Schreib-Amendment
+    </div>
+  </section>
+
+</div>

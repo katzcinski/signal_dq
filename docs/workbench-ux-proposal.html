@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workbench Freigabe-UX — Proposal</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --line:#2a2f3a;
+    --fg:#e7eaf0; --fg2:#aab2c0; --fg3:#6f7886;
+    --accent:#4f9cf9; --ok:#3ecf8e; --warn:#f0a830; --danger:#e5616a;
+    --ghost:#262b35;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.5;padding:32px 20px}
+  .wrap{max-width:980px;margin:0 auto}
+  h1{font-size:24px;margin:0 0 4px;letter-spacing:-.02em}
+  .sub{color:var(--fg3);font-size:13px;margin:0 0 28px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--fg3);margin:34px 0 14px;font-weight:600}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .card.before{border-color:#3a2730}
+  .card.after{border-color:#243a30}
+  .tag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:20px;display:inline-block;margin-bottom:12px}
+  .tag.bad{background:#3a2730;color:var(--danger)}
+  .tag.good{background:#243a30;color:var(--ok)}
+  /* toolbar mock */
+  .toolbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:10px}
+  .btn{font-family:var(--sans);font-size:12px;padding:6px 11px;border-radius:6px;border:1px solid transparent;white-space:nowrap}
+  .btn.primary{background:var(--accent);color:#0b1220;font-weight:600;border-color:var(--accent)}
+  .btn.ghost{background:var(--ghost);color:var(--fg2);border-color:var(--line)}
+  .btn.danger{background:transparent;color:var(--danger);border-color:#5a2c30}
+  .btn.toggle{background:transparent;color:var(--fg2);border:1px dashed #4a3a44}
+  .btn.muted{background:transparent;color:var(--fg3);border:none;padding-left:4px}
+  .note{font-size:11px;color:var(--fg3);margin:6px 0 0}
+  .note.bad{color:#c98b91}
+  .arrow{text-align:center;color:var(--fg3);font-size:11px;margin:4px 0}
+  /* decision table */
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--fg3);font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  td code{font-family:var(--mono);font-size:11px;background:var(--panel2);padding:2px 5px;border-radius:4px;color:var(--fg2)}
+  .pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;white-space:nowrap;display:inline-block}
+  .pill.one{background:#1a2a3a;color:var(--accent)}
+  .pill.cer{background:#3a3020;color:var(--warn)}
+  .pill.dep{background:#3a2528;color:var(--danger)}
+  .flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--fg2)}
+  .step{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:5px 10px}
+  .step.kill{text-decoration:line-through;color:var(--fg3);border-style:dashed}
+  .sep{color:var(--fg3)}
+  ul.lean{margin:8px 0 0;padding-left:18px;font-size:13px;color:var(--fg2)}
+  ul.lean li{margin:4px 0}
+  .verb-old{color:var(--danger);text-decoration:line-through}
+  .verb-new{color:var(--ok);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Workbench — Freigabe-UX bereinigen</h1>
+  <p class="sub">Von drei verwechselbaren „Workflows" zu einer zustandsgesteuerten Primäraktion. Kein Modus-Toggle.</p>
+
+  <h2>Das Problem: Toggles, die wie Aktionen aussehen</h2>
+  <div class="grid">
+    <div class="card before">
+      <span class="tag bad">Heute</span>
+      <div class="toolbar">
+        <span class="btn toggle">Schnell zertifizieren</span>
+        <span class="btn toggle">Freigabe-Workflow</span>
+        <span class="btn ghost">Zu Contract hochstufen</span>
+        <span class="btn ghost">Entwurf speichern</span>
+        <span class="btn primary">Genehmigen</span>
+      </div>
+      <p class="note bad">Zwei davon sind <b>Layout-Umschalter</b>, keine Aktionen — sie benennen nur den echten Button um.</p>
+      <div class="arrow">↓ Klick „Freigabe-Workflow"</div>
+      <div class="flow" style="margin-top:8px">
+        <span class="step">Entwurf speichern</span><span class="sep">→</span>
+        <span class="step">Genehmigen</span><span class="sep">→</span>
+        <span class="step">Dialog bestätigen</span>
+      </div>
+      <p class="note bad">5 Governance-Verben, 2 Pfade → identisches Ergebnis. Bei Gates byte-gleich.</p>
+    </div>
+
+    <div class="card after">
+      <span class="tag good">Vorschlag</span>
+      <div class="toolbar">
+        <span class="btn primary">Aktiv schalten</span>
+        <span class="btn muted">Als Entwurf sichern</span>
+        <span class="btn muted">▸ Versionierung &amp; Diff</span>
+        <span class="btn muted">⋯</span>
+      </div>
+      <p class="note">Eine Primäraktion. Der Workbench wählt die Zeremonie nach Zustand — der Nutzer wählt keinen Workflow.</p>
+      <div class="arrow">↓ bei <b>bereits aktivem</b> Contract</div>
+      <div class="toolbar" style="margin-top:8px">
+        <span class="btn primary">Neue Version freigeben (v2.0.0)</span>
+        <span class="btn muted">▸ Breaking-Diff</span>
+      </div>
+      <p class="note">Reibung nur dort, wo sie verdient ist: Änderung an einem Contract mit echten Konsumenten.</p>
+    </div>
+  </div>
+
+  <h2>Aktion folgt dem Zustand</h2>
+  <table>
+    <tr><th>Objekt &amp; Zustand</th><th>Primäraktion</th><th>Zeremonie</th></tr>
+    <tr><td>Internes Gate — jede Änderung</td><td><b>Aktiv schalten</b> <code>certify</code></td><td><span class="pill one">1 Klick</span></td></tr>
+    <tr><td>Contract, Draft, <i>noch nie live</i></td><td><b>Aktiv schalten</b> <code>certify</code></td><td><span class="pill one">1 Klick</span></td></tr>
+    <tr><td>Contract, <b>bereits live</b>, geändert</td><td><b>Neue Version freigeben</b> <code>approve</code></td><td><span class="pill cer">Version + Diff + Bestätigung</span></td></tr>
+    <tr><td>Live Contract zurückziehen</td><td><b>Außer Betrieb nehmen</b> <code>deprecate</code></td><td><span class="pill dep">Bestätigung</span></td></tr>
+    <tr><td>Gate → Boundary-Contract</td><td><b>Als Contract festschreiben</b> <code>promote</code> · im ⋯-Menü</td><td><span class="pill cer">eigener Flow</span></td></tr>
+  </table>
+  <p class="note">Backend unverändert: beide Endpunkte (<code>certify</code> / <code>approve</code>) bleiben, nur das UI vereinheitlicht. Der G3-Breaking-Guard schützt live Contracts wie bisher.</p>
+
+  <h2>Verb-Soup → drei klare Verben</h2>
+  <table>
+    <tr><th>Bedeutung</th><th>Behalten</th><th>Streichen</th></tr>
+    <tr><td>Garantien live schalten</td><td><span class="verb-new">Aktiv schalten</span> / live: <span class="verb-new">Freigeben</span></td><td><span class="verb-old">Speichern &amp; aktivieren</span> · <span class="verb-old">Genehmigen</span> · <span class="verb-old">Zertifizieren</span></td></tr>
+    <tr><td>Gate zu Contract machen</td><td><span class="verb-new">Als Contract festschreiben</span></td><td><span class="verb-old">Zu Contract hochstufen</span> · engl. „Promote"</td></tr>
+    <tr><td>Zurückziehen</td><td><span class="verb-new">Außer Betrieb nehmen</span></td><td>—</td></tr>
+  </table>
+  <p class="note"><code>zertifiziert</code> / <code>aktiv</code> überleben nur als <b>Zustands-Label</b>, nie als konkurrierendes Verb.</p>
+
+  <h2>Roundtrips schließen</h2>
+  <ul class="lean">
+    <li><b>Kein Save-dann-Genehmigen mehr.</b> „Als Entwurf sichern" ist sekundär (zum Parken/Übergeben), keine Vorstufe der Aktivierung.<br>
+      <span class="flow" style="margin-top:4px"><span class="step kill">Entwurf speichern</span><span class="sep">+</span><span class="step kill">Genehmigen</span><span class="sep">⟶</span><span class="step" style="border-color:var(--ok)">Aktiv schalten</span></span></li>
+    <li><b>Übernommener Vorschlag schließt die Schleife im Workbench:</b> Inline-Banner „Vorschlag wartet auf Freigabe → Prüfen &amp; freigeben" statt Sprung zurück über die Proposals-Seite.</li>
+  </ul>
+
+  <h2>Umfang</h2>
+  <p class="note">Reiner Frontend-Cleanup in <code>ContractWorkbench.tsx</code> + <code>de.ts</code>. Keine Backend-Änderung, keine Migration. Die Logik (<code>kindDefaultLite</code>, <code>lockedToFull</code>) wählt heute schon meist korrekt — wir entfernen nur den Override-Toggle und vereinheitlichen die Verben.</p>
+</div>
+</body>
+</html>

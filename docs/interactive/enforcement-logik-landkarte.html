@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal × Datasphere — Logik-Landkarte: was passiert wo?</title>
+</head>
+<body>
+<style>
+:root{
+  --bg:#0e1218;--bg2:#151b24;--bg3:#1c2430;--bg4:#232d3b;
+  --line:#28323f;--line2:#3a4757;
+  --fg:#dde5ec;--fg2:#93a1b0;--fg3:#67747f;
+  --accent:#45b8ad;--accent-bg:rgba(69,184,173,.12);
+  --ok:#41b06e;--ok-bg:rgba(65,176,110,.13);
+  --warn:#d9a03a;--warn-bg:rgba(217,160,58,.13);
+  --err:#e05c5c;--err-bg:rgba(224,92,92,.13);
+  --plan:#9a86d6;--plan-bg:rgba(154,134,214,.13);
+  --mono:ui-monospace,'JetBrains Mono','SFMono-Regular',Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --r:6px;--r-lg:10px;
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#f2f4f5;--bg2:#ffffff;--bg3:#eaeef0;--bg4:#dfe5e8;
+    --line:#d5dce0;--line2:#bfc9cf;
+    --fg:#1c242e;--fg2:#4d5a66;--fg3:#7d8a94;
+    --accent:#20857b;--accent-bg:rgba(32,133,123,.1);
+    --ok:#25874f;--ok-bg:rgba(37,135,79,.1);
+    --warn:#a8721a;--warn-bg:rgba(168,114,26,.12);
+    --err:#c03d3d;--err-bg:rgba(192,61,61,.1);
+    --plan:#6d55b3;--plan-bg:rgba(109,85,179,.1);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1218;--bg2:#151b24;--bg3:#1c2430;--bg4:#232d3b;
+  --line:#28323f;--line2:#3a4757;
+  --fg:#dde5ec;--fg2:#93a1b0;--fg3:#67747f;
+  --accent:#45b8ad;--accent-bg:rgba(69,184,173,.12);
+  --ok:#41b06e;--ok-bg:rgba(65,176,110,.13);
+  --warn:#d9a03a;--warn-bg:rgba(217,160,58,.13);
+  --err:#e05c5c;--err-bg:rgba(224,92,92,.13);
+  --plan:#9a86d6;--plan-bg:rgba(154,134,214,.13);
+}
+:root[data-theme="light"]{
+  --bg:#f2f4f5;--bg2:#ffffff;--bg3:#eaeef0;--bg4:#dfe5e8;
+  --line:#d5dce0;--line2:#bfc9cf;
+  --fg:#1c242e;--fg2:#4d5a66;--fg3:#7d8a94;
+  --accent:#20857b;--accent-bg:rgba(32,133,123,.1);
+  --ok:#25874f;--ok-bg:rgba(37,135,79,.1);
+  --warn:#a8721a;--warn-bg:rgba(168,114,26,.12);
+  --err:#c03d3d;--err-bg:rgba(192,61,61,.1);
+  --plan:#6d55b3;--plan-bg:rgba(109,85,179,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.6}
+main{max-width:1180px;margin:0 auto;padding:0 22px 90px}
+h1,h2,h3{font-family:var(--mono);letter-spacing:-.01em;text-wrap:balance}
+h1{font-size:1.6rem;line-height:1.28}
+h2{font-size:1.15rem;margin-bottom:.4rem}
+p{color:var(--fg2);max-width:76ch}
+code{font-family:var(--mono);font-size:.84em;background:var(--bg4);border-radius:4px;padding:.06em .35em;color:var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.55rem}
+header.hero{padding:56px 0 10px}
+section{margin-top:52px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.64rem;font-weight:650;letter-spacing:.05em;text-transform:uppercase;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.badge.impl{color:var(--ok);background:var(--ok-bg)}
+.badge.optin{color:var(--warn);background:var(--warn-bg)}
+.badge.plan{color:var(--plan);background:var(--plan-bg)}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center}
+.legend span.hint{font-size:.78rem;color:var(--fg3)}
+/* ---- Journey (High-Level) ---- */
+.journey{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.jstep{flex:1 1 150px;min-width:140px;background:var(--bg2);border:1.5px solid var(--line);border-radius:var(--r-lg);padding:12px 12px 10px;cursor:pointer;text-align:left;color:var(--fg);transition:border-color .15s, background .15s;position:relative}
+.jstep:hover{border-color:var(--line2)}
+.jstep.active{border-color:var(--accent);background:var(--accent-bg)}
+.jstep .n{font-family:var(--mono);font-size:.66rem;color:var(--fg3);letter-spacing:.08em}
+.jstep.active .n{color:var(--accent)}
+.jstep .t{font-family:var(--mono);font-size:.82rem;font-weight:650;margin-top:2px}
+.jstep .s{font-size:.72rem;color:var(--fg3);margin-top:3px;line-height:1.4}
+.jstep.branch{border-style:dashed}
+.jstep:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.jpanel{margin-top:14px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 20px}
+.jpanel h3{font-size:.9rem;margin-bottom:6px}
+.jpanel .body{font-size:.9rem;color:var(--fg2);max-width:none}
+.jpanel .verdictline{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.vchip{font-family:var(--mono);font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:999px}
+.vchip.ok{color:var(--ok);background:var(--ok-bg)}
+.vchip.warn{color:var(--warn);background:var(--warn-bg)}
+.vchip.err{color:var(--err);background:var(--err-bg)}
+details.tech{margin-top:12px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg3)}
+details.tech summary{cursor:pointer;font-family:var(--mono);font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);padding:8px 14px;list-style:none}
+details.tech summary::before{content:"▸ ";color:var(--accent)}
+details.tech[open] summary::before{content:"▾ "}
+details.tech .inner{padding:2px 16px 14px;font-size:.85rem;color:var(--fg2)}
+details.tech .inner ul{list-style:none}
+details.tech .inner li{padding:3px 0 3px 16px;position:relative}
+details.tech .inner li::before{content:"–";position:absolute;left:0;color:var(--fg3)}
+/* ---- Map ---- */
+.map{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:18px}
+@media(max-width:900px){.map{grid-template-columns:1fr}}
+.zone{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px;display:flex;flex-direction:column;gap:10px}
+.zone>h3{font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);padding-bottom:8px;border-bottom:1px solid var(--line)}
+.zone>h3 em{color:var(--fg2);font-style:normal;display:block;font-family:var(--sans);font-size:.7rem;letter-spacing:0;text-transform:none;font-weight:400;margin-top:2px}
+.comp{border:1.5px solid var(--line);border-radius:var(--r);background:var(--bg3);padding:10px 12px;cursor:pointer;text-align:left;color:var(--fg);width:100%;transition:border-color .15s, opacity .2s, background .15s}
+.comp:hover{border-color:var(--line2)}
+.comp.selected{border-color:var(--accent);background:var(--accent-bg)}
+.map.focus .comp{opacity:.32}
+.map.focus .comp.lit{opacity:1;border-color:var(--accent)}
+.comp .head{display:flex;align-items:baseline;gap:8px;justify-content:space-between}
+.comp .name{font-family:var(--mono);font-size:.8rem;font-weight:650}
+.comp .short{font-size:.74rem;color:var(--fg2);margin-top:4px;line-height:1.45}
+.subzone{border-top:1px dashed var(--line);margin-top:4px;padding-top:8px;font-family:var(--mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3)}
+/* ---- Detail panel ---- */
+.detail{margin-top:16px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 22px;min-height:80px}
+.detail h3{font-size:1rem;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.detail .body{margin-top:6px;font-size:.9rem;color:var(--fg2)}
+.detail ul{list-style:none;margin-top:8px}
+.detail li{padding:3px 0 3px 18px;position:relative;font-size:.86rem;color:var(--fg2)}
+.detail li::before{content:"–";position:absolute;left:2px;color:var(--fg3)}
+.detail .hintline{margin-top:10px;font-size:.78rem;color:var(--fg3)}
+footer{margin-top:70px;border-top:1px solid var(--line);padding-top:18px;font-size:.76rem;color:var(--fg3);font-family:var(--mono)}
+</style>
+
+<main>
+<header class="hero">
+  <div class="eyebrow">Signal × SAP Datasphere · Logik-Landkarte · Stand 2026-07-11</div>
+  <h1>Was passiert wo? Task Chain, Gating, Quarantäne, Healing — der ganze Kreislauf</h1>
+  <p style="margin-top:12px">
+    Oben der Ablauf in neun Stationen — zum Verstehen, ohne Technik. Darunter die Landkarte der
+    Bausteine in drei Zonen. <strong>Klick auf eine Station</strong> leuchtet die beteiligten Bausteine an;
+    <strong>Klick auf einen Baustein</strong> zeigt seine technischen Details. Jede Station hat zusätzlich
+    einen aufklappbaren Technik-Kasten.
+  </p>
+  <div class="legend">
+    <span class="badge impl">Implementiert</span>
+    <span class="badge optin">Implementiert · Opt-in (dormant)</span>
+    <span class="badge plan">Konzept</span>
+    <span class="hint">Opt-in = Code fertig, Default aus — Aktivierung nach Tenant-Spikes.</span>
+  </div>
+</header>
+
+<!-- ================= JOURNEY ================= -->
+<section id="ablauf">
+  <div class="eyebrow">High-Level</div>
+  <h2>Der Kreislauf in neun Stationen</h2>
+  <div class="journey" id="journey"></div>
+  <div class="jpanel" id="jpanel"></div>
+</section>
+
+<!-- ================= MAP ================= -->
+<section id="karte">
+  <div class="eyebrow">Landkarte</div>
+  <h2>Drei Zonen, klare Zuständigkeiten</h2>
+  <p>
+    <strong>Datasphere</strong> bewegt Daten und orchestriert. <strong>Signal (Service)</strong> prüft,
+    urteilt und verwaltet Episoden. <strong>Signals Open-SQL-Schema</strong> ist die SQL-Oberfläche
+    dazwischen: das Einzige, worin Signal schreibt — und das Einzige, was Datasphere von Signal lesen muss.
+  </p>
+  <div class="map" id="map">
+    <div class="zone" id="zone-dsp"><h3>SAP Datasphere<em>Daten &amp; Orchestrierung — Kundenhoheit</em></h3></div>
+    <div class="zone" id="zone-sig"><h3>Signal — Service &amp; Cockpit<em>Prüfen, Urteilen, Verwalten</em></h3></div>
+    <div class="zone" id="zone-sql"><h3>Signal Open-SQL-Schema<em>die SQL-Oberfläche — einziger Schreibort Signals</em></h3></div>
+  </div>
+  <div class="detail" id="detail">
+    <h3>Baustein wählen</h3>
+    <div class="body">Klicke links einen Baustein an — hier erscheinen Zweck, technische Details und Verweise.</div>
+  </div>
+</section>
+
+<footer>
+  Quellen: Konzept_Datasphere_Integration_Gating_Quarantaene.md · Konzept_Quarantaene_Healing.md ·
+  PR #98 (Slices ①–⑦) · Schwester-Seite: interaktive Prozess-Referenz (Sequenzen &amp; Spike-Matrix)
+</footer>
+</main>
+
+<script>
+(function(){
+"use strict";
+
+/* =============== Bausteine =============== */
+var COMPONENTS = [
+ /* --- Datasphere --- */
+ {id:"staging", zone:"dsp", status:"impl", name:"Quelle / Staging",
+  short:"Hier landen die Rohdaten (Replication/Load). Signal liest sie nur — nie schreiben.",
+  detail:"Das Prüfobjekt: eine Tabelle oder View im Kunden-Space. Signal verbindet mit dem technischen Space-User und führt ausschließlich SELECTs aus (ADR-0002).",
+  tech:["Zugriff: hdbcli, TLS, Least-Privilege (SELECT)","Schema-Bindung erst zur Laufzeit — '{schema}' im kompilierten SQL (G2)","Checks: Batch-UNION-ALL mit Statement-Timeout"]},
+ {id:"chain", zone:"dsp", status:"impl", name:"Task Chain",
+  short:"Orchestriert Load → Prüfung → Gate → Promotion. Ruft Signal per API-Task oder Prozedur-Schritt.",
+  detail:"Die Chain ist der Dirigent. Sie startet den Signal-Lauf (API-Task, async) und macht die Promotion vom Gate-Ergebnis abhängig — oder prüft SQL-nativ per CALL auf die Gate-Prozedur.",
+  tech:["API-Task: POST /api/objects/{id}/run → 202 + Location-Header, dann Polling auf /api/runs/{id}/status (RUNNING/COMPLETED/FAILED)","fail_on=block | block_and_quarantine mappt das Drei-Wege-Urteil auf das binäre Task-Ergebnis","Alternativ Prozedur-Schritt: CALL P_DQ_ASSERT_GATE(…)","Ohne Chain-Änderung: on_load-Trigger (AP-5, geplant) + CLEAN-Konsum"]},
+ {id:"tf", zone:"dsp", status:"optin", name:"Transformation Flow",
+  short:"Liest die importierte CLEAN-Tabelle statt des Rohobjekts — schlechte Zeilen betreten den Flow nie.",
+  detail:"Tabellen aus dem Open-SQL-Schema sind als Space-Entität importierbar (zeigen live auf die hdbtable) und per Standard-Sharing space-übergreifend nutzbar — bestätigt am Tenant, keine Grants nötig.",
+  tech:["Quelle: DQ_CLEAN_<OBJ> (Import + Sharing)","Einmalige, dokumentierte Quellen-Umstellung im Data Builder","Frische: CLEAN wird je Signal-Lauf refresht — upstream Geheiltes kehrt mit dem nächsten Lauf zurück"]},
+ {id:"curated", zone:"dsp", status:"impl", name:"Curated / Ziel",
+  short:"Wird nur bei offenem Gate beliefert (Promotion nach COMPLETED).",
+  detail:"Der Folge-Schritt der Chain (Staging → Curated) läuft nur, wenn der Gate-Schritt erfolgreich war — das native Promotion-Gate (B2).",
+  tech:["block ⇒ Chain stoppt (FAILED bzw. SQL_ERROR_CODE 10052)","quarantine + fail_on=block ⇒ läuft weiter, Isolation trägt die CLEAN-Tabelle"]},
+ {id:"reload", zone:"dsp", status:"optin", name:"Re-Load-Flow (Kunde)",
+  short:"Holt freigegebene Zeilen aus Signals Release-View zurück ins Ziel — Signal schiebt nie.",
+  detail:"Die harte Grenze: Rückführung ist immer ein Kunden-Flow, der aus V_DQ_RELEASED_<OBJ> liest. Danach bestätigt er die Rückführung — die Episode schließt sich.",
+  tech:["Quelle: V_DQ_RELEASED_<OBJ> (zeigt nur Episoden mit Status released)","Bestätigung: POST /api/quarantine/{id}/confirm-reprocess (steward+) → resolved(reprocessed)"]},
+ {id:"chainapi", zone:"dsp", status:"optin", name:"Task-Chain-API (Outbound-Ziel)",
+  short:"Signal darf (Opt-in) die Remediation-/Split-Chain auslösen — Handeln, kein Daten-Schreiben.",
+  detail:"Bei quarantine-Verdict triggert Signal die hinterlegte Chain über die öffentliche API. Drei-Wege-Verdict trotz binärem API-Task: Promote-Chain stoppt, Quarantine-Chain startet.",
+  tech:["POST /api/v1/datasphere/tasks/chains/<space>/run/<chain>","Opt-in DATASPHERE_ALLOW_TRIGGER (Default aus) + Mapping QUARANTINE_TRIGGER_CHAINS","Jede Auslösung als Operation auditiert (ADR-0005-Kanal)"]},
+ /* --- Signal Service --- */
+ {id:"api", zone:"sig", status:"impl", name:"REST-API",
+  short:"Nimmt Läufe entgegen (202+Location), liefert Status/Verdict, verwaltet Quarantäne-Episoden.",
+  detail:"Der HTTP-Eingang für Chains (API-Task) und Cockpit. Fail-closed AuthZ: Läufe steward+, Freigaben steward+, Enforcement-Apply owner+.",
+  tech:["POST /api/objects/{id}/run → 202 + Location","GET /api/runs/{id}/status?fail_on=… → RUNNING/COMPLETED/FAILED","/api/quarantine: Liste · Detail · release · confirm-reprocess · reconcile (409 bei unzulässigem Übergang)","/api/enforcement/plan (Dry-Run) · /api/enforcement/apply (owner+, auditiert)"]},
+ {id:"engine", zone:"sig", status:"impl", name:"Check-Engine + Verdict",
+  short:"Führt kompilierte Checks aus und rollt das Urteil: proceed | quarantine | block.",
+  detail:"Jeder Check trägt severity (wie schlimm) und enforcement (was passieren soll: gate/quarantine/monitor, Default monitor). Nur gefailte fail/critical-Checks eskalieren; gate schlägt quarantine; monitor eskaliert nie.",
+  tech:["Contracts bleiben SQL-frei — SQL erzeugt nur der Compiler (G1)","Frische-Gates zuerst: stale ⇒ teure Checks explizit skipped_stale (G6)","CLI-Exit-Codes: proceed=0 · block=1 · quarantine=3 · --no-enforce ⇒ 0","dq_core bleibt frameworkfrei (G7)"]},
+ {id:"posthook", zone:"sig", status:"optin", name:"Post-Run-Hook (Materialisierung)",
+  short:"Nach jedem Lauf: Verdict publizieren, CLEAN refreshen, Episode snapshoten/spiegeln, TTL.",
+  detail:"Ein Eintrittspunkt bündelt Slices ③–⑤ im Lauf-Pfad — nie run-kritisch, der Result-Store bleibt primäre Wahrheit. Doppelt gegated: Kill-Switch + Signal-Schema.",
+  tech:["ENFORCEMENT_MATERIALIZE_ENABLED (Default aus) + DATASPHERE_SIGNAL_SCHEMA","Reihenfolge: Verdict-Upsert → CLEAN-Refresh → Snapshot (bei quarantine) → Episoden-Spiegel → TTL-Purge","Gleiche Verbindung/Identität wie die Checks (ADR-0002-Amendment)"]},
+ {id:"scheduler", zone:"sig", status:"optin", name:"Scheduler / Poller",
+  short:"Interne Zeitpläne + Bridge: claimt SQL-Lauf-Anforderungen und stempelt Ergebnisse zurück.",
+  detail:"Der vorhandene claim-basierte Poller bekommt eine zweite Quelle: DQ_RUN_REQUESTS. Läufe gehen durch denselben Pfad wie HTTP (F2-Doppellauf-Schutz).",
+  tech:["Bridge-Opt-in: ENFORCEMENT_SQL_BRIDGE_ENABLED + ENFORCEMENT_ENVIRONMENT","Claim: UPDATE … WHERE STATUS='requested' (optimistisch, multi-worker-sicher)","Abschluss-Stempel done/error — nie stilles Auslassen (G6)"]},
+ {id:"store", zone:"sig", status:"impl", name:"Result-Store (Episoden)",
+  short:"Quelle der Wahrheit: Läufe, Verdicts, Quarantäne-Episoden mit Lifecycle und Timeline.",
+  detail:"Episoden: open → reconciled → released → resolved (+ superseded). Höchstens eine nicht-terminale je Objekt — erneute Breaches erhöhen die Generation statt zu fluten.",
+  tech:["Migration 016: enforcement_mode, gate_verdict, dq_quarantine + Events","Übergangs-Guards (409), Dedupe je Produkt, resolve_reason: reprocessed | expired | manual | superseded","TTL schließt überfällige Episoden explizit als resolved(expired)"]},
+ {id:"cockpit", zone:"sig", status:"impl", name:"Cockpit — Quarantäne-Seite",
+  short:"Episoden sichten, freigeben (steward+), Rückführung bestätigen — mit Timeline.",
+  detail:"Status-Tabs, Episode-Drawer, rollen-gegated Aktionen. Der PII-Drilldown in Zeilen läuft ausschließlich über den gegateten Diagnostics-Pfad (G8).",
+  tech:["Route /quarantine · Freigabe-/Confirm-Aktionen spiegeln die Server-Rollen","Freigabe → Episoden-Spiegel nach HANA (Release-View wird scharf)"]},
+ {id:"healing", zone:"sig", status:"plan", name:"Healing-Workbench",
+  short:"Konzept: Steward korrigiert geparkte Zeilen — Grid-Editing oder gescopetes SQL, Opt-in.",
+  detail:"Eigenes Fenster (/quarantine/:id/heal). Validierung = Wiederholung der Quarantäne-Prädikate: erst wenn eine Zeile die verletzten Garantien besteht, ist sie clean und darf in die Release-View. Zellgenaues Audit, Original wiederherstellbar, optional Vier-Augen.",
+  tech:["Zeilen-Zustände: quarantined → edited → clean | discarded (Pflicht-Grund)","SQL-Modus: nur SET/WHERE-Fragmente, Guard erzwingt Scope + Allowlist + Dry-Run","Opt-in-Leiter: QUARANTINE_HEALING_ENABLED → Contract-Policy (manual | manual+sql) → four_eyes","Gated hinter O10-Datenschutz-Review — noch nicht implementiert"]},
+ /* --- Open-SQL-Schema --- */
+ {id:"gatestatus", zone:"sql", status:"optin", name:"DQ_GATE_STATUS (+History, View)",
+  short:"Das Urteil als SQL-lesbare Wahrheit: ein Upsert je Lauf, Historie append-only.",
+  detail:"Nur Signals User schreibt — Verdicts sind durch Pipeline-Identitäten nicht fälschbar. EXPIRES_AT erlaubt Verfall: abgelaufen zählt wie fehlend (fail-closed).",
+  tech:["Spalten: OBJECT_ID (PK), RUN_ID, GATE_VERDICT, OVERALL_STATUS, EVALUATED_AT, EXPIRES_AT, Contract-Version/-Hash","Konsum über V_DQ_GATE_STATUS oder die Gate-Prozedur — nie direkt"]},
+ {id:"assertgate", zone:"sql", status:"optin", name:"P_DQ_ASSERT_GATE",
+  short:"CALL → kommt zurück (Gate offen) oder wirft. Fail-closed mit Staleness-Guards.",
+  detail:"SECURITY DEFINER: Aufrufer brauchen nur EXECUTE — die Prozedur ist die einzige Tür zur Verdict-Tabelle. min_evaluated_after bindet das Urteil an den konkreten Load.",
+  tech:["Fehlercode-Vertrag: 10050 kein Verdict · 10051 veraltet · 10052 block · 10053 quarantine (bei fail_on=block_and_quarantine)","Parameter: max_age_seconds, min_evaluated_after, fail_on","In SQLScript per EXIT HANDLER FOR SQL_ERROR_CODE gezielt behandelbar"]},
+ {id:"clean", zone:"sql", status:"optin", name:"DQ_CLEAN_&lt;OBJ&gt;",
+  short:"Der bereinigte Bestand als Tabelle — je Lauf refresht, punktgenau konsistent zum Verdict.",
+  detail:"Variante A der kontinuierlichen Quarantäne: WHERE NOT(bad₁ OR bad₂ …) einmal je Lauf statt je Lesen. Zeilenfähig: not_null, completeness, keys, referential; freshness/volume/schema wirken über das Objekt-Gate.",
+  tech:["Refresh: DELETE + INSERT im Post-Run-Schritt","Konsum: Import als Space-Entität (live auf hdbtable) + Sharing — Tenant-bestätigt","Nicht zeilenfähige Quarantäne-Checks werden im Plan explizit als skipped ausgewiesen (G6)"]},
+ {id:"dqq", zone:"sql", status:"optin", name:"DQ_Q_&lt;OBJ&gt; + V_DQ_RELEASED_&lt;OBJ&gt;",
+  short:"Episodisches Zeilen-Parken: Snapshot der Bad-Zeilen, Release-View für die Rückführung.",
+  detail:"Idempotent je (Episode, Generation). Volle Rohzeilen bleiben in HANA (G8); die _DQ_*-Systemspalten (u. a. _DQ_HEAL_STATE) sind fürs Healing vorbereitet. Pflicht-TTL purgt; vom Reconciler-Drop ausgenommen.",
+  tech:["Snapshot: INSERT…SELECT WHERE (bad…) + NOT-EXISTS-Guard","Release-View joint DQ_EPISODES auf STATUS='released'","TTL: QUARANTINE_TTL_DAYS (Default 30) — Zeilen weg, Episode resolved(expired)"]},
+ {id:"episodes", zone:"sql", status:"optin", name:"DQ_EPISODES (Spiegel)",
+  short:"Episoden-Status SQL-lesbar — damit die Release-View weiß, was freigegeben ist.",
+  detail:"Quelle der Wahrheit bleibt der Result-Store; Signal spiegelt bei jedem Lifecycle-Übergang (Upsert) — aus dem Lauf-Pfad oder bei API-Übergängen über das ENFORCEMENT_ENVIRONMENT.",
+  tech:["Upsert je Übergang: EPISODE_ID, OBJECT_ID, STATUS, ROW_COUNT, Zeitstempel","Ohne konfiguriertes Environment spiegelt der nächste Lauf (best-effort, dokumentiert)"]},
+ {id:"registry", zone:"sql", status:"optin", name:"DQ_OBJECTS (Registry) + Reconciler",
+  short:"Soll/Ist der von Signal verwalteten Artefakte — invalidate-then-drop mit Grace.",
+  detail:"Jedes Artefakt mit manifest_hash und Generation. Waisen (Contract weg) werden erst invalidiert (Refresh-Stopp + Notification), nach der Grace-Period gedroppt — der Import bricht laut, nie stilles Leeren.",
+  tech:["Plan/Apply über /api/enforcement (Dry-Run sichtbar, Apply owner+ auditiert)","Grace: RECONCILER_DROP_GRACE_DAYS (Default 14)","DQ_Q_* nie droppen — nur TTL"]},
+ {id:"bridge", zone:"sql", status:"optin", name:"DQ_RUN_REQUESTS + P_DQ_GATE",
+  short:"Der volle Gate-Loop aus purem SQL: Lauf anfordern, warten, Verdict prüfen — ohne HTTP.",
+  detail:"Für Chains ohne HTTP-Freigabe und reine SQLScript-Pipelines. P_DQ_REQUEST_RUN ist die DEFINER-Tür für den INSERT; P_DQ_GATE wartet und endet in P_DQ_ASSERT_GATE.",
+  tech:["Warte-Schleife: SQLSCRIPT_SYNC:SLEEP_SECONDS — Verfügbarkeit = Spike O6 (Fallback: zweigeteilte Chain)","Timeout → 10054 (Request expired, fail-closed) · Lauf-Fehler → 10055","Poller claimt requested → claimed → done/error"]},
+];
+
+var STATUS_LABEL = {impl:"Implementiert", optin:"Implementiert · Opt-in", plan:"Konzept"};
+
+/* =============== Stationen =============== */
+var STEPS = [
+ {t:"Laden", s:"Chain lädt nach Staging", comps:["chain","staging"],
+  body:"Die Task Chain repliziert oder lädt Rohdaten nach Staging. Ab hier liegen ungeprüfte Daten bereit — die Weitergabe wartet auf das Urteil.",
+  tech:["Auslöser der Prüfung: API-Task direkt nach dem Load-Schritt, oder (geplant) on_load-Trigger, oder SQL-Bridge"]},
+ {t:"Prüfen", s:"Signal führt die Checks aus", comps:["chain","api","engine","staging","bridge","scheduler"],
+  body:"Die Chain ruft Signal (API-Task) — oder eine Prozedur fordert den Lauf per SQL-Bridge an. Die Engine führt die aus dem Contract kompilierten Checks gegen Staging aus: Frische-Gates zuerst, dann Konsistenz.",
+  tech:["POST /api/objects/{id}/run → 202 + Location (F2-Doppellauf-Schutz)","Bridge-Weg: P_DQ_GATE → DQ_RUN_REQUESTS → Poller claimt → gleicher Ausführungspfad","Contracts sind SQL-frei; jede Garantie mappt auf ein Library-Template (G1)"]},
+ {t:"Urteilen", s:"proceed · quarantine · block", comps:["engine","store","posthook","gatestatus"],
+  body:"Aus allen Check-Ergebnissen rollt die Engine EIN Urteil. Nur gefailte fail/critical-Checks zählen; gate schlägt quarantine; monitor beobachtet nur. Das Urteil wird im Store gespeichert und (Opt-in) nach DQ_GATE_STATUS publiziert.",
+  verdicts:true,
+  tech:["Rollup state-bewusst: skipped/downgraded sind statusneutral (G6)","Publikation: UPSERT + Append-Historie, optional mit Verfall (EXPIRES_AT)"]},
+ {t:"Gaten", s:"Chain stoppt oder läuft weiter", comps:["chain","api","assertgate","gatestatus","curated"],
+  body:"Die Chain fragt das Urteil ab — per Status-Endpoint (API-Task pollt bis COMPLETED/FAILED) oder per CALL P_DQ_ASSERT_GATE (kommt zurück oder wirft, fail-closed). block stoppt die Promotion; proceed lässt sie laufen.",
+  tech:["fail_on entscheidet, ob quarantine stoppt: fail-closed Default, 'block' für CLEAN-konsumierende Pipelines","Staleness-Guards: max_age · min_evaluated_after (Load-Startzeit!) · EXPIRES_AT","Fehlende/veraltete Verdicts blockieren: 10050/10051"]},
+ {t:"Isolieren", s:"Bad-Zeilen raus, Episode auf", comps:["posthook","clean","dqq","episodes","store","chainapi"],
+  body:"Bei quarantine öffnet Signal eine Episode, parkt die schlechten Zeilen in DQ_Q_<OBJ> (Snapshot) und refresht die CLEAN-Tabelle — gute Zeilen bleiben nutzbar. Optional löst Signal die Remediation-Chain aus (Opt-in).",
+  tech:["Eine nicht-terminale Episode je Objekt; erneute Breaches erhöhen die Generation","Snapshot idempotent je (Episode, Generation); Zeilenzahl → Episode reconciled","Prädikate = dieselben WHERE-Bedingungen, die die Checks kompiliert haben"]},
+ {t:"Weiterarbeiten", s:"Flows lesen CLEAN", comps:["tf","clean","curated"],
+  body:"Transformation Flows lesen die importierte CLEAN-Tabelle statt des Rohobjekts. Schlechte Zeilen betreten die Pipeline nie; die Verarbeitung guter Daten geht ohne Wartezeit weiter.",
+  tech:["Import zeigt live auf die hdbtable; Sharing trägt sie space-übergreifend (Tenant-bestätigt, keine Grants)","CLEAN ist punktgenau konsistent zum Verdict des letzten Laufs"]},
+ {t:"Heilen", s:"(Konzept) Steward korrigiert geparkte Zeilen", comps:["healing","dqq","store","cockpit"], branch:true,
+  body:"Wenn der Upstream-Fix nicht kommt: der Steward korrigiert die geparkten Zeilen direkt — im Grid oder per gescopetem SQL. Freigekommen wird nur durch Bestehen der ursprünglichen Prädikate: dieselbe Regel, die eingesperrt hat, lässt frei.",
+  tech:["Zeilen-Zustände: quarantined → edited → clean | discarded","Zellgenaues append-only Audit, Original wiederherstellbar, optional Vier-Augen","Opt-in-Leiter + O10-Review — Konzept, noch nicht implementiert"]},
+ {t:"Freigeben & Zurückführen", s:"Release-View → Kunden-Flow", comps:["cockpit","store","episodes","dqq","reload"],
+  body:"Der Steward gibt die Episode frei (steward+, auditiert). Der Episoden-Spiegel macht die Freigabe SQL-sichtbar — die Release-View zeigt die Zeilen, der Kunden-Re-Load-Flow holt sie zurück und bestätigt. Signal schiebt nie.",
+  tech:["POST /api/quarantine/{id}/release → Spiegel-Upsert → V_DQ_RELEASED_<OBJ> wird scharf","Bestätigung: confirm-reprocess → resolved(reprocessed)"]},
+ {t:"Auflösen & Aufräumen", s:"Episode zu, Artefakte gepflegt", comps:["store","dqq","registry","posthook"],
+  body:"Die Episode schließt (Rückführung bestätigt, manuell — oder per TTL als resolved(expired), nie still). Der Reconciler hält die Artefakte sauber: Waisen werden invalidiert und nach der Grace-Period gedroppt.",
+  tech:["TTL purgt DQ_Q-Zeilen (Default 30 Tage) und schließt überfällige Episoden explizit","invalidate-then-drop: Refresh-Stopp + Notification, nach Grace Drop (Import bricht laut — nie stilles Leeren)"]},
+];
+
+/* =============== Render: Map =============== */
+var zones = {dsp:document.getElementById("zone-dsp"), sig:document.getElementById("zone-sig"), sql:document.getElementById("zone-sql")};
+var compEls = {};
+COMPONENTS.forEach(function(c){
+  var b = document.createElement("button");
+  b.className = "comp"; b.type = "button"; b.dataset.id = c.id;
+  b.innerHTML = '<div class="head"><span class="name">'+c.name+'</span>'+
+    '<span class="badge '+c.status+'">'+STATUS_LABEL[c.status]+'</span></div>'+
+    '<div class="short">'+c.short+'</div>';
+  zones[c.zone].appendChild(b);
+  compEls[c.id] = b;
+});
+
+var detail = document.getElementById("detail");
+var map = document.getElementById("map");
+
+function showComponent(id){
+  var c = COMPONENTS.find(function(x){return x.id===id;});
+  if(!c) return;
+  Object.keys(compEls).forEach(function(k){ compEls[k].classList.toggle("selected", k===id); });
+  detail.innerHTML = '<h3>'+c.name+' <span class="badge '+c.status+'">'+STATUS_LABEL[c.status]+'</span></h3>'+
+    '<div class="body">'+c.detail+'</div>'+
+    '<ul>'+c.tech.map(function(t){return '<li>'+t+'</li>';}).join("")+'</ul>'+
+    '<div class="hintline">Zone: '+(c.zone==="dsp"?"SAP Datasphere":c.zone==="sig"?"Signal — Service & Cockpit":"Signal Open-SQL-Schema")+'</div>';
+}
+map.addEventListener("click", function(e){
+  var b = e.target.closest(".comp");
+  if(b) showComponent(b.dataset.id);
+});
+
+/* =============== Render: Journey =============== */
+var journey = document.getElementById("journey");
+var jpanel = document.getElementById("jpanel");
+var stepEls = [];
+STEPS.forEach(function(st, i){
+  var b = document.createElement("button");
+  b.className = "jstep" + (st.branch ? " branch" : ""); b.type = "button";
+  b.innerHTML = '<div class="n">Station '+(i+1)+'</div><div class="t">'+st.t+'</div><div class="s">'+st.s+'</div>';
+  b.addEventListener("click", function(){ selectStep(i); });
+  journey.appendChild(b);
+  stepEls.push(b);
+});
+
+function selectStep(i){
+  var st = STEPS[i];
+  stepEls.forEach(function(el, j){ el.classList.toggle("active", j===i); });
+  map.classList.add("focus");
+  Object.keys(compEls).forEach(function(k){
+    compEls[k].classList.toggle("lit", st.comps.indexOf(k) >= 0);
+  });
+  var verdictHtml = st.verdicts
+    ? '<div class="verdictline"><span class="vchip ok">proceed → weiter</span>'+
+      '<span class="vchip warn">quarantine → isolieren, weiter mit CLEAN</span>'+
+      '<span class="vchip err">block → Stopp + Alarm</span></div>'
+    : "";
+  jpanel.innerHTML = '<h3>Station '+(i+1)+' — '+st.t+'</h3>'+
+    '<div class="body">'+st.body+'</div>' + verdictHtml +
+    '<details class="tech"><summary>Technische Details</summary><div class="inner"><ul>'+
+    st.tech.map(function(t){return '<li>'+t+'</li>';}).join("")+
+    '</ul></div></details>'+
+    '<div style="margin-top:10px;font-size:.76rem;color:var(--fg3)">Beteiligte Bausteine sind in der Landkarte hervorgehoben — anklicken für Details.</div>';
+}
+selectStep(0);
+})();
+</script>
+
+</body>
+</html>

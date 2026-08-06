@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal — Onboarding, Checks & Ceremony</title>
+<style>
+:root{
+  --bg0:#090B0F;--bg1:#111520;--bg2:#1B2130;--bg3:#222C3E;
+  --line:#2A3242;--line2:#36445A;
+  --fg:#E7EBF2;--fg2:#98A2B2;--fg3:#7C8696;
+  --obs:#F59E0B;--qual:#00D4AA;--cont:#7B6FEE;
+  --ok:#3FB07A;--warn:#E0B23E;--fail:#E2783C;--crit:#E5484D;
+  --stale:#646E7C;--err:#9B6CF0;
+  --lite:#00D4AA;--full:#7B6FEE;
+  --mono:"JetBrains Mono","Fira Code","SFMono-Regular",monospace;
+  --sans:"Space Grotesk",system-ui,sans-serif;
+  --r:4px;--r-md:6px;--r-lg:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg0);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ── nav ── */
+header{position:sticky;top:0;z-index:100;background:rgba(9,11,15,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.hdr{max-width:1200px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:12px;height:52px}
+.brand{font-weight:700;font-size:15px;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:8px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(63,176,122,.6);animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,176,122,.55)}70%{box-shadow:0 0 0 8px rgba(63,176,122,0)}100%{box-shadow:0 0 0 0 rgba(63,176,122,0)}}
+nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
+nav::-webkit-scrollbar{display:none}
+nav a{color:var(--fg3);font-size:12px;padding:5px 9px;border-radius:var(--r-md);white-space:nowrap;text-decoration:none;transition:color .15s,background .15s}
+nav a:hover,nav a.active{color:var(--fg);background:var(--bg3)}
+
+/* ── layout ── */
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+section{padding:64px 0 48px}
+section+section{border-top:1px solid var(--line)}
+.sec-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cont);font-weight:600;margin-bottom:10px}
+h2{font-size:clamp(20px,4vw,30px);line-height:1.1;letter-spacing:-.5px;margin-bottom:8px}
+h3{font-size:15px;font-weight:600;margin-bottom:8px}
+h4{font-size:13px;font-weight:600;margin-bottom:6px;color:var(--fg)}
+p{color:var(--fg2);margin-bottom:12px;max-width:72ch}
+p:last-child{margin-bottom:0}
+code{font-family:var(--mono);font-size:11.5px;background:var(--bg3);padding:1px 5px;border-radius:3px;color:var(--fg)}
+.muted{color:var(--fg3)}
+
+/* ── tags ── */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.3px}
+.tag.ok{background:rgba(63,176,122,.15);color:var(--ok)}
+.tag.warn{background:rgba(224,178,62,.15);color:var(--warn)}
+.tag.fail{background:rgba(226,120,60,.15);color:var(--fail)}
+.tag.crit{background:rgba(229,72,77,.15);color:var(--crit)}
+.tag.lite{background:rgba(0,212,170,.15);color:var(--lite)}
+.tag.full{background:rgba(123,111,238,.15);color:var(--full)}
+.tag.obs{background:rgba(245,158,11,.1);color:var(--obs)}
+.tag.qual{background:rgba(0,212,170,.1);color:var(--qual)}
+.tag.cont{background:rgba(123,111,238,.1);color:var(--cont)}
+.tag.break{background:rgba(229,72,77,.15);color:var(--crit)}
+.tag.nobreak{background:rgba(63,176,122,.15);color:var(--ok)}
+.tag.gate{background:rgba(245,158,11,.1);color:var(--obs)}
+.tag.expensive{background:rgba(229,72,77,.1);color:var(--crit)}
+.tag.std{background:rgba(100,110,124,.1);color:var(--fg3)}
+.tag.sm{font-size:10px;padding:1px 6px}
+
+/* ── cards ── */
+.card{background:var(--bg1);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 18px}
+.grid{display:grid;gap:10px}
+.g2{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+
+/* ── mode toggle ── */
+.mode-toggle{display:inline-flex;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px;margin:20px 0}
+.mode-btn{padding:7px 20px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;transition:all .2s;white-space:nowrap}
+.mode-btn.lite.active{background:var(--lite);color:#000}
+.mode-btn.full.active{background:var(--full);color:#fff}
+.mode-btn:not(.active){color:var(--fg3)}
+.mode-btn:hover:not(.active){color:var(--fg);background:var(--bg3)}
+
+/* ── hero ── */
+#hero{padding:72px 0 52px;border-bottom:1px solid var(--line)}
+.hero-modes{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.mode-card{flex:1;min-width:220px;padding:16px 18px;border-radius:var(--r-lg);border:2px solid}
+.mode-card.lite{border-color:rgba(0,212,170,.4);background:rgba(0,212,170,.06)}
+.mode-card.full{border-color:rgba(123,111,238,.4);background:rgba(123,111,238,.06)}
+.mode-card h3{margin-bottom:6px}
+.mode-card ul{font-size:12px;color:var(--fg3);padding-left:16px;display:flex;flex-direction:column;gap:3px}
+
+/* ── journey stepper ── */
+.journey{margin:28px 0}
+.journey-header{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.journey-path{flex:1;min-width:260px}
+.j-path-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px}
+.j-path-label.lite{color:var(--lite)}
+.j-path-label.full{color:var(--full)}
+.steps{display:flex;flex-direction:column;gap:2px}
+.step{display:flex;gap:12px;cursor:pointer;padding:10px 12px;border-radius:var(--r-lg);border:1px solid transparent;transition:all .2s;position:relative}
+.step:hover{border-color:var(--line2);background:var(--bg2)}
+.step.active{background:var(--bg2)}
+.step.active.lite-step{border-color:rgba(0,212,170,.4);background:rgba(0,212,170,.05)}
+.step.active.full-step{border-color:rgba(123,111,238,.4);background:rgba(123,111,238,.05)}
+.step.active.shared-step{border-color:var(--line2)}
+.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;font-family:var(--mono);margin-top:1px}
+.shared-step .step-num{background:var(--bg3);color:var(--fg3);border:1px solid var(--line2)}
+.lite-step .step-num{background:rgba(0,212,170,.15);color:var(--lite);border:1px solid rgba(0,212,170,.3)}
+.full-step .step-num{background:rgba(123,111,238,.15);color:var(--full);border:1px solid rgba(123,111,238,.3)}
+.step.active .step-num{border-width:2px}
+.step-content .s-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.step-content .s-sub{font-size:11px;color:var(--fg3);font-family:var(--mono)}
+.step-connector{width:1px;height:14px;background:var(--line);margin:0 0 0 25px}
+.step-detail{background:var(--bg1);border:1px solid var(--line2);border-radius:var(--r-lg);padding:20px;margin-top:4px;display:none;animation:fadeIn .2s ease}
+.step-detail.show{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.step-detail h4{margin-bottom:10px}
+.step-meta{display:flex;gap:20px;flex-wrap:wrap;margin-top:12px;font-size:12px}
+.step-meta dt{color:var(--fg3);font-size:11px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px}
+.step-meta dd{font-family:var(--mono);font-size:11px}
+
+/* ── guarantee families ── */
+.fam-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin:20px 0}
+.fam-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 16px;cursor:pointer;transition:all .2s;user-select:none}
+.fam-card:hover{border-color:var(--line2);transform:translateY(-1px)}
+.fam-card.open{background:var(--bg1)}
+.fam-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.fam-icon{font-size:18px}
+.fam-name{font-size:13px;font-weight:700;font-family:var(--mono)}
+.fam-desc{font-size:12px;color:var(--fg3);line-height:1.45}
+.fam-expand{display:none;margin-top:12px;animation:fadeIn .15s ease}
+.fam-card.open .fam-expand{display:block}
+.fam-expand .yaml-block{background:var(--bg0);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;font-family:var(--mono);font-size:11px;color:var(--fg2);line-height:1.6;white-space:pre;overflow-x:auto;margin-bottom:8px}
+.fam-expand .compiles-to{font-size:11px;color:var(--fg3);display:flex;align-items:center;gap:6px}
+.fam-expand .compile-arrow{color:var(--cont)}
+.fam-expand .check-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;background:var(--bg3);border:1px solid var(--line2);border-radius:999px;font-size:11px;font-family:var(--mono)}
+
+/* ── lifecycle state machine ── */
+.lc-machine{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:24px 0}
+.lc-node{background:var(--bg2);border:2px solid var(--line);border-radius:var(--r-lg);padding:14px 16px;text-align:center;min-width:130px;position:relative;flex-shrink:0}
+.lc-node .n-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px}
+.lc-node .n-name{font-family:var(--mono);font-size:13px;font-weight:700}
+.lc-node .n-desc{font-size:11px;color:var(--fg3);margin-top:4px}
+.lc-node.draft{border-color:var(--line2)}
+.lc-node.active{border-color:var(--ok);background:rgba(63,176,122,.07)}
+.lc-node.active .n-label{color:var(--ok)}
+.lc-node.deprecated{border-color:var(--stale);background:rgba(100,110,124,.07)}
+.lc-node.deprecated .n-label{color:var(--stale)}
+
+.lc-arrow{display:flex;flex-direction:column;align-items:center;padding:0 6px;flex-shrink:0;min-width:90px}
+.lc-arrow .a-line{display:flex;align-items:center;width:100%;position:relative}
+.lc-arrow .a-line::after{content:'▶';position:absolute;right:-4px;color:var(--line2);font-size:10px}
+.lc-arrow .a-line::before{content:'';flex:1;height:1px;background:var(--line2)}
+.lc-arrow .a-label{font-size:10px;color:var(--fg3);text-align:center;margin-top:4px;white-space:nowrap}
+.lc-arrow.lite .a-line::before{background:var(--lite);opacity:.5}
+.lc-arrow.lite .a-line::after{color:var(--lite)}
+.lc-arrow.lite .a-label{color:var(--lite)}
+.lc-arrow.full .a-line::before{background:var(--full);opacity:.5}
+.lc-arrow.full .a-line::after{color:var(--full)}
+.lc-arrow.full .a-label{color:var(--full)}
+
+.amend-path{margin:16px 0;padding:14px 16px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-lg);font-size:13px;display:flex;gap:12px;align-items:flex-start}
+.amend-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+
+/* ── G3 simulator ── */
+.g3-wrap{margin:24px 0}
+.g3-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.version-input{background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r-md);padding:7px 12px;color:var(--fg);font-family:var(--mono);font-size:13px;width:120px}
+.version-input:focus{outline:none;border-color:var(--cont)}
+.changes-list{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.change-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-md);cursor:pointer;user-select:none;transition:all .15s}
+.change-row:hover{border-color:var(--line2)}
+.change-row.selected{background:var(--bg1);border-color:var(--line2)}
+.change-cb{width:16px;height:16px;border-radius:3px;border:1px solid var(--line2);background:var(--bg3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .15s}
+.change-row.selected .change-cb{background:var(--cont);border-color:var(--cont);color:#fff}
+.change-desc{flex:1;font-size:13px}
+.change-badge{flex-shrink:0}
+.g3-verdict{padding:16px 18px;border-radius:var(--r-lg);border-left:3px solid;font-size:13px;display:none}
+.g3-verdict.show{display:block;animation:fadeIn .2s ease}
+.g3-verdict.pass{background:rgba(63,176,122,.08);border-color:var(--ok);color:var(--ok)}
+.g3-verdict.fail{background:rgba(229,72,77,.08);border-color:var(--crit);color:var(--crit)}
+.g3-verdict.warn{background:rgba(224,178,62,.08);border-color:var(--warn);color:var(--warn)}
+
+/* ── roles matrix ── */
+.roles-header{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.role-btn{padding:6px 16px;border-radius:999px;border:1px solid var(--line2);background:transparent;color:var(--fg3);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.role-btn:hover{color:var(--fg);border-color:var(--cont)}
+.role-btn.active{background:var(--cont);border-color:var(--cont);color:#fff}
+.perm-table{width:100%;border-collapse:collapse;margin-top:4px}
+.perm-table th{text-align:left;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--fg3);padding:8px 10px;border-bottom:1px solid var(--line2)}
+.perm-table td{padding:9px 10px;border-bottom:1px solid var(--line);font-size:12px;vertical-align:middle}
+.perm-table tr.dim td{opacity:.3}
+.perm-table tr.highlight td:first-child{font-weight:600;color:var(--fg)}
+.perm-cell{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:4px}
+.perm-cell.y{background:rgba(63,176,122,.15);color:var(--ok)}
+.perm-cell.n{background:rgba(100,110,124,.1);color:var(--stale)}
+.perm-cell.c{background:rgba(224,178,62,.1);color:var(--warn)}
+td.perm-overflow{overflow-x:auto}
+
+/* ── schedule modes ── */
+.sched-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin:20px 0}
+.sched-card{background:var(--bg2);border:2px solid var(--line);border-radius:var(--r-lg);padding:18px}
+.sched-card.active-sched{border-color:var(--cont);background:rgba(123,111,238,.05)}
+.sched-icon{font-size:24px;margin-bottom:10px}
+.sched-mode{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--cont);margin-bottom:6px}
+.sched-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.sched-desc{font-size:12px;color:var(--fg3);line-height:1.5}
+
+/* ── btn ── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--r-md);border:1px solid var(--line2);background:var(--bg2);color:var(--fg);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.btn:hover{background:var(--bg3);border-color:var(--cont);color:var(--cont)}
+.btn.primary{background:var(--cont);border-color:var(--cont);color:#fff}
+.btn.primary:hover{background:#6a5fd8;border-color:#6a5fd8;color:#fff}
+.btn.lite-btn{background:var(--lite);border-color:var(--lite);color:#000}
+.btn.lite-btn:hover{background:#00bfa5;border-color:#00bfa5}
+
+/* ── misc ── */
+.divider-text{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--fg3);font-size:11px;text-transform:uppercase;letter-spacing:1px}
+.divider-text::before,.divider-text::after{content:'';flex:1;height:1px;background:var(--line)}
+.mono-block{background:var(--bg0);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;font-family:var(--mono);font-size:11.5px;color:var(--fg2);line-height:1.7;white-space:pre;overflow-x:auto}
+.key-y{color:var(--cont)}.key-s{color:var(--ok)}.key-n{color:var(--warn)}.key-k{color:var(--obs)}
+.alert{padding:12px 16px;border-radius:var(--r-md);font-size:13px;margin:12px 0;border-left:3px solid}
+.alert.info{background:rgba(123,111,238,.08);border-color:var(--cont);color:var(--fg2)}
+.alert.warn{background:rgba(229,72,77,.08);border-color:var(--crit);color:var(--fg2)}
+
+/* ── toc dots ── */
+.toc-progress{position:fixed;right:0;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;padding:8px 6px;z-index:90}
+.toc-dot{width:6px;height:6px;border-radius:50%;background:var(--line2);cursor:pointer;transition:all .2s}
+.toc-dot.active{background:var(--cont);transform:scale(1.6)}
+
+@media(max-width:640px){
+  .toc-progress{display:none}
+  .lc-machine{flex-direction:column;align-items:stretch}
+  .lc-arrow{flex-direction:row;min-width:0;padding:4px 0}
+  .perm-table{font-size:11px}
+  h2{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <div class="brand"><div class="dot"></div>Signal</div>
+    <nav id="topnav">
+      <a href="#hero">Overview</a>
+      <a href="#journey">Journey</a>
+      <a href="#contract">Contract</a>
+      <a href="#families">Guarantees</a>
+      <a href="#lifecycle">Lifecycle</a>
+      <a href="#g3">G3 Breaking</a>
+      <a href="#roles">Roles</a>
+      <a href="#scheduling">Scheduling</a>
+    </nav>
+  </div>
+</header>
+
+<div class="toc-progress" id="tocDots"></div>
+
+<!-- ── HERO ── -->
+<section id="hero">
+<div class="wrap">
+  <div class="sec-label">Signal · Onboarding, Checks & Ceremony</div>
+  <h2>From object to active guarantee</h2>
+  <p>How an object in Datasphere becomes a measured, versioned, compliance-tracked data product, and what ceremony each mode requires.</p>
+
+  <div class="hero-modes">
+    <div class="mode-card lite">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span class="tag lite">Lite</span>
+        <h3 style="color:var(--lite)">Verbindlichkeit ohne Zeremonie</h3>
+      </div>
+      <p style="font-size:13px;margin-bottom:10px">Measurable guarantees in days, not weeks. One click: save &amp; activate. No SemVer, no approval dialog.</p>
+      <ul>
+        <li>Default for <code>internal_gate</code></li>
+        <li>Owned by platform/consulting team</li>
+        <li>Draft → active in a single <code>/certify</code> call</li>
+        <li>Gates G1, G6, G8 still fully enforced</li>
+        <li>G3 still blocks breaking changes on certified products</li>
+      </ul>
+    </div>
+    <div class="mode-card full">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span class="tag full">Full</span>
+        <h3 style="color:var(--full)">Governte Data Products</h3>
+      </div>
+      <p style="font-size:13px;margin-bottom:10px">Versioned, owner-approved promises with a traceable change history.</p>
+      <ul>
+        <li>Default for <code>consumer_contract</code> / <code>provider_contract</code></li>
+        <li>Owned by the product (Fachbereich)</li>
+        <li>draft → diff → approve → compile → run</li>
+        <li>SemVer mandatory; breaking change = major bump</li>
+        <li>G3 always blocking, CI + server-side</li>
+        <li>SLA windows, version history, proposals inbox</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="alert info" style="margin-top:20px">
+    <strong>Same engine, different ceremony.</strong> Both modes share one compiler, one engine, one result store, and the same security gates. The difference is entirely in the process, not in what gets measured.
+  </div>
+</div>
+</section>
+
+<!-- ── JOURNEY ── -->
+<section id="journey">
+<div class="wrap">
+  <div class="sec-label">02 · Onboarding</div>
+  <h2>The onboarding journey</h2>
+  <p>Click a step to see what happens, what endpoint is called, and what role is required. Steps 1–3 are shared; from step 4 the paths diverge.</p>
+
+  <div class="journey">
+    <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+
+      <!-- SHARED STEPS -->
+      <div style="flex:1;min-width:240px">
+        <div class="j-path-label" style="color:var(--fg3)">Shared start</div>
+        <div class="steps" id="sharedSteps">
+
+          <div class="step shared-step" data-step="env" onclick="openStep(this)">
+            <div class="step-num">0</div>
+            <div class="step-content">
+              <div class="s-title">Environment setup</div>
+              <div class="s-sub">admin · one-time</div>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="step shared-step" data-step="extract" onclick="openStep(this)">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <div class="s-title">Extract inventory &amp; lineage</div>
+              <div class="s-sub">POST /api/extract</div>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="step shared-step" data-step="seed" onclick="openStep(this)">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <div class="s-title">Seed draft from inventory</div>
+              <div class="s-sub">POST /api/contracts/{p}/seed</div>
+            </div>
+          </div>
+          <div class="step-connector"></div>
+
+          <div class="step shared-step" data-step="edit" onclick="openStep(this)">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="s-title">Define guarantees</div>
+              <div class="s-sub">PUT /api/contracts/{p}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LITE PATH -->
+      <div style="flex:1;min-width:200px">
+        <div class="j-path-label lite">⟶ Lite path</div>
+        <div class="steps" id="liteSteps">
+          <div class="step lite-step" data-step="certify" onclick="openStep(this)">
+            <div class="step-num">4L</div>
+            <div class="step-content">
+              <div class="s-title">Certify (1 click)</div>
+              <div class="s-sub">POST /api/contracts/{p}/certify</div>
+            </div>
+          </div>
+          <div class="step-connector" style="background:rgba(0,212,170,.3)"></div>
+          <div class="step lite-step" data-step="run-lite" onclick="openStep(this)">
+            <div class="step-num">5L</div>
+            <div class="step-content">
+              <div class="s-title">Trigger first run</div>
+              <div class="s-sub">POST /api/objects/{id}/run</div>
+            </div>
+          </div>
+          <div class="step-connector" style="background:rgba(0,212,170,.3)"></div>
+          <div class="step lite-step" data-step="cockpit-lite" onclick="openStep(this)">
+            <div class="step-num">6L</div>
+            <div class="step-content">
+              <div class="s-title">Cockpit: status &amp; Ampel</div>
+              <div class="s-sub">coverage ✓ · compliance</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FULL PATH -->
+      <div style="flex:1;min-width:200px">
+        <div class="j-path-label full">⟶ Full path</div>
+        <div class="steps" id="fullSteps">
+          <div class="step full-step" data-step="diff" onclick="openStep(this)">
+            <div class="step-num">4F</div>
+            <div class="step-content">
+              <div class="s-title">Diff &amp; breaking check</div>
+              <div class="s-sub">GET /api/contracts/{p}/version-diff</div>
+            </div>
+          </div>
+          <div class="step-connector" style="background:rgba(123,111,238,.3)"></div>
+          <div class="step full-step" data-step="approve" onclick="openStep(this)">
+            <div class="step-num">5F</div>
+            <div class="step-content">
+              <div class="s-title">Approve (G3 gate)</div>
+              <div class="s-sub">POST /api/contracts/{p}/approve</div>
+            </div>
+          </div>
+          <div class="step-connector" style="background:rgba(123,111,238,.3)"></div>
+          <div class="step full-step" data-step="compile" onclick="openStep(this)">
+            <div class="step-num">6F</div>
+            <div class="step-content">
+              <div class="s-title">Compile → checks.yml</div>
+              <div class="s-sub">POST /api/contracts/{p}/compile</div>
+            </div>
+          </div>
+          <div class="step-connector" style="background:rgba(123,111,238,.3)"></div>
+          <div class="step full-step" data-step="run-full" onclick="openStep(this)">
+            <div class="step-num">7F</div>
+            <div class="step-content">
+              <div class="s-title">Trigger first run</div>
+              <div class="s-sub">POST /api/objects/{id}/run</div>
+            </div>
+          </div>
+          <div class="step-connector" style="background:rgba(123,111,238,.3)"></div>
+          <div class="step full-step" data-step="cockpit-full" onclick="openStep(this)">
+            <div class="step-num">8F</div>
+            <div class="step-content">
+              <div class="s-title">Cockpit: Ampel + SLA + History</div>
+              <div class="s-sub">compliance · incidents · proposals</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="stepDetail" class="step-detail" style="margin-top:16px"></div>
+  </div>
+</div>
+</section>
+
+<!-- ── CONTRACT ANATOMY ── -->
+<section id="contract">
+<div class="wrap">
+  <div class="sec-label">03 · Contract structure</div>
+  <h2>Contract anatomy</h2>
+  <p>A contract is a semantic YAML file. No SQL, ever. The compiler turns it into read-only check SQL at certify/compile time. The schema is never in the contract; it is bound at runtime per environment (G2).</p>
+
+  <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:20px">
+    <div style="flex:1;min-width:280px">
+      <div class="mono-block"><span class="key-k">product</span>:    <span class="key-s">FACT_ORDERS</span>          <span style="color:var(--fg3)"># SQL-safe identifier = filename</span>
+<span class="key-k">dataset</span>:    <span class="key-s">FACT_ORDERS</span>          <span style="color:var(--fg3)"># HANA table/view</span>
+<span class="key-k">kind</span>:       <span class="key-s">internal_gate</span>        <span style="color:var(--fg3)"># or consumer_contract / provider_contract</span>
+<span class="key-k">owned_by</span>:   <span class="key-s">platform</span>             <span style="color:var(--fg3)"># or product</span>
+<span class="key-k">owners</span>:     <span class="key-n">["grp:data-platform"]</span> <span style="color:var(--fg3)"># optional ACL (IdP groups or subs)</span>
+<span class="key-k">version</span>:    <span class="key-s">1.0.0</span>                <span style="color:var(--fg3)"># SemVer — mandatory in Full mode</span>
+<span class="key-k">lifecycle</span>:  <span class="key-s">draft</span>                <span style="color:var(--fg3)"># draft | active | deprecated  (never in SQL)</span>
+
+<span class="key-k">guarantees</span>:
+  <span class="key-y">schema</span>:
+    <span class="key-k">columns</span>: [ORDER_ID, CUSTOMER_ID, ORDER_DATE, NET_AMOUNT]
+    <span class="key-k">mode</span>: closed             <span style="color:var(--fg3)"># closed = new columns are a breaking change</span>
+  <span class="key-y">keys</span>:
+    - <span class="key-k">columns</span>: [ORDER_ID]
+      <span class="key-k">unique</span>: true
+      <span class="key-k">severity</span>: critical
+  <span class="key-y">freshness</span>:
+    <span class="key-k">column</span>: ORDER_DATE
+    <span class="key-k">max_age</span>: PT24H            <span style="color:var(--fg3)"># ISO-8601 duration</span>
+    <span class="key-k">severity</span>: warn
+  <span class="key-y">not_null</span>:
+    - <span class="key-k">columns</span>: [ORDER_ID, CUSTOMER_ID]
+      <span class="key-k">severity</span>: fail
+  <span class="key-y">volume</span>:
+    <span class="key-k">min_rows</span>: 1000
+    <span class="key-k">severity</span>: warn</div>
+    </div>
+
+    <div style="flex:1;min-width:240px;display:flex;flex-direction:column;gap:10px">
+      <div class="card">
+        <h4 style="color:var(--crit);margin-bottom:6px">What never goes in a contract (G1)</h4>
+        <p style="font-size:12px">No <code>sql:</code>, no <code>SELECT</code>, no schema literals, no <code>CENTRAL</code>. The validator rejects any SQL-looking string in structural fields. The compiler is the only SQL producer.</p>
+      </div>
+      <div class="card">
+        <h4 style="color:var(--cont);margin-bottom:6px">Lifecycle is never in a run's guarantee</h4>
+        <p style="font-size:12px"><code>lifecycle</code> lives in the YAML but has <strong>no effect on checks</strong>. A <code>draft</code> contract can still be compiled (dry-run) and diffed. Only <code>active</code> contracts drive compliance and the cockpit Ampel.</p>
+      </div>
+      <div class="card">
+        <h4 style="color:var(--warn);margin-bottom:6px">Artifact trail</h4>
+        <ul style="font-size:12px;color:var(--fg3);padding-left:16px;display:flex;flex-direction:column;gap:4px">
+          <li><code>contracts/FACT_ORDERS.yaml</code> — the living contract (Git)</li>
+          <li><code>contracts/FACT_ORDERS.active.yml</code> — certified snapshot (G3 diff base)</li>
+          <li><code>checks/FACT_ORDERS/checks.yml</code> — compiled checks (determinism header)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ── GUARANTEE FAMILIES ── -->
+<section id="families">
+<div class="wrap">
+  <div class="sec-label">04 · Guarantee families</div>
+  <h2>What you declare → what gets compiled</h2>
+  <p>Each guarantee family is a semantic declaration. The compiler turns it into read-only SQL with a bound <code>{schema}</code> placeholder. Click a family to see the YAML shape and the resulting check type.</p>
+
+  <div class="fam-grid" id="famGrid">
+
+    <div class="fam-card" onclick="toggleFam(this)">
+      <div class="fam-header">
+        <span class="fam-icon">🏛️</span>
+        <div>
+          <div class="fam-name">schema</div>
+          <div style="display:flex;gap:5px;margin-top:3px"><span class="tag std sm">standard</span><span class="tag obs sm">obs</span></div>
+        </div>
+      </div>
+      <div class="fam-desc">Declares which columns must exist and whether the schema is open (new columns allowed) or closed (new columns = breaking).</div>
+      <div class="fam-expand">
+        <div class="yaml-block">guarantees:
+  schema:
+    columns: [ORDER_ID, AMOUNT, STATUS]
+    mode: closed      # open | closed
+    severity: critical</div>
+        <div class="compiles-to"><span class="compile-arrow">→</span> Compiles to check type:</div>
+        <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap">
+          <span class="check-pill">schema_exists</span>
+          <span class="check-pill">type_conformance</span>
+        </div>
+        <p style="font-size:11px;color:var(--fg3);margin-top:8px">SQL counts rows in <code>SYS.TABLE_COLUMNS ∪ SYS.VIEW_COLUMNS</code>. <code>closed</code> mode means adding a column later is a <span class="tag break sm">breaking</span> change.</p>
+      </div>
+    </div>
+
+    <div class="fam-card" onclick="toggleFam(this)">
+      <div class="fam-header">
+        <span class="fam-icon">🔑</span>
+        <div>
+          <div class="fam-name">keys</div>
+          <div style="display:flex;gap:5px;margin-top:3px"><span class="tag expensive sm">expensive</span><span class="tag qual sm">qual</span></div>
+        </div>
+      </div>
+      <div class="fam-desc">Declares which column(s) must be unique. The compiler emits a duplicate-check SQL.</div>
+      <div class="fam-expand">
+        <div class="yaml-block">guarantees:
+  keys:
+    - columns: [ORDER_ID]
+      unique: true
+      severity: critical
+    - columns: [ORDER_ID, LINE_NO]   # composite key
+      unique: true
+      severity: critical</div>
+        <div class="compiles-to"><span class="compile-arrow">→</span> Compiles to check type:</div>
+        <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap">
+          <span class="check-pill">duplicate</span>
+          <span class="check-pill">duplicate_composite</span>
+        </div>
+        <p style="font-size:11px;color:var(--fg3);margin-top:8px">SQL: <code>COUNT(*) - COUNT(DISTINCT key)</code>. Gated as <span class="tag expensive sm">expensive</span> — skipped when freshness gate fails (<code>skipped_stale</code>). Any change = <span class="tag break sm">breaking</span>.</p>
+      </div>
+    </div>
+
+    <div class="fam-card" onclick="toggleFam(this)">
+      <div class="fam-header">
+        <span class="fam-icon">⏱️</span>
+        <div>
+          <div class="fam-name">freshness</div>
+          <div style="display:flex;gap:5px;margin-top:3px"><span class="tag gate sm">gate</span><span class="tag obs sm">obs</span></div>
+        </div>
+      </div>
+      <div class="fam-desc">Declares the maximum age of data in the table via an ISO-8601 duration and a timestamp column.</div>
+      <div class="fam-expand">
+        <div class="yaml-block">guarantees:
+  freshness:
+    column: LOAD_TIMESTAMP   # must be a valid identifier
+    max_age: PT24H           # ISO-8601: PT1H, P1D, PT30M …
+    severity: warn</div>
+        <div class="compiles-to"><span class="compile-arrow">→</span> Compiles to check type:</div>
+        <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap">
+          <span class="check-pill">freshness</span>
+        </div>
+        <p style="font-size:11px;color:var(--fg3);margin-top:8px">SQL: <code>SECONDS_BETWEEN(MAX(col), CURRENT_TIMESTAMP)</code>. Classified as <span class="tag gate sm">gate</span> — if it fails, expensive checks get <code>skipped_stale</code>. Tightening <code>max_age</code> = <span class="tag break sm">breaking</span>.</p>
+      </div>
+    </div>
+
+    <div class="fam-card" onclick="toggleFam(this)">
+      <div class="fam-header">
+        <span class="fam-icon">📊</span>
+        <div>
+          <div class="fam-name">volume</div>
+          <div style="display:flex;gap:5px;margin-top:3px"><span class="tag gate sm">gate</span><span class="tag obs sm">obs</span></div>
+        </div>
+      </div>
+      <div class="fam-desc">Declares a minimum row count and/or rolling baseline anomaly detection.</div>
+      <div class="fam-expand">
+        <div class="yaml-block">guarantees:
+  volume:
+    min_rows: 1000         # hard floor; raising this later = breaking
+    baseline: rolling      # enables rolling statistical band
+    bounds: auto           # auto-fit from history
+    severity: warn</div>
+        <div class="compiles-to"><span class="compile-arrow">→</span> Compiles to check type:</div>
+        <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap">
+          <span class="check-pill">row_count</span>
+          <span class="check-pill">volume_anomaly</span>
+        </div>
+        <p style="font-size:11px;color:var(--fg3);margin-top:8px"><code>baseline: rolling</code> is an observability signal — baselines accumulate from run history (warm-up: 5 samples). Raising <code>min_rows</code> = <span class="tag break sm">breaking</span>.</p>
+      </div>
+    </div>
+
+    <div class="fam-card" onclick="toggleFam(this)">
+      <div class="fam-header">
+        <span class="fam-icon">🚫</span>
+        <div>
+          <div class="fam-name">not_null</div>
+          <div style="display:flex;gap:5px;margin-top:3px"><span class="tag std sm">standard</span><span class="tag qual sm">qual</span></div>
+        </div>
+      </div>
+      <div class="fam-desc">Declares columns that must never be NULL.</div>
+      <div class="fam-expand">
+        <div class="yaml-block">guarantees:
+  not_null:
+    - columns: [ORDER_ID, CUSTOMER_ID]
+      severity: fail
+    - columns: [NET_AMOUNT]
+      severity: critical</div>
+        <div class="compiles-to"><span class="compile-arrow">→</span> Compiles to check type:</div>
+        <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap">
+          <span class="check-pill">missing</span>
+        </div>
+        <p style="font-size:11px;color:var(--fg3);margin-top:8px">SQL: <code>COUNT(*) WHERE col IS NULL</code>, expect <code>= 0</code>. Adding a new column to <code>not_null</code> on an existing contract = <span class="tag break sm">breaking</span>.</p>
+      </div>
+    </div>
+
+    <div class="fam-card" onclick="toggleFam(this)">
+      <div class="fam-header">
+        <span class="fam-icon">📈</span>
+        <div>
+          <div class="fam-name">completeness</div>
+          <div style="display:flex;gap:5px;margin-top:3px"><span class="tag std sm">standard</span><span class="tag qual sm">qual</span></div>
+        </div>
+      </div>
+      <div class="fam-desc">Declares a minimum fill-rate (%) per column, tolerating a small null rate instead of requiring strict zero.</div>
+      <div class="fam-expand">
+        <div class="yaml-block">guarantees:
+  completeness:
+    - column: EMAIL
+      min_pct: 95.0        # at least 95 % of rows must have a value
+      severity: warn
+    - column: PHONE
+      min_pct: 60.0
+      severity: warn</div>
+        <div class="compiles-to"><span class="compile-arrow">→</span> Compiles to check type:</div>
+        <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap">
+          <span class="check-pill">completeness_pct</span>
+        </div>
+        <p style="font-size:11px;color:var(--fg3);margin-top:8px">SQL: <code>100 * COUNT(NULL col) / COUNT(*)</code>, expect <code>&lt; (100 - min_pct)</code>. Raising <code>min_pct</code> or adding a column = <span class="tag break sm">breaking</span>.</p>
+      </div>
+    </div>
+
+    <div class="fam-card" onclick="toggleFam(this)">
+      <div class="fam-header">
+        <span class="fam-icon">🔗</span>
+        <div>
+          <div class="fam-name">referential</div>
+          <div style="display:flex;gap:5px;margin-top:3px"><span class="tag expensive sm">expensive</span><span class="tag qual sm">qual</span></div>
+        </div>
+      </div>
+      <div class="fam-desc">Declares FK integrity: fact rows must have a matching dimension key.</div>
+      <div class="fam-expand">
+        <div class="yaml-block">guarantees:
+  referential:
+    - fk: [CUSTOMER_ID]
+      parent: DIM_CUSTOMER
+      parent_key: [CUSTOMER_ID]
+      severity: critical</div>
+        <div class="compiles-to"><span class="compile-arrow">→</span> Compiles to check type:</div>
+        <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap">
+          <span class="check-pill">reference_integrity</span>
+        </div>
+        <p style="font-size:11px;color:var(--fg3);margin-top:8px">SQL: <code>LEFT JOIN … WHERE dim_pk IS NULL</code>. Classified as <span class="tag expensive sm">expensive</span>. Removing an FK relationship = <span class="tag break sm">breaking</span> for consumers.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="alert info">
+    <strong>Seed heuristics:</strong> When you call <code>POST /api/contracts/{p}/seed</code>, the seeder reads the inventory object, proposes <code>schema</code> from the column list, infers key candidates from column names ending in <code>ID/NO/NR/KEY/CODE</code> (marked <code>proposed: true</code> for steward confirmation), and adds <code>freshness</code> from any column containing <code>TS/TIME/DATE/LOAD</code>. It's a starting point, not a finished contract.
+  </div>
+</div>
+</section>
+
+<!-- ── LIFECYCLE ── -->
+<section id="lifecycle">
+<div class="wrap">
+  <div class="sec-label">05 · Contract lifecycle</div>
+  <h2>Lifecycle state machine</h2>
+  <p>A contract moves through three states. Compliance only tracks objects in <code>active</code> state. The <code>PUT</code> endpoint always writes a <code>draft</code>. It never directly activates.</p>
+
+  <div class="lc-machine">
+    <div class="lc-node draft">
+      <div class="n-label" style="color:var(--fg3)">Start</div>
+      <div class="n-name">draft</div>
+      <div class="n-desc">Edit freely.<br>Runs don't update<br>compliance yet.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;padding:0 4px">
+      <div class="lc-arrow lite">
+        <div class="a-line"></div>
+        <div class="a-label">Lite: certify<br>(1 click)</div>
+      </div>
+      <div class="lc-arrow full">
+        <div class="a-line"></div>
+        <div class="a-label">Full: approve<br>(G3 gate)</div>
+      </div>
+    </div>
+    <div class="lc-node active">
+      <div class="n-label">Active</div>
+      <div class="n-name">active</div>
+      <div class="n-desc">Runs update<br>compliance &amp; incidents.<br>Coverage = ✓</div>
+    </div>
+    <div class="lc-arrow" style="flex-direction:column;min-width:80px">
+      <div class="a-line"></div>
+      <div class="a-label">deprecate</div>
+    </div>
+    <div class="lc-node deprecated">
+      <div class="n-label">Retired</div>
+      <div class="n-name">deprecated</div>
+      <div class="n-desc">Compliance frozen.<br>Historical record<br>preserved.</div>
+    </div>
+  </div>
+
+  <div class="amend-path">
+    <div class="amend-icon">🔄</div>
+    <div>
+      <h4>Amending an active contract (Full mode)</h4>
+      <p style="font-size:13px;margin-top:4px">A <code>PUT</code> on an active contract always writes a <strong>draft amendment</strong>. The active version stays in <code>.active.yml</code> as the G3 diff baseline. The amendment only becomes <code>active</code> when approved. An active contract can have a pending draft change without disrupting running checks.</p>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center">
+        <code>active</code>
+        <span style="color:var(--fg3)">→ PUT (always draft) →</span>
+        <code>draft</code>
+        <span style="color:var(--fg3)">→ diff → approve (G3) →</span>
+        <code>active</code>
+        <span style="color:var(--fg3)">↑ snapshot updated</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="amend-path" style="margin-top:8px">
+    <div class="amend-icon">⬆️</div>
+    <div>
+      <h4>Promoting an internal gate to a consumer contract</h4>
+      <p style="font-size:13px;margin-top:4px"><code>POST /api/contracts/{p}/promote</code> copies the guarantees from an <code>internal_gate</code> artifact into a new <code>consumer_contract</code> draft (named <code>{p}_contract</code>). The gate and the contract co-exist; the contract carries SemVer and approval ceremony from its first certification. This is the Lite → Full transition path.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ── G3 BREAKING CHANGE ── -->
+<section id="g3">
+<div class="wrap">
+  <div class="sec-label">06 · Gate G3</div>
+  <h2>Breaking change detector</h2>
+  <p>G3 is enforced by the server at <code>/approve</code> and <code>/certify</code>, and by CI on PRs. A breaking change without a SemVer major bump → <strong>409 Conflict</strong>. Toggle changes below to see what G3 would decide.</p>
+
+  <div class="g3-controls">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:12px;color:var(--fg3)">Base version:</span>
+      <input class="version-input" id="baseVer" value="1.2.0" oninput="evalG3()">
+      <span style="font-size:12px;color:var(--fg3)">→ New version:</span>
+      <input class="version-input" id="headVer" value="1.3.0" oninput="evalG3()">
+    </div>
+    <button class="btn" onclick="clearChanges()">Clear all</button>
+  </div>
+
+  <div class="changes-list" id="changesList"></div>
+
+  <div id="g3Verdict" class="g3-verdict"></div>
+</div>
+</section>
+
+<!-- ── ROLES ── -->
+<section id="roles">
+<div class="wrap">
+  <div class="sec-label">07 · Auth &amp; permissions</div>
+  <h2>Roles &amp; write permissions</h2>
+  <p>The server is authoritative; the frontend only mirrors. Write permission is determined by <strong>role × owned_by × owners</strong> membership. Filter by role to highlight what's allowed.</p>
+
+  <div class="roles-header">
+    <button class="role-btn" onclick="filterRole('')">All</button>
+    <button class="role-btn" onclick="filterRole('viewer')">viewer</button>
+    <button class="role-btn" onclick="filterRole('steward')">steward</button>
+    <button class="role-btn" onclick="filterRole('owner')">owner</button>
+    <button class="role-btn" onclick="filterRole('admin')">admin</button>
+  </div>
+
+  <div style="overflow-x:auto">
+  <table class="perm-table" id="permTable">
+    <thead>
+      <tr>
+        <th>Action</th>
+        <th>viewer</th>
+        <th>steward</th>
+        <th>owner</th>
+        <th>admin</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody id="permBody"></tbody>
+  </table>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h4>owned_by rule</h4>
+    <p style="font-size:13px">Write permission cascades: <code>steward</code> can write <code>owned_by: platform</code> contracts; <code>owner</code> can write both <code>platform</code> and <code>product</code>. An <code>owners: ["grp:data-platform"]</code> list grants fine-grained ACLs via IdP group claims (fail-closed: a missing group claim = no match).</p>
+  </div>
+</div>
+</section>
+
+<!-- ── SCHEDULING ── -->
+<section id="scheduling">
+<div class="wrap">
+  <div class="sec-label">08 · Object settings</div>
+  <h2>Environment &amp; scheduling</h2>
+  <p>Two per-object settings define how and when checks run: the <strong>environment</strong> (which HANA connection to use) and the <strong>schedule</strong> (when to run automatically).</p>
+
+  <h3 style="margin-bottom:8px;margin-top:24px">Environment</h3>
+  <p>An environment is a named HANA connection. Passwords are never stored in the contract or returned to the client. Only a <code>password_ref</code> (e.g. <code>env:HANA_PW_PROD</code>) is stored; the value is resolved server-side at connect time.</p>
+
+  <div class="grid g2" style="margin:16px 0">
+    <div class="card">
+      <h4>Connection fields</h4>
+      <div class="mono-block" style="font-size:11px">production:
+  host: hana.example.com
+  port: 443
+  user: DQ_TECHNICAL_USER
+  schema: CENTRAL_DWH       # default schema; overridable per run
+  password_ref: env:HANA_PW_PROD
+  encrypt: true
+  validate_cert: true</div>
+    </div>
+    <div class="card">
+      <h4>Security rules</h4>
+      <ul style="font-size:12px;color:var(--fg2);padding-left:16px;display:flex;flex-direction:column;gap:6px;margin-top:4px">
+        <li><strong>Admin-only</strong> write access to environments</li>
+        <li>Password value never returned to client (S-1)</li>
+        <li><code>plain:</code> references never surfaced in the API response</li>
+        <li>Schema in the environment overrides the contract's dataset schema at runtime (G2)</li>
+        <li><code>ALLOW_MOCK_CONNECTION=false</code> → no environment = 422; no silent fallback</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom:12px;margin-top:28px">Scheduling modes</h3>
+  <p>There is at most one schedule per object (id <code>obj:{object_id}</code>). Requires steward+ to manage.</p>
+
+  <div class="sched-grid">
+    <div class="sched-card">
+      <div class="sched-icon">🖐️</div>
+      <div class="sched-mode">manual</div>
+      <div class="sched-title">No automatic runs</div>
+      <div class="sched-desc">Default state. No schedule row in the store. Runs are triggered via the UI (<code>POST /api/objects/{id}/run</code>) or CLI/cron by the operator. The cockpit shows the last-run timestamp so you can see how stale it is.</div>
+    </div>
+    <div class="sched-card active-sched">
+      <div class="sched-icon">⚙️</div>
+      <div class="sched-mode">internal</div>
+      <div class="sched-title">Signal's own poller</div>
+      <div class="sched-desc">Signal's built-in scheduler claims the object at each <code>interval_seconds</code> (minimum 60s). The run path is identical to a manual trigger, with the same compliance/incident/notification side-effects. Good for PoCs and self-contained setups.</div>
+    </div>
+    <div class="sched-card">
+      <div class="sched-icon">🔌</div>
+      <div class="sched-mode">external</div>
+      <div class="sched-title">External orchestrator</div>
+      <div class="sched-desc">SAP Datasphere Task Chain, Airflow, or cron drives the cadence via <code>cli/dq_check_runner.py</code>. Signal's poller never claims the object. The schedule row exists for documentation and stamps <code>last_run</code> so the cockpit still shows it as governed.</div>
+    </div>
+  </div>
+
+  <div class="alert info" style="margin-top:16px">
+    <strong>Double-run guard (F2):</strong> The store registers a run as <code>running</code> before execution via a partial unique index. A second trigger while one is already running returns <code>{"status": "already_running"}</code>, atomically, with no check-then-act race, even across multiple workers.
+  </div>
+</div>
+</section>
+
+<div style="height:80px"></div>
+
+<script>
+// ── step detail data ─────────────────────────────────────
+const stepData = {
+  env: {
+    title: 'Step 0 — Environment setup (one-time, admin)',
+    mode: 'shared',
+    desc: 'Configure the HANA/Datasphere connection: host, port, technical user, default schema, and a password reference. The password value is stored in <code>secrets.local.yml</code> (gitignored) and never returned to a client. This is a one-time platform setup step.',
+    endpoint: 'POST /api/admin/environments',
+    role: 'admin',
+    result: 'Named connection (e.g. "production") available for run selection',
+    gate: 'S-1 (no secret in response), S-13 (fail-closed)',
+  },
+  extract: {
+    title: 'Step 1 — Extract inventory & lineage',
+    mode: 'shared',
+    desc: 'An extract runs against Datasphere metadata APIs and produces <code>data/inventory.json</code> (object catalog with columns) and <code>data/lineage.json</code> (object→object and column→column edges). These are point-in-time snapshots. The lineage endpoint reports extract_age; after 7 days the UI flags it stale (F5).',
+    endpoint: 'POST /api/extract',
+    role: 'steward+',
+    result: 'data/inventory.json · data/lineage.json written to disk',
+    gate: 'G2: schema never extracted into the contract (bound at runtime)',
+  },
+  seed: {
+    title: 'Step 2 — Seed draft from inventory',
+    mode: 'shared',
+    desc: 'Reads the inventory object and generates a draft contract with guarantee proposals: schema (all columns, mode: closed), key candidates (column names ending in ID/NO/NR/KEY/CODE, flagged proposed: true for steward confirmation), freshness (first TS/TIME/DATE/LOAD column), volume (rolling baseline). Fails if the contract is already active/certified.',
+    endpoint: 'POST /api/contracts/{product}/seed',
+    role: 'steward+ (for platform-owned)',
+    result: 'contracts/PRODUCT.yaml written as lifecycle: draft',
+    gate: 'G1 enforced on the seed output. A2: no schema: key in output.',
+  },
+  edit: {
+    title: 'Step 3 — Define / refine guarantees',
+    mode: 'shared',
+    desc: 'The steward/owner edits guarantees in the workbench. PUT always writes a draft regardless of input lifecycle. The Lite UI shows a simplified checklist (guarantee families on/off + one severity per family). The Full UI exposes the full schema with inventory column pickers. SQL is never allowed.',
+    endpoint: 'PUT /api/contracts/{product}',
+    role: 'steward (platform-owned) · owner (both)',
+    result: 'contracts/PRODUCT.yaml updated as lifecycle: draft',
+    gate: 'G1: validate_contract() runs on every PUT; SQL patterns rejected',
+  },
+  certify: {
+    title: 'Step 4L — Certify (Lite: one click)',
+    mode: 'lite',
+    desc: 'The Lite "Speichern & aktivieren" button calls <code>/certify</code>, which in one atomic step: (1) validates (G1), (2) checks G3 if the product was already certified and the change is breaking (→ 409, must use Full mode), (3) compiles guarantees → checks.yml, (4) sets lifecycle=active, (5) writes the certified snapshot (.active.yml), (6) updates the contract index. Fails if compile produces zero checks.',
+    endpoint: 'POST /api/contracts/{product}/certify',
+    role: 'steward+ (platform-owned)',
+    result: 'Contract active · checks.yml written · compliance = unknown',
+    gate: 'G1 (validate) · G3 (breaking on certified product → 409)',
+  },
+  diff: {
+    title: 'Step 4F — Diff & breaking-change preview',
+    mode: 'full',
+    desc: 'Compares the working draft against the last certified version (.active.yml). Reports each change with its kind (removed_column, key_change, constraint_tightened, severity_escalated, removed_referential) and whether it is breaking. The frontend shows this as the BreakingDiffPanel before letting the owner submit for approval.',
+    endpoint: 'GET /api/contracts/{product}/version-diff',
+    role: 'read-only — any authenticated user',
+    result: 'breaking: true/false · entries[] with kind/path/old/new/breaking',
+    gate: 'Preview only — G3 is enforced at /approve, not here',
+  },
+  approve: {
+    title: 'Step 5F — Approve (G3 gate, exactly 1 Git commit)',
+    mode: 'full',
+    desc: 'The approval endpoint re-validates (G1 on disk), runs the G3 breaking-change check against .active.yml, and if blocked returns 409 with the breaking entries. If approved: (1) sets lifecycle=active, (2) writes the new .active.yml snapshot, (3) commits exactly one commit authored as the approving principal. For a new consumer/provider contract, also initialises compliance = unknown.',
+    endpoint: 'POST /api/contracts/{product}/approve',
+    role: 'steward (platform-owned) · owner (product-owned)',
+    result: 'Contract active · .active.yml updated · 1 Git commit · compliance = unknown (new)',
+    gate: 'G1 (re-validate on disk) · G3 (breaking + no major bump → 409)',
+  },
+  compile: {
+    title: 'Step 6F — Compile → checks.yml',
+    mode: 'full',
+    desc: 'Compiles the active contract into checks.yml. Column names are validated against the inventory (S2 stage 2). An "existing-wins" merge preserves any hand-authored check with the same name. The output carries three determinism hashes in the header: contract_hash, library_version, compiler_hash. Requires lifecycle=active (use dry_run=true to preview without persisting).',
+    endpoint: 'POST /api/contracts/{product}/compile',
+    role: 'steward+ (write) · any (dry-run)',
+    result: 'checks/{product}/checks.yml written with determinism header',
+    gate: 'G2 ({schema} placeholder preserved) · G1 re-check · ≥1 check required',
+  },
+  'run-lite': {
+    title: 'Step 5L / Step 7F — Trigger first run',
+    mode: 'shared',
+    desc: 'Triggers an async DQ run. The run registers as "running" first (F2 double-run guard), then executes in a background thread. The engine runs with gating=True: freshness/volume gates first, expensive checks skipped if a gate fails (skipped_stale, G6). On completion: updates baselines (WS5-1), computes compliance transition, opens incident if newly breached, routes notification if needed.',
+    endpoint: 'POST /api/objects/{id}/run',
+    role: 'steward+',
+    result: 'run_id returned immediately (202). Results visible in cockpit after completion.',
+    gate: 'G6 (gating visible) · G8 (no raw rows without diagnostics opt-in) · F2 (double-run guard)',
+  },
+  'run-full': {
+    title: 'Step 7F — same as run trigger',
+    mode: 'full',
+    desc: 'Identical run flow as the Lite path. The difference is that a governance contract (consumer/provider) will update the dq_compliance table and potentially open a Contract-Breach incident, while an internal_gate opens an Engineering-Signal incident.',
+    endpoint: 'POST /api/objects/{id}/run',
+    role: 'steward+',
+    result: 'Compliance state updated · incident opened if newly breached · notification routed',
+    gate: 'Same gates as Lite',
+  },
+  'cockpit-lite': {
+    title: 'Step 6L — Cockpit: status Ampel',
+    mode: 'lite',
+    desc: 'The cockpit now shows: object status (worst-of check results), family status (observability vs quality), coverage flag (● covered: active contract + passing checks). Compliance Ampel shows compliant/breached. Accessible to viewer role.',
+    endpoint: 'GET /api/objects · GET /api/lineage · GET /api/runs',
+    role: 'viewer (read) · steward (trigger)',
+    result: 'Status grid · coverage map · compliance Ampel live',
+    gate: '—',
+  },
+  'cockpit-full': {
+    title: 'Step 8F — Cockpit: Ampel + SLA + Version history',
+    mode: 'full',
+    desc: 'Full mode adds: SLA windows (7/30/90d compliant uptime %) from dq_compliance_events, run compare diff (per-check status regression/recovery), proposal inbox (data-driven guarantee tightening from the miner), BDC/ODCS export for interoperability, incident timeline with acknowledgment and assignment.',
+    endpoint: 'GET /api/contracts/{p}/sla · GET /api/runs/compare · GET /api/proposals · GET /api/incidents',
+    role: 'viewer (read all) · steward (manage incidents) · owner (accept proposals)',
+    result: 'Full observability + governance audit trail',
+    gate: '—',
+  },
+};
+
+let activeStep = null;
+function openStep(el) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  const key = el.dataset.step;
+  if (activeStep === key) {
+    activeStep = null;
+    document.getElementById('stepDetail').classList.remove('show');
+    return;
+  }
+  activeStep = key;
+  el.classList.add('active');
+  const d = stepData[key];
+  if (!d) return;
+  const modeColor = d.mode === 'lite' ? 'var(--lite)' : d.mode === 'full' ? 'var(--full)' : 'var(--fg3)';
+  const modeTag = d.mode === 'lite' ? '<span class="tag lite">Lite</span>' : d.mode === 'full' ? '<span class="tag full">Full</span>' : '<span class="tag" style="background:rgba(100,110,124,.15);color:var(--fg3)">Shared</span>';
+  document.getElementById('stepDetail').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      ${modeTag}
+      <h4 style="color:${modeColor};margin:0">${d.title}</h4>
+    </div>
+    <p style="font-size:13px;color:var(--fg2)">${d.desc}</p>
+    <div class="step-meta">
+      <div><dt>Endpoint</dt><dd>${d.endpoint}</dd></div>
+      <div><dt>Role required</dt><dd>${d.role}</dd></div>
+      <div><dt>Result</dt><dd style="color:var(--fg2);font-family:var(--sans);font-size:12px">${d.result}</dd></div>
+      <div><dt>Gates</dt><dd style="color:var(--fg2);font-family:var(--sans);font-size:12px">${d.gate}</dd></div>
+    </div>`;
+  document.getElementById('stepDetail').classList.add('show');
+}
+
+// ── guarantee families ───────────────────────────────────
+function toggleFam(card) {
+  const isOpen = card.classList.contains('open');
+  document.querySelectorAll('.fam-card').forEach(c => c.classList.remove('open'));
+  if (!isOpen) card.classList.add('open');
+}
+
+// ── G3 simulator ─────────────────────────────────────────
+const changes = [
+  { id:'rm_col',   desc:'Remove a column from schema.columns',              breaking:true  },
+  { id:'add_closed', desc:'Add a column to closed schema (mode: closed)',   breaking:true  },
+  { id:'open_close', desc:'Change schema.mode from open → closed',         breaking:true  },
+  { id:'tight_fresh', desc:'Tighten freshness max_age (e.g. PT48H → PT12H)', breaking:true  },
+  { id:'raise_vol', desc:'Raise volume.min_rows (e.g. 1000 → 5000)',        breaking:true  },
+  { id:'add_nn',   desc:'Add a column to not_null constraint',              breaking:true  },
+  { id:'raise_pct', desc:'Raise completeness.min_pct (e.g. 80% → 95%)',    breaking:true  },
+  { id:'rm_ref',   desc:'Remove a referential FK guarantee',                breaking:true  },
+  { id:'sev_esc',  desc:'Escalate severity warn → fail on a guarantee family', breaking:true  },
+  { id:'add_open', desc:'Add a column to open schema (mode: open)',         breaking:false },
+  { id:'loose_fresh', desc:'Loosen freshness max_age (e.g. PT12H → PT48H)', breaking:false },
+  { id:'lower_vol', desc:'Lower volume.min_rows',                           breaking:false },
+  { id:'lower_pct', desc:'Lower completeness.min_pct',                     breaking:false },
+  { id:'sev_down', desc:'Soften severity fail → warn',                     breaking:false },
+  { id:'add_desc', desc:'Change or add the description field',              breaking:false },
+];
+
+const selected = new Set();
+function buildChangesList() {
+  const el = document.getElementById('changesList');
+  el.innerHTML = changes.map(c => `
+    <div class="change-row${selected.has(c.id) ? ' selected' : ''}" onclick="toggleChange('${c.id}')">
+      <div class="change-cb">${selected.has(c.id) ? '✓' : ''}</div>
+      <div class="change-desc">${c.desc}</div>
+      <div class="change-badge"><span class="tag ${c.breaking ? 'break' : 'nobreak'}">${c.breaking ? '⚠ breaking' : '✓ non-breaking'}</span></div>
+    </div>`).join('');
+}
+
+function toggleChange(id) {
+  if (selected.has(id)) selected.delete(id); else selected.add(id);
+  buildChangesList();
+  evalG3();
+}
+
+function clearChanges() { selected.clear(); buildChangesList(); evalG3(); }
+
+function semverMajor(v) { return parseInt((v||'0').split('.')[0]) || 0; }
+
+function evalG3() {
+  const verdict = document.getElementById('g3Verdict');
+  if (selected.size === 0) { verdict.className = 'g3-verdict'; return; }
+
+  const baseV = document.getElementById('baseVer').value.trim();
+  const headV = document.getElementById('headVer').value.trim();
+  const hasBreaking = [...selected].some(id => changes.find(c=>c.id===id)?.breaking);
+  const majorBump = semverMajor(headV) > semverMajor(baseV);
+
+  if (!hasBreaking) {
+    verdict.className = 'g3-verdict pass show';
+    verdict.innerHTML = `✓ <strong>G3 OK</strong> — no breaking changes selected. Any version bump is acceptable (${baseV} → ${headV}).`;
+  } else if (majorBump) {
+    verdict.className = 'g3-verdict pass show';
+    verdict.innerHTML = `✓ <strong>G3 OK</strong> — breaking change is accompanied by a major version bump (${baseV} → ${headV}). Approval will proceed.`;
+  } else {
+    verdict.className = 'g3-verdict fail show';
+    const breakers = [...selected].filter(id => changes.find(c=>c.id===id)?.breaking)
+      .map(id => changes.find(c=>c.id===id)?.desc);
+    verdict.innerHTML = `✕ <strong>G3 BLOCKED</strong> — breaking change without a major version bump (${baseV} → ${headV}).<br>
+    <span style="font-size:12px;color:var(--fg2);margin-top:6px;display:block">Breaking: ${breakers.map(b=>'<em>'+b+'</em>').join(' · ')}</span>
+    <span style="font-size:12px;color:var(--fg3);margin-top:4px;display:block">Fix: bump the major version (e.g. ${baseV} → ${semverMajor(baseV)+1}.0.0), or use /approve which will return 409 with the breaking entries.</span>`;
+  }
+}
+
+buildChangesList();
+
+// ── roles matrix ─────────────────────────────────────────
+const perms = [
+  { action:'Read objects, runs, cockpit',            v:'y', s:'y', o:'y', a:'y', note:'All roles' },
+  { action:'Trigger a run',                          v:'n', s:'y', o:'y', a:'y', note:'steward+ (runs cost HANA load)' },
+  { action:'Manage schedules',                       v:'n', s:'y', o:'y', a:'y', note:'steward+' },
+  { action:'Create / edit contract (draft)',         v:'n', s:'c', o:'y', a:'y', note:'steward if platform-owned; owner for both' },
+  { action:'Lite certify (platform-owned)',          v:'n', s:'y', o:'y', a:'y', note:'steward+ on platform-owned' },
+  { action:'Lite certify (product-owned)',           v:'n', s:'n', o:'y', a:'y', note:'owner+ only' },
+  { action:'Full approve (platform-owned)',          v:'n', s:'y', o:'y', a:'y', note:'steward+ on platform-owned' },
+  { action:'Full approve (product-owned)',           v:'n', s:'n', o:'y', a:'y', note:'owner+ only' },
+  { action:'Compile contract',                       v:'n', s:'y', o:'y', a:'y', note:'steward+ (write); any (dry-run)' },
+  { action:'Manage incidents (ack / assign / note)', v:'n', s:'y', o:'y', a:'y', note:'steward+' },
+  { action:'Accept / reject proposals',              v:'n', s:'n', o:'y', a:'y', note:'owner+' },
+  { action:'Manage environments / notifications',    v:'n', s:'n', o:'n', a:'y', note:'admin only' },
+  { action:'Reindex contract store',                 v:'n', s:'y', o:'y', a:'y', note:'steward+' },
+  { action:'Deprecate a contract',                   v:'n', s:'c', o:'y', a:'y', note:'write permission required' },
+];
+
+const roleLabels = {y:'✓',n:'—',c:'~'};
+let activeRole = '';
+function renderPerms() {
+  document.getElementById('permBody').innerHTML = perms.map(p => {
+    const dim = activeRole && p[activeRole[0]] === 'n';
+    return `<tr class="${dim ? 'dim' : ''}${activeRole ? ' highlight' : ''}">
+      <td>${p.action}</td>
+      <td><span class="perm-cell ${p.v}">${roleLabels[p.v]}</span></td>
+      <td><span class="perm-cell ${p.s}">${roleLabels[p.s]}</span></td>
+      <td><span class="perm-cell ${p.o}">${roleLabels[p.o]}</span></td>
+      <td><span class="perm-cell ${p.a}">${roleLabels[p.a]}</span></td>
+      <td style="color:var(--fg3);font-size:11px">${p.note}</td>
+    </tr>`;
+  }).join('');
+}
+function filterRole(role) {
+  activeRole = role;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  if (role) document.querySelector(`.role-btn[onclick*="'${role}'"]`)?.classList.add('active');
+  renderPerms();
+}
+renderPerms();
+
+// ── scroll spy ───────────────────────────────────────────
+const sections = ['hero','journey','contract','families','lifecycle','g3','roles','scheduling'];
+const tocDots = document.getElementById('tocDots');
+sections.forEach(id => {
+  const d = document.createElement('div');
+  d.className = 'toc-dot'; d.title = id; d.id = 'dot-' + id;
+  d.onclick = () => document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
+  tocDots.appendChild(d);
+});
+const navLinks = document.querySelectorAll('nav a');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = e.target.id;
+      document.querySelectorAll('.toc-dot').forEach(d => d.classList.remove('active'));
+      navLinks.forEach(l => l.classList.remove('active'));
+      document.getElementById('dot-' + id)?.classList.add('active');
+      document.querySelector(`nav a[href="#${id}"]`)?.classList.add('active');
+    }
+  });
+}, { threshold: 0.25 });
+sections.forEach(id => { const el = document.getElementById(id); if (el) io.observe(el); });
+</script>
+</body>
+</html>
