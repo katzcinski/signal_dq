@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Delivery-Offering — Data Contract &amp; DQ Foundation für SAP Datasphere / BDC</title>
+<style>
+  :root{
+    --bg:#0b0f17; --bg2:#0e1420; --panel:#131b2a; --panel2:#172235;
+    --line:#22304a; --line2:#2c3e5e;
+    --ink:#e6edf6; --muted:#93a4bd; --faint:#64748b;
+    --accent:#38bdf8; --accent2:#818cf8;
+    --green:#34d399; --amber:#fbbf24; --red:#f87171; --grey:#64748b; --pink:#f472b6;
+    --mono:"SFMono-Regular",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:radial-gradient(1200px 700px at 80% -10%,#13203a 0%,var(--bg) 55%);color:var(--ink);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code,pre,.mono{font-family:var(--mono)}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+
+  header.topbar{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);background:rgba(11,15,23,.85);border-bottom:1px solid var(--line)}
+  .topbar .wrap{display:flex;align-items:center;gap:18px;height:60px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+  .brand .pulse{width:11px;height:11px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:pulse 2.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.55)}70%{box-shadow:0 0 0 9px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+  nav.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-left:auto}
+  nav.tabs::-webkit-scrollbar{display:none}
+  nav.tabs button{color:var(--muted);font-size:13px;padding:7px 13px;border-radius:8px;white-space:nowrap;background:transparent;border:1px solid transparent;cursor:pointer;font-family:var(--sans);font-weight:600}
+  nav.tabs button:hover{color:var(--ink);background:var(--panel)}
+  nav.tabs button.active{color:#06121f;background:linear-gradient(180deg,#58c7fb,#33a7e8)}
+
+  .hero{padding:46px 0 18px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-weight:600}
+  h1{font-size:clamp(28px,5vw,44px);line-height:1.06;margin:12px 0 10px;letter-spacing:-1px}
+  h1 .grad{background:linear-gradient(95deg,var(--accent),var(--accent2) 60%,var(--green));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:clamp(15px,2.2vw,18px);color:var(--muted);max-width:900px}
+  .lede strong{color:var(--ink)}
+
+  .view{display:none;padding-bottom:70px}
+  .view.active{display:block}
+  section{padding:24px 0;border-top:1px solid var(--line)}
+  section:first-child{border-top:none}
+  h2{font-size:22px;margin:0 0 6px;letter-spacing:-.3px}
+  h3{font-size:15px;margin:0 0 6px}
+  .sub{color:var(--muted);max-width:880px;margin:0 0 16px}
+
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:880px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .card .k{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:var(--faint);font-weight:700}
+  .card p{color:var(--muted);margin:6px 0 0;font-size:14px}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:.4px}
+  .pill.green{background:rgba(52,211,153,.14);color:var(--green);border:1px solid rgba(52,211,153,.35)}
+  .pill.amber{background:rgba(251,191,36,.14);color:var(--amber);border:1px solid rgba(251,191,36,.35)}
+  .pill.red{background:rgba(248,113,113,.14);color:var(--red);border:1px solid rgba(248,113,113,.35)}
+  .pill.blue{background:rgba(56,189,248,.14);color:var(--accent);border:1px solid rgba(56,189,248,.35)}
+
+  ul.clean{margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:14px}
+  ul.clean li{margin:4px 0}
+  ul.clean li strong{color:var(--ink)}
+
+  /* timeline */
+  .tl{display:flex;gap:8px;overflow-x:auto;padding:6px 0 14px;scrollbar-width:thin}
+  .tl button{flex:0 0 auto;min-width:128px;text-align:left;cursor:pointer;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 13px;color:var(--ink);font-family:var(--sans);transition:.15s}
+  .tl button:hover{border-color:var(--line2);background:var(--panel2)}
+  .tl button.on{border-color:var(--accent);background:linear-gradient(180deg,#15233a,#101a2b);box-shadow:0 0 0 1px rgba(56,189,248,.4)}
+  .tl .wk{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--accent);font-weight:700}
+  .tl .ph{font-size:13px;font-weight:600;margin-top:3px}
+  .tldetail{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line2);border-radius:14px;padding:20px 22px;min-height:150px}
+  .tldetail h3{font-size:18px;margin:0 0 4px}
+  .tldetail .deliv{margin-top:14px;padding:11px 14px;border-radius:10px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.3)}
+  .tldetail .deliv .k{color:var(--green);font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase}
+
+  /* model selector */
+  .seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px;flex-wrap:wrap}
+  .seg button{cursor:pointer;background:transparent;border:0;color:var(--muted);font-family:var(--sans);font-weight:600;font-size:13px;padding:8px 14px;border-radius:8px}
+  .seg button.on{background:linear-gradient(180deg,#58c7fb,#33a7e8);color:#06121f}
+  .modelbox{margin-top:16px;background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line2);border-radius:14px;padding:20px 22px}
+  .modelbox .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+  .modelbox h3{font-size:19px;margin:0}
+
+  table.t{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
+  table.t th,table.t td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+  table.t th{color:var(--faint);font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+  table.t td{color:var(--muted)}
+  table.t td strong{color:var(--ink)}
+
+  .note{font-size:13px;color:var(--faint);border-left:2px solid var(--line2);padding-left:12px;margin-top:14px}
+  .kpi{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .kpi .b{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:120px}
+  .kpi .b .n{font-size:22px;font-weight:800;color:var(--ink)}
+  .kpi .b .l{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+  footer{border-top:1px solid var(--line);padding:22px 0;color:var(--faint);font-size:12px}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <div class="brand"><span class="pulse"></span> Signal · Delivery-Offering</div>
+  <nav class="tabs" id="tabs">
+    <button data-view="overview" class="active">Übersicht</button>
+    <button data-view="plan">Phasenplan</button>
+    <button data-view="roles">Rollen &amp; Betrieb</button>
+    <button data-view="models">Betriebsmodelle</button>
+    <button data-view="deliver">Deliverables &amp; Preis</button>
+  </nav>
+</div></header>
+
+<!-- ============ ÜBERSICHT ============ -->
+<div class="view active" id="view-overview"><div class="wrap">
+  <div class="hero">
+    <span class="eyebrow">◆ Productized Consulting Offering</span>
+    <h1>Data Contract &amp; DQ Foundation<br><span class="grad">für SAP Datasphere / BDC</span></h1>
+    <p class="lede">In <strong>6–8 Wochen</strong> von „wir vermuten, die Daten sind okay" zu <strong>verbindlichen Data Contracts an euren BDC-Output-Ports</strong> und <strong>durchsetzbaren DQ-Checks gegen HANA</strong> — live als Compliance-Ampel. Geliefert mit unserem eigenen Accelerator <strong>Signal</strong>, in Wochen statt Monaten.</p>
+  </div>
+
+  <section>
+    <h2>Der Wedge — warum wir, und nicht generisches Tooling</h2>
+    <p class="sub">Generische Data Contracts machen alle. <strong style="color:var(--ink)">SAP-HANA-spezifisches Enforcement macht fast niemand.</strong> Genau diese Lücke besetzen wir — und sie ist die Lücke, die der Standard-Pfad (<code>datacontract test</code> via Soda/GX) strukturell offenlässt.</p>
+    <div class="grid g3">
+      <div class="card"><div class="k">SAP-Domänen-Checks</div><p>BSEG-Balance, BKPF-Orphan, Fiscal-Completeness, Replication-Lag, Key-Plausibilität — kodiertes SAP-Wissen, kein generischer Connector.</p></div>
+      <div class="card"><div class="k">Read-only &amp; PII-Gate</div><p>Lesend gegen produktive ERP-Daten, Rohzeilen verlassen HANA nie ohne Freigabe. Übersteht das Security-Review, das externe Test-Engines nicht bestehen.</p></div>
+      <div class="card"><div class="k">SQL-frei &amp; kontinuierlich</div><p>Semantische Garantien → deterministischer Compiler. Plus Laufzeit: Baselines, Ampel, SLA, Incidents — kein punkt-in-zeit CI-Gate.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Was der Kunde am Ende hat</h2>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Greifbare Artefakte (kundeneigen, dauerhaft)</h3>
+        <ul class="clean">
+          <li><strong>Lineage- &amp; Coverage-Map</strong> seiner Datenlandschaft</li>
+          <li><strong>Verbindliche Contracts</strong> an den echten Output-Ports — als YAML im <em>eigenen</em> Git</li>
+          <li><strong>Live-DQ-Status</strong> + Liste real gefundener Defekte</li>
+          <li><strong>CI-Breaking-Gate</strong> + Cron/Task-Chain-Runner</li>
+          <li><strong>Katalog-Einträge</strong> (BDC/ORD und/oder Entropy „verified green")</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Der Demo-Vorsprung</h3>
+        <p>Signal demonstriert seinen Wert <strong style="color:var(--ink)">standalone</strong> — geseedete Demo + Mock-Connection, ohne Kunden-Infra, ohne Tenant. Wir zeigen den Zielzustand am Tag null im Erstgespräch.</p>
+        <div class="kpi">
+          <div class="b"><div class="n">6–8</div><div class="l">Wochen Pilot</div></div>
+          <div class="b"><div class="n">1</div><div class="l">Domäne / Produkt</div></div>
+          <div class="b"><div class="n">0</div><div class="l">Kunden-Infra für Demo</div></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">Der Trick beim Delivery-Tool: die <em>Artefakte</em> sind kundeneigen und laufen weiter — das <em>Tool</em> ist der Beschleuniger, der sie in Wochen erzeugt. Der Kunde ist nie eingesperrt.</p>
+  </section>
+</div></div>
+
+<!-- ============ PHASENPLAN ============ -->
+<div class="view" id="view-plan"><div class="wrap">
+  <section style="border-top:none">
+    <h2>Phasenplan — klick dich durch die Wochen</h2>
+    <p class="sub">Der Pilot fährt Signals echten Workflow als Lieferkette ab: Extraktion → Produktschnitt → Authoring → Enforcement → Härtung → Publikation &amp; Übergabe.</p>
+    <div class="tl" id="tl"></div>
+    <div class="tldetail" id="tldetail"></div>
+  </section>
+</div></div>
+
+<!-- ============ ROLLEN & BETRIEB ============ -->
+<div class="view" id="view-roles"><div class="wrap">
+  <section style="border-top:none">
+    <h2>Wer macht was</h2>
+    <p class="sub">Die Rollentrennung ist genau der <code>owned_by</code>-Split, den Signal architektonisch vorsieht: das Plattform-Team besitzt das <em>Meta</em>, die Product-Owner den <em>Inhalt</em>.</p>
+    <table class="t">
+      <thead><tr><th>Rolle</th><th>Verantwortung</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Beratung</strong></td><td>Extraktion, Produkt-/Port-Schnitt, Contract-Erst-Authoring, SAP-Check-Konfiguration, Enablement</td></tr>
+        <tr><td><strong>Plattform-Team (Kunde)</strong></td><td>Meta: Template/Schema, CI-Gates, Tooling-Betrieb, Environments/Secrets</td></tr>
+        <tr><td><strong>Data-Product-Owner (Kunde)</strong></td><td>Contract-<em>Inhalt</em> — die Garantien sind <em>seine</em> Zusage; reagiert auf Incidents</td></tr>
+        <tr><td><strong>Consumer (Kunde)</strong></td><td>Read-only, bekommt Compliance-Status; ko-designt die Ports</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section>
+    <h2>Betriebs-Split: „wir hosten, der Kunde betreibt fachlich"</h2>
+    <p class="sub">Die häufigste Managed-Service-Form (Variante A1). „Betreiben" meint zwei Dinge — die Trennung hält es sauber im Dienstleistungs-Modell.</p>
+    <div class="grid g2">
+      <div class="card"><span class="pill blue">Technischer Betrieb</span><h3 style="margin-top:10px">Beratung</h3><p>Hosting, Deployment, Updates/Patches, HANA-Result-Store, OIDC, Secrets, Scheduler-Anbindung.</p></div>
+      <div class="card"><span class="pill green">Fachlicher Betrieb</span><h3 style="margin-top:10px">Kunde</h3><p>Contracts authoren/pflegen, Garantien zusagen, auf Ampel/Incidents reagieren, Cockpit nutzen (OIDC-Login).</p></div>
+    </div>
+    <p class="note">Zwei Prüfpunkte entscheiden A1: <strong style="color:var(--ink)">(1)</strong> lässt die Security den HANA-Zugriff von außen zu? Sonst <strong>Hybrid-Executor</strong> — Runner im Kundennetz, Cockpit bei uns. <strong style="color:var(--ink)">(2)</strong> Datenresidenz der Ergebnisse. Details: <code>docs/Uebergabemodelle_und_Lizenz.md §3a</code>.</p>
+  </section>
+</div></div>
+
+<!-- ============ BETRIEBSMODELLE ============ -->
+<div class="view" id="view-models"><div class="wrap">
+  <section style="border-top:none">
+    <h2>Betriebsmodelle — Dienstleistung oder Softwareüberlassung?</h2>
+    <p class="sub">Die Schwelle ist nicht der Code, sondern die <strong style="color:var(--ink)">Betriebs-Autonomie</strong>. Wähl ein Modell — und sieh, ob es noch Dienstleistung ist.</p>
+    <div class="seg" id="modelseg">
+      <button data-m="A" class="on">A · Managed Service</button>
+      <button data-m="A1">A1 · Betriebs-Split</button>
+      <button data-m="B">B · Kunde betreibt</button>
+      <button data-m="C">C · Lizenzieren</button>
+    </div>
+    <div class="modelbox" id="modelbox"></div>
+  </section>
+</div></div>
+
+<!-- ============ DELIVERABLES & PREIS ============ -->
+<div class="view" id="view-deliver"><div class="wrap">
+  <section style="border-top:none">
+    <h2>Deliverables</h2>
+    <div class="grid g3">
+      <div class="card"><div class="k">Foundation-Paket</div><p>Lineage-/Coverage-Map · 1 Datenprodukt geschnitten · Contracts an Output-Ports · Live-Enforcement · CI-Gate · Übergabe-Runbook.</p></div>
+      <div class="card"><div class="k">Katalog-Anbindung</div><p>ODCS-Export → BDC/ORD und/oder Entropy-Marktplatz als „verified green". Optional OpenLineage-Emitter.</p></div>
+      <div class="card"><div class="k">Enablement</div><p>Schulung Plattform-Team + Product-Owner, <code>owned_by</code>-Split, Betriebs-Runbook.</p></div>
+    </div>
+  </section>
+  <section>
+    <h2>Kommerzielle Struktur</h2>
+    <p class="sub">Wiederkehrende Beratungsleistung statt Lizenz — das Tool hebt die Marge, ohne ins Produktgeschäft zu kippen. <em>Preisbänder sind Platzhalter, je Engagement zu setzen.</em></p>
+    <table class="t">
+      <thead><tr><th>Baustein</th><th>Form</th><th>Richtwert</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Foundation-Pilot</strong></td><td>Festpreis, 6–8 Wochen, 1 Domäne</td><td><span class="pill amber">Fixed</span> &nbsp;€ &lt;…&gt;</td></tr>
+        <tr><td><strong>Rollout je weiterer Domäne</strong></td><td>Festpreis, kürzer (Templates stehen)</td><td><span class="pill amber">Fixed</span> &nbsp;€ &lt;…&gt;</td></tr>
+        <tr><td><strong>Managed Service (A/A1)</strong></td><td>Monatliches Betriebsentgelt</td><td><span class="pill green">Recurring</span> &nbsp;€ &lt;…&gt;/Mon</td></tr>
+        <tr><td><strong>Quartals-Härtung</strong></td><td>Retainer — Baselines, Proposals, neue Checks</td><td><span class="pill green">Recurring</span> &nbsp;€ &lt;…&gt;/Q</td></tr>
+      </tbody>
+    </table>
+  </section>
+  <section>
+    <h2>Skalierung</h2>
+    <p class="sub">Pilot = 1 Domäne. Danach wiederkehrende Rollout-Engagements (billiger, weil Plattform + Skills stehen) + laufender Betrieb. Das ist die Marge-Maschine hinter dem Accelerator.</p>
+    <p class="note">Begleitdokumente: <code>docs/Uebergabemodelle_und_Lizenz.md</code> · <code>docs/Zusatz_EntropyData_Integration_und_Defensibility.md</code> · <code>docs/Scope_OpenLineage_Emitter.md</code></p>
+  </section>
+</div></div>
+
+<footer><div class="wrap">Signal — Delivery-Offering · interne Vertriebs-/Gesprächsgrundlage · Preisbänder sind Platzhalter</div></footer>
+
+<script>
+/* ---- tabs ---- */
+const tabs=document.getElementById('tabs');
+tabs.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  [...tabs.querySelectorAll('button')].forEach(x=>x.classList.toggle('active',x===b));
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+b.dataset.view));
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* ---- timeline ---- */
+const PHASES=[
+  {wk:'Woche 0', ph:'Setup & Zugänge', body:'OAuth-Client-Credentials für Datasphere, read-only HANA-Reach, Security-Review. Signal im Berater-lokal-Modus (SQLite, NoAuth) — kein Kunden-Infra-Aufbau.', sec:'Argument im Review: lesend, PII-Gate (G8), Rohzeilen verlassen HANA nie ohne Freigabe.', d:'Zugänge stehen; Signal läuft lokal gegen Mock — Demo am Tag null möglich.'},
+  {wk:'Woche 1', ph:'Extraktion & Ist-Aufnahme', body:'inventory.json + lineage.json über Catalog-REST/CLI ziehen. Reconciliation: Boundary-Leaks, Contested-Interieur, Dangling-Ports.', d:'Lineage-/Coverage-Map + priorisierte Liste der Datenprodukt-Kandidaten und ihrer echten Output-Ports.'},
+  {wk:'Woche 2', ph:'Datenprodukt & Ports', body:'Mit dem Plattform-Team: Product-Manifest für den Piloten — Owner-Hull, output_ports, inbound. Interior wird abgeleitet, nicht gelistet.', d:'Ein sauber geschnittenes Datenprodukt mit benannten Ports.'},
+  {wk:'Woche 3–4', ph:'Contracts authoren (Lite)', body:'An den Output-Ports Draft-Contracts seeden, in der Workbench verfeinern — semantische Garantien, kein SQL. Start im Lite-Modus für schnelle Verbindlichkeit.', d:'Erste verbindliche Contracts als contracts/*.yaml im Git des Kunden (Git = Wahrheit).'},
+  {wk:'Woche 4–5', ph:'Enforcement live', body:'Compiler → check_library → GX-on-HANA-Runner (lesend). Ergebnisse im Cockpit, Compliance-Ampel. SAP-Spezialitäten zuschalten: BSEG-Balance, Fiscal-Completeness, Replication-Lag.', d:'Live-DQ-Status + Liste real gefundener Defekte — der Moment, der das Engagement verkauft.'},
+  {wk:'Woche 5–6', ph:'Observability & Härtung', body:'Rolling-Baselines + Proposal-Miner schlagen aus echten Daten zusätzliche Garantien vor. SLA-Fenster, Incident-Timeline.', d:'Gehärtete Contracts, die zur Realität der Daten passen — nicht zur Vermutung.'},
+  {wk:'Woche 6–8', ph:'Publizieren & Übergabe', body:'ODCS-Export → BDC/ORD und/oder Entropy „verified green". Optional Full-Modus: SemVer, Approval, Breaking-Gate im CI. Enablement + Runbook, Cron via dq_check_runner.py.', d:'Discoverbare, governte Datenprodukte + laufender CI-Gate + geschultes Team.'}
+];
+const tl=document.getElementById('tl'), tld=document.getElementById('tldetail');
+PHASES.forEach((p,i)=>{
+  const b=document.createElement('button');
+  b.innerHTML='<div class="wk">'+p.wk+'</div><div class="ph">'+p.ph+'</div>';
+  b.addEventListener('click',()=>showPhase(i,b));
+  tl.appendChild(b);
+});
+function showPhase(i,btn){
+  [...tl.querySelectorAll('button')].forEach(x=>x.classList.toggle('on',x===btn));
+  const p=PHASES[i];
+  tld.innerHTML='<div class="wk" style="color:var(--accent);font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:700">'+p.wk+'</div>'+
+    '<h3>'+p.ph+'</h3>'+
+    '<p style="color:var(--muted);margin:8px 0 0">'+p.body+'</p>'+
+    (p.sec?'<p style="color:var(--faint);font-size:13px;margin:8px 0 0;border-left:2px solid var(--line2);padding-left:12px">'+p.sec+'</p>':'')+
+    '<div class="deliv"><div class="k">Deliverable</div>'+p.d+'</div>';
+}
+showPhase(0, tl.querySelector('button'));
+
+/* ---- model selector ---- */
+const MODELS={
+  A:{name:'A · Managed Service', sw:['green','Keine Softwareüberlassung'], desc:'Wir betreiben Signal (Kunden-Tenant oder unser Hosting). Der Kunde nutzt nur das Cockpit. Reine Dienstleistung, wiederkehrender Umsatz, Entropy-Posture sauber.', when:'Wiederkehrender Betrieb gewünscht; Softwareüberlassungs-Schwelle wird gar nicht erreicht.', rows:[['Software überlassen?','Nein'],['Wer betreibt technisch?','Beratung'],['Geschäftsmodell','Managed-Service-Entgelt'],['Empfehlung','◆ Bevorzugt']]},
+  A1:{name:'A1 · Managed Service mit Betriebs-Split', sw:['green','Keine Softwareüberlassung'], desc:'Wir betreiben technisch, der Kunde betreibt fachlich (Governance/Inhalt). owned_by-Split. Bei HANA-Zugriffs-Restriktionen: Hybrid-Executor — Runner im Kundennetz, Cockpit bei uns.', when:'Häufigste Praxis-Form. Prüfpunkte: HANA-Konnektivität/Security & Datenresidenz der Ergebnisse.', rows:[['Software überlassen?','Nein'],['Wer betreibt technisch?','Beratung (Hosting)'],['Wer betreibt fachlich?','Kunde (Governance)'],['Knackpunkt','HANA-Zugriff von außen / Hybrid']]},
+  B:{name:'B · Kunde betreibt selbst', sw:['amber','Graubereich'], desc:'Kunde deployed aus seiner Quelle/Infra, wir liefern kein fertiges Bundle. Primär Dienstleistung — aber Lizenz, OSS-Durchreichung (hdbcli!), Haftung, Support müssen geregelt sein.', when:'Kunde will Autonomie, ihr wollt kein Produktgeschäft. Checkliste §4 vor Übergabe papern.', rows:[['Software überlassen?','Teilweise (Graubereich)'],['Wer betreibt?','Kunde'],['Vorab regeln','Lizenz · OSS/hdbcli · Haftung · Support'],['Risiko','rutscht ungewollt Richtung Produkt']]},
+  C:{name:'C · Software lizenzieren', sw:['red','Volle Softwareüberlassung'], desc:'Explizit als Produkt lizenziert. Cleanste rechtliche Form, falls gewollt — aber ändert Geschäftsmodell, erzeugt Support-Org-Pflicht und potenziellen Entropy-Kanalkonflikt.', when:'Nur als bewusste Geschäftsmodell-Entscheidung — nicht als Nebenprodukt einer netten Übergabe.', rows:[['Software überlassen?','Ja'],['Wer betreibt?','Kunde'],['Folge','Support-Org, Lizenzvertrag, Haftung'],['Entropy','potenzieller Wettbewerber']]}
+};
+const seg=document.getElementById('modelseg'), mbox=document.getElementById('modelbox');
+seg.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  [...seg.querySelectorAll('button')].forEach(x=>x.classList.toggle('on',x===b));
+  showModel(b.dataset.m);
+});
+function showModel(m){
+  const x=MODELS[m];
+  mbox.innerHTML='<div class="row"><h3>'+x.name+'</h3><span class="pill '+x.sw[0]+'">'+x.sw[1]+'</span></div>'+
+    '<p style="color:var(--muted);margin:4px 0 0">'+x.desc+'</p>'+
+    '<p style="color:var(--ink);margin:12px 0 0;font-size:14px"><strong>Wann passend:</strong> <span style="color:var(--muted)">'+x.when+'</span></p>'+
+    '<table class="t">'+x.rows.map(r=>'<tr><td style="width:230px"><strong>'+r[0]+'</strong></td><td>'+r[1]+'</td></tr>').join('')+'</table>';
+}
+showModel('A');
+</script>
+</body>
+</html>

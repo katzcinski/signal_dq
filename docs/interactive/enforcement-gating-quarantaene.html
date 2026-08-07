@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal × Datasphere — Enforcement-Prozesse interaktiv</title>
+</head>
+<body>
+<style>
+:root{
+  --bg:#0e1218;--bg2:#151b24;--bg3:#1c2430;--bg4:#232d3b;
+  --line:#28323f;--line2:#3a4757;
+  --fg:#dde5ec;--fg2:#93a1b0;--fg3:#67747f;
+  --accent:#45b8ad;--accent-bg:rgba(69,184,173,.12);
+  --ok:#41b06e;--ok-bg:rgba(65,176,110,.13);
+  --warn:#d9a03a;--warn-bg:rgba(217,160,58,.13);
+  --err:#e05c5c;--err-bg:rgba(224,92,92,.13);
+  --plan:#9a86d6;--plan-bg:rgba(154,134,214,.13);
+  --mono:ui-monospace,'JetBrains Mono','SFMono-Regular',Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --r:6px;--r-lg:10px;
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#f2f4f5;--bg2:#ffffff;--bg3:#eaeef0;--bg4:#dfe5e8;
+    --line:#d5dce0;--line2:#bfc9cf;
+    --fg:#1c242e;--fg2:#4d5a66;--fg3:#7d8a94;
+    --accent:#20857b;--accent-bg:rgba(32,133,123,.1);
+    --ok:#25874f;--ok-bg:rgba(37,135,79,.1);
+    --warn:#a8721a;--warn-bg:rgba(168,114,26,.12);
+    --err:#c03d3d;--err-bg:rgba(192,61,61,.1);
+    --plan:#6d55b3;--plan-bg:rgba(109,85,179,.1);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1218;--bg2:#151b24;--bg3:#1c2430;--bg4:#232d3b;
+  --line:#28323f;--line2:#3a4757;
+  --fg:#dde5ec;--fg2:#93a1b0;--fg3:#67747f;
+  --accent:#45b8ad;--accent-bg:rgba(69,184,173,.12);
+  --ok:#41b06e;--ok-bg:rgba(65,176,110,.13);
+  --warn:#d9a03a;--warn-bg:rgba(217,160,58,.13);
+  --err:#e05c5c;--err-bg:rgba(224,92,92,.13);
+  --plan:#9a86d6;--plan-bg:rgba(154,134,214,.13);
+}
+:root[data-theme="light"]{
+  --bg:#f2f4f5;--bg2:#ffffff;--bg3:#eaeef0;--bg4:#dfe5e8;
+  --line:#d5dce0;--line2:#bfc9cf;
+  --fg:#1c242e;--fg2:#4d5a66;--fg3:#7d8a94;
+  --accent:#20857b;--accent-bg:rgba(32,133,123,.1);
+  --ok:#25874f;--ok-bg:rgba(37,135,79,.1);
+  --warn:#a8721a;--warn-bg:rgba(168,114,26,.12);
+  --err:#c03d3d;--err-bg:rgba(192,61,61,.1);
+  --plan:#6d55b3;--plan-bg:rgba(109,85,179,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto} *{transition:none!important;animation:none!important}}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.65}
+main{max-width:1060px;margin:0 auto;padding:0 24px 96px}
+h1,h2,h3,h4{font-family:var(--mono);letter-spacing:-.01em;text-wrap:balance}
+h1{font-size:1.7rem;line-height:1.25;font-weight:700}
+h2{font-size:1.22rem;font-weight:700;margin-bottom:.4rem}
+h3{font-size:1rem;font-weight:600;margin-bottom:.35rem}
+p{color:var(--fg2);max-width:72ch;margin-bottom:.8rem}
+strong{color:var(--fg);font-weight:600}
+code{font-family:var(--mono);font-size:.85em;background:var(--bg4);border-radius:4px;padding:.08em .35em;color:var(--accent)}
+section{margin-top:64px;scroll-margin-top:76px}
+.eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.6rem}
+.lede{font-size:1.02rem;max-width:78ch}
+header.hero{padding:64px 0 8px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.badge.impl{color:var(--ok);background:var(--ok-bg)}
+.badge.plan{color:var(--plan);background:var(--plan-bg)}
+.badge.spike{color:var(--warn);background:var(--warn-bg)}
+nav.chips{position:sticky;top:0;z-index:40;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 24px;margin:28px -24px 0;display:flex;gap:8px;overflow-x:auto}
+nav.chips a{font-family:var(--mono);font-size:.72rem;color:var(--fg2);text-decoration:none;padding:5px 12px;border:1px solid var(--line);border-radius:999px;white-space:nowrap;transition:color .15s,border-color .15s}
+nav.chips a:hover,nav.chips a:focus-visible{color:var(--accent);border-color:var(--accent)}
+nav.chips a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px 24px;margin-top:18px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:16px}
+.callout{border-left:3px solid var(--err);background:var(--err-bg);border-radius:0 var(--r) var(--r) 0;padding:12px 16px;margin:16px 0;max-width:78ch}
+.callout p{margin:0;color:var(--fg)}
+table{width:100%;border-collapse:collapse;font-size:.85rem;font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);margin-top:12px}
+th{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);background:var(--bg3)}
+td{padding:9px 12px;border-bottom:1px solid var(--line);color:var(--fg2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.mono,.mono{font-family:var(--mono);font-size:.82rem}
+.pill{display:inline-block;font-family:var(--mono);font-size:.72rem;font-weight:700;padding:2px 10px;border-radius:999px}
+.pill.ok{color:var(--ok);background:var(--ok-bg)}
+.pill.warn{color:var(--warn);background:var(--warn-bg)}
+.pill.err{color:var(--err);background:var(--err-bg)}
+.pill.neutral{color:var(--fg3);background:var(--bg4)}
+/* Simulator */
+.sim{display:grid;grid-template-columns:minmax(320px,3fr) minmax(260px,2fr);gap:20px;align-items:start}
+@media(max-width:760px){.sim{grid-template-columns:1fr}}
+.simcheck{display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--line)}
+.simcheck:last-of-type{border-bottom:none}
+.simcheck .name{font-family:var(--mono);font-size:.78rem;color:var(--fg)}
+select,button.toggle{font-family:var(--mono);font-size:.75rem;background:var(--bg3);color:var(--fg);border:1px solid var(--line2);border-radius:var(--r);padding:5px 8px;cursor:pointer}
+button.toggle[data-on="fail"]{color:var(--err);border-color:var(--err)}
+button.toggle[data-on="pass"]{color:var(--ok);border-color:var(--ok)}
+.verdictbox{border-radius:var(--r-lg);padding:18px;border:1px solid var(--line);background:var(--bg3)}
+.verdictbox .big{font-family:var(--mono);font-size:1.5rem;font-weight:700;margin:.2rem 0 .6rem}
+.vrow{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px dashed var(--line);font-size:.83rem;color:var(--fg2)}
+.vrow .mono{color:var(--fg)}
+.failon{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.78rem;color:var(--fg3)}
+/* Sequence diagrams */
+.seq{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--bg2);margin-top:14px;overflow:hidden}
+.seq-scroll{overflow-x:auto}
+.seq-inner{min-width:640px;padding:0 14px 14px}
+.seq-actors{display:grid;gap:6px;padding:14px 0 10px;position:sticky;top:0}
+.seq-actor{text-align:center;font-family:var(--mono);font-size:.68rem;letter-spacing:.05em;color:var(--fg);background:var(--bg4);border:1px solid var(--line2);border-radius:var(--r);padding:6px 4px;text-transform:uppercase}
+.seq-actor small{display:block;color:var(--fg3);font-size:.62rem;text-transform:none;letter-spacing:0}
+.seq-row{display:grid;gap:6px;cursor:pointer;border-radius:var(--r)}
+.seq-row:hover .seq-msg{border-color:var(--line2)}
+.seq-row.active .seq-msg{border-color:var(--accent);background:var(--accent-bg);color:var(--fg)}
+.seq-msg{position:relative;margin:5px 8px;padding:5px 22px 5px 10px;font-family:var(--mono);font-size:.72rem;color:var(--fg2);background:var(--bg3);border:1px solid var(--line);border-radius:var(--r);display:flex;align-items:center;gap:8px;min-height:30px;transition:border-color .15s,background .15s}
+.seq-msg .n{flex:none;width:17px;height:17px;border-radius:50%;background:var(--bg4);color:var(--fg3);font-size:.62rem;display:inline-flex;align-items:center;justify-content:center;font-weight:700}
+.seq-row.active .seq-msg .n{background:var(--accent);color:var(--bg)}
+.seq-msg::after{content:"";position:absolute;top:50%;width:0;height:0;border:5px solid transparent}
+.seq-msg.dir-r::after{right:6px;transform:translateY(-50%);border-left-color:var(--fg3)}
+.seq-msg.dir-l{padding:5px 10px 5px 22px}
+.seq-msg.dir-l::after{left:6px;transform:translateY(-50%);border-right-color:var(--fg3)}
+.seq-row.active .seq-msg.dir-r::after{border-left-color:var(--accent)}
+.seq-row.active .seq-msg.dir-l::after{border-right-color:var(--accent)}
+.seq-msg.self{border-style:dashed}
+.seq-msg.err-step{border-color:var(--err)}
+.seq-panel{border-top:1px solid var(--line);background:var(--bg3);padding:14px 18px;display:flex;gap:16px;align-items:flex-start}
+.seq-panel .desc{flex:1;font-size:.85rem;color:var(--fg2);min-height:44px}
+.seq-panel .desc strong{display:block;font-family:var(--mono);font-size:.76rem;margin-bottom:3px;color:var(--fg)}
+.seq-nav{display:flex;gap:6px}
+.seq-nav button{background:var(--bg4);border:1px solid var(--line2);color:var(--fg);font-family:var(--mono);font-size:.75rem;border-radius:var(--r);padding:5px 11px;cursor:pointer}
+.seq-nav button:hover{border-color:var(--accent);color:var(--accent)}
+/* Lifecycle */
+.flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px}
+.state{font-family:var(--mono);font-size:.78rem;font-weight:600;padding:8px 16px;border-radius:999px;border:1.5px solid var(--line2);color:var(--fg2);background:var(--bg3);cursor:pointer;transition:all .15s}
+.state:hover{border-color:var(--accent)}
+.state.active{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+.flow .arr{color:var(--fg3);font-family:var(--mono)}
+.statedesc{margin-top:14px;padding:12px 16px;background:var(--bg3);border-radius:var(--r);font-size:.85rem;color:var(--fg2);min-height:52px}
+.statedesc strong{font-family:var(--mono);color:var(--fg)}
+/* Slice cards */
+.slice{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--bg2);margin-top:22px;overflow:hidden}
+.slice>header{padding:18px 24px 14px;cursor:pointer;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+.slice>header:hover h3{color:var(--accent)}
+.slice .num{font-family:var(--mono);font-size:1.35rem;font-weight:700;color:var(--plan)}
+.slice h3{margin:0;transition:color .15s}
+.slice .short{flex-basis:100%;color:var(--fg2);font-size:.9rem;margin:0}
+.slice .body{display:none;padding:0 24px 22px;border-top:1px solid var(--line)}
+.slice.open .body{display:block}
+.slice .body h4{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);margin:20px 0 8px}
+.slice .chev{margin-left:auto;color:var(--fg3);font-family:var(--mono);transition:transform .2s}
+.slice.open .chev{transform:rotate(90deg)}
+ul.checklist{list-style:none;font-size:.87rem}
+ul.checklist li{padding:5px 0 5px 26px;position:relative;color:var(--fg2)}
+ul.checklist li::before{position:absolute;left:0;top:4px;font-family:var(--mono);font-weight:700}
+ul.checklist li.done::before{content:"✓";color:var(--ok)}
+ul.checklist li.todo::before{content:"○";color:var(--warn)}
+ul.checklist li.dep::before{content:"⛓";color:var(--plan);font-size:.8em;top:7px}
+ul.plain{list-style:none;font-size:.87rem}
+ul.plain li{padding:4px 0 4px 18px;position:relative;color:var(--fg2)}
+ul.plain li::before{content:"–";position:absolute;left:2px;color:var(--fg3)}
+.proscons{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.proscons{grid-template-columns:1fr}}
+footer{margin-top:80px;border-top:1px solid var(--line);padding-top:20px;font-size:.78rem;color:var(--fg3);font-family:var(--mono)}
+</style>
+
+<main>
+<header class="hero">
+  <div class="eyebrow">Signal × SAP Datasphere · Interaktive Prozess-Referenz · Stand 2026-07-11</div>
+  <h1>Enforcement, Gating &amp; Quarantäne — wie die Prozesse technisch und logisch funktionieren</h1>
+  <p class="lede" style="margin-top:14px">
+    Signal berechnet je Lauf ein <strong>Gate-Verdict</strong> und materialisiert es als SQL-Oberfläche im
+    eigenen Open-SQL-Schema. Task Chains, Transformation Flows und HANA-Prozeduren konsumieren dieses
+    Urteil nativ. Diese Seite zeigt jeden Prozess als klickbares Ablaufdiagramm — inklusive der noch
+    nicht gebauten Ausbaustufen ④–⑦ mit ihren Voraussetzungen, damit die Aufnahme-Entscheidung fundiert fällt.
+  </p>
+  <div class="legend">
+    <span class="badge impl">Implementiert (Slices ①–⑦, PR #98)</span>
+    <span class="badge plan">Opt-in dormant — Aktivierung gated durch Spikes (④–⑦)</span>
+    <span class="badge spike">Spike offen</span>
+  </div>
+</header>
+
+<nav class="chips" aria-label="Abschnitte">
+  <a href="#prinzip">Grundprinzip</a>
+  <a href="#verdict">Verdict-Simulator</a>
+  <a href="#p-apitask">API-Task-Gate</a>
+  <a href="#p-sqlgate">SQL-Gate</a>
+  <a href="#p-publish">Verdict-Publikation</a>
+  <a href="#p-episode">Quarantäne-Lifecycle</a>
+  <a href="#ausbau">Slices ④–⑦</a>
+  <a href="#spikes">Spike-Matrix</a>
+</nav>
+
+<!-- ============ GRUNDPRINZIP ============ -->
+<section id="prinzip">
+  <div class="eyebrow">Logik</div>
+  <h2>Grundprinzip: zwei Achsen, ein Urteil, eine harte Grenze</h2>
+  <p>
+    Jeder Check trägt zwei unabhängige Eigenschaften: <strong>severity</strong> sagt, <em>wie schlimm</em> ein
+    Breach ist (<code>critical | fail | warn</code>); <strong>enforcement</strong> sagt, <em>was passieren soll</em>
+    (<code>gate | quarantine | monitor</code>, Default <code>monitor</code>). Aus allen Check-Ergebnissen eines Laufs
+    rollt die Engine ein einziges <strong>gate_verdict</strong> auf: <code>proceed | quarantine | block</code>.
+    Dieses Urteil ist der Vertrag zwischen Signal und der Pipeline — egal über welchen Kanal es konsumiert wird.
+  </p>
+  <div class="callout">
+    <p><strong>Harte Grenze (nicht verhandelbar):</strong> Signal schreibt ausschließlich in sein eigenes
+    Open-SQL-Schema. Kundendaten bleiben read-only. Rückführung freigegebener Zeilen ist immer ein
+    Kunden-Flow, der aus Signals Release-View <em>liest</em> — Signal parkt und reicht zurück, es schiebt nie.</p>
+  </div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Objektklasse im Signal-Schema</th><th>Zweck</th><th>Konsument</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">DQ_GATE_STATUS (+HISTORY)</td><td>Gate-Zustand je Objekt, SQL-lesbar, Upsert nach jedem Lauf</td><td>Prozeduren, Chains, Ad-hoc-SQL</td><td><span class="badge impl">Slice ③</span></td></tr>
+      <tr><td class="mono">P_DQ_ASSERT_GATE</td><td><code>CALL</code> → kommt zurück oder wirft (fail-closed, Fehlercodes 10050–10053)</td><td>Task-Chain-Prozedur-Schritt, Kunden-SQLScript</td><td><span class="badge impl">Slice ③</span></td></tr>
+      <tr><td class="mono">DQ_CLEAN_&lt;OBJ&gt; (Tabelle je Lauf) <em>oder</em> V_DQ_…_CLEAN (View)</td><td>Zeilen-Split — kontinuierliche Quarantäne; Tabelle: punktgenau konsistent zum Verdict</td><td>Transformation Flows (Import + Sharing)</td><td><span class="badge plan">Slice ④</span></td></tr>
+      <tr><td class="mono">DQ_Q_&lt;OBJ&gt; + V_…_RELEASED</td><td>Physisches Zeilen-Parken mit Freigabe &amp; TTL — episodische Quarantäne</td><td>Steward (Cockpit), Re-Load-Flow</td><td><span class="badge plan">Slice ⑤</span></td></tr>
+      <tr><td class="mono">DQ_RUN_REQUESTS + P_DQ_GATE</td><td>Lauf per SQL anfordern und auf frisches Verdict warten</td><td>Chains ohne HTTP, reine SQLScript-Pipelines</td><td><span class="badge plan">Slice ⑥</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============ SIMULATOR ============ -->
+<section id="verdict">
+  <div class="eyebrow">Interaktiv · implementiert in <code>check_engine._gate_verdict</code></div>
+  <h2>Verdict-Simulator: aus Check-Ergebnissen wird ein Urteil</h2>
+  <p>
+    Stelle die drei Beispiel-Checks um und beobachte, wie sich Verdict, CLI-Exit-Code, API-Task-Ergebnis
+    und das Verhalten von <code>P_DQ_ASSERT_GATE</code> ändern. Regel: nur Zustände
+    <code>executed</code>/<code>error</code> zählen; nur <code>fail|critical</code>-Fails eskalieren;
+    <code>gate</code> schlägt <code>quarantine</code>; <code>monitor</code> eskaliert nie.
+  </p>
+  <div class="card sim">
+    <div id="simchecks">
+      <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:8px;font-family:var(--mono);font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);padding-bottom:6px">
+        <span>Check</span><span>Ergebnis</span><span>Severity</span><span>Enforcement</span>
+      </div>
+    </div>
+    <div>
+      <div class="verdictbox">
+        <div style="font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3)">gate_verdict</div>
+        <div class="big" id="vBig">proceed</div>
+        <div class="vrow"><span>CLI-Exit-Code</span><span class="mono" id="vExit">0</span></div>
+        <div class="vrow"><span>API-Task-Status</span><span class="mono" id="vApi">COMPLETED</span></div>
+        <div class="vrow"><span>P_DQ_ASSERT_GATE</span><span class="mono" id="vProc">kehrt zurück</span></div>
+        <div class="vrow"><span>Konsequenz für die Chain</span><span id="vChain" style="text-align:right;max-width:60%">läuft weiter</span></div>
+        <div class="failon">
+          <label for="failon">fail_on</label>
+          <select id="failon">
+            <option value="block_and_quarantine" selected>block_and_quarantine (fail-closed, Default)</option>
+            <option value="block">block (Pipeline konsumiert CLEAN-View)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROZESS A ============ -->
+<section id="p-apitask">
+  <div class="eyebrow">Prozess A · <span class="badge impl">implementiert — Slice ②</span></div>
+  <h2>Task Chain gated über API-Task (natives Promotion-Gate, B2)</h2>
+  <p>
+    Der 2025 eingeführte <strong>API-Task</strong>-Schritttyp macht die Chain selbst zum Aufrufer: sie startet
+    den Signal-Lauf per HTTP und pollt den Status-Endpoint, bis Datasphere COMPLETED/FAILED sieht.
+    Das Drei-Wege-Verdict wird über <code>fail_on</code> auf das binäre Task-Ergebnis abgebildet.
+    Klicke die Schritte an.
+  </p>
+  <div class="seq" data-seq="apitask"></div>
+</section>
+
+<!-- ============ PROZESS B ============ -->
+<section id="p-sqlgate">
+  <div class="eyebrow">Prozess B · <span class="badge impl">implementiert — Slice ③</span></div>
+  <h2>SQL-natives Gate: <code>P_DQ_ASSERT_GATE</code> in Chain oder Kunden-Prozedur</h2>
+  <p>
+    Ohne HTTP: ein Prozedur-Schritt (oder ein <code>CALL</code> im Kunden-SQLScript) prüft das zuletzt
+    publizierte Verdict — <strong>fail-closed</strong>: fehlt es oder ist es veraltet, wirft die Prozedur.
+    Die Staleness-Guards (<code>max_age</code>, <code>min_evaluated_after</code>, <code>EXPIRES_AT</code>)
+    binden das Urteil an den konkreten Load. Voraussetzung: ein frisches Verdict existiert
+    (aus Prozess A, dem <code>on_load</code>-Trigger oder Slice ⑥).
+  </p>
+  <div class="seq" data-seq="sqlgate"></div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>SQL_ERROR_CODE</th><th>Bedeutung</th><th>CLI-Analogon</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">10050</td><td>kein Verdict vorhanden — fail-closed</td><td>—</td></tr>
+      <tr><td class="mono">10051</td><td>Verdict veraltet / abgelaufen</td><td>—</td></tr>
+      <tr><td class="mono">10052</td><td>Verdict <span class="pill err">block</span></td><td class="mono">Exit 1</td></tr>
+      <tr><td class="mono">10053</td><td>Verdict <span class="pill warn">quarantine</span> (nur bei <code>fail_on=block_and_quarantine</code>)</td><td class="mono">Exit 3</td></tr>
+      <tr><td class="mono">10054 / 10055</td><td>reserviert: Timeout / Lauf-Fehler der SQL-Bridge (Slice ⑥)</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============ PROZESS C ============ -->
+<section id="p-publish">
+  <div class="eyebrow">Prozess C · <span class="badge impl">implementiert — Slice ③</span></div>
+  <h2>Verdict-Publikation: vom Lauf in die SQL-Oberfläche</h2>
+  <p>
+    Nach jedem abgeschlossenen Lauf projiziert Signal das Urteil in <code>DQ_GATE_STATUS</code> —
+    über dieselbe Space-User-Verbindung, mit der auch die Checks lesen (ADR-0002-Amendment).
+    Doppelt gegated: Kill-Switch <code>ENFORCEMENT_MATERIALIZE_ENABLED</code> (Default <strong>aus</strong>)
+    und <code>DATASPHERE_SIGNAL_SCHEMA</code>. Der Result-Store bleibt die primäre Wahrheit;
+    die Tabelle ist Konsum-Oberfläche.
+  </p>
+  <div class="seq" data-seq="publish"></div>
+</section>
+
+<!-- ============ PROZESS D ============ -->
+<section id="p-episode">
+  <div class="eyebrow">Prozess D · <span class="badge impl">implementiert — Slice ① (Episoden) · Zeilen-Parken folgt in Slice ⑤</span></div>
+  <h2>Quarantäne-Episode: Lifecycle einer Isolations-Entscheidung</h2>
+  <p>
+    Ein <code>quarantine</code>-Verdict öffnet höchstens <strong>eine</strong> nicht-terminale Episode je Objekt
+    (erneute Breaches erhöhen die Generation statt zu fluten). Klicke die Zustände an:
+  </p>
+  <div class="card">
+    <div class="flow" id="lifecycle">
+      <button class="state" data-s="open">open</button><span class="arr">→</span>
+      <button class="state" data-s="reconciled">reconciled</button><span class="arr">→</span>
+      <button class="state" data-s="released">released</button><span class="arr">→</span>
+      <button class="state" data-s="resolved">resolved</button>
+      <span class="arr" style="margin-left:12px">↘</span>
+      <button class="state" data-s="superseded">superseded</button>
+    </div>
+    <div class="statedesc" id="statedesc"></div>
+  </div>
+</section>
+
+<!-- ============ AUSBAU ============ -->
+<section id="ausbau">
+  <div class="eyebrow">Entscheidungsvorlage</div>
+  <h2>Ausbaustufen ④–⑦: was sie leisten, was sie voraussetzen</h2>
+  <p>
+    Jede Karte zeigt den Prozess, die Voraussetzungen (✓ erfüllt · ○ Spike offen · ⛓ Abhängigkeit)
+    und eine ehrliche Wann-lohnt-es-sich-Einschätzung. Karte aufklappen für Details und Ablaufdiagramm.
+  </p>
+
+  <!-- Slice 4 -->
+  <article class="slice" id="slice4">
+    <header role="button" tabindex="0" aria-expanded="false">
+      <span class="num">④</span><h3>Reconciler &amp; Split-Artefakte — kontinuierliche Quarantäne</h3>
+      <span class="badge impl">Implementiert · Opt-in</span><span class="chev">›</span>
+      <p class="short">Signal materialisiert je Objekt ein CLEAN-Artefakt aus den Quarantäne-Prädikaten — <strong>empfohlen als Tabelle <code>DQ_CLEAN_&lt;OBJ&gt;</code>, je Lauf refresht</strong> (Variante A; Prädikat-Views bleiben Variante B). Flows importieren die Tabelle (zeigt live auf die hdbtable) und teilen sie per Standard-Sharing space-übergreifend — ohne Grants.</p>
+    </header>
+    <div class="body">
+      <h4>Prozess</h4>
+      <div class="seq" data-seq="slice4"></div>
+      <h4>Technik</h4>
+      <ul class="plain">
+        <li>Prädikat kommt gratis aus der Engine: CLEAN = <code>WHERE NOT(bad₁ OR bad₂ …)</code>, explizite Spaltenprojektion (kein <code>SELECT *</code>).</li>
+        <li><strong>Variante A (empfohlen):</strong> materialisierte Tabelle, Refresh im selben Post-Run-Schritt wie der Verdict-Upsert — CLEAN ist punktgenau konsistent zum validierenden Verdict, Prädikat läuft 1× je Lauf (O7 entfällt). Trade-off: Frische zwischen Läufen (on_load-Trigger minimiert) + Kopie-Kosten je Lauf (Größen-Schwelle als Setting).</li>
+        <li><strong>Variante B (Option):</strong> Prädikat-Views — immer aktuell, keine Kopie; braucht Rest-O5 (View-Import) und O7 (Prädikat je Lesen).</li>
+        <li>Desired-State-Reconciler: Registry <code>DQ_OBJECTS</code> (manifest_hash, Generation), Drift-Erkennung (Handänderung → Flag + Overwrite), verwaiste Objekte: <strong>invalidate-then-drop</strong> mit Grace-Period — nie stilles 0-Zeilen-Verhalten.</li>
+        <li>Zeilenfähig nur: <code>not_null</code>, <code>completeness</code>, <code>keys</code>, <code>referential</code>. <code>freshness</code>/<code>volume</code>/<code>schema</code> sind Objekt-Eigenschaften → bleiben beim Objekt-Gate.</li>
+      </ul>
+      <h4>Voraussetzungen</h4>
+      <ul class="checklist">
+        <li class="done">Slice ③: Registry-/Materialisierungs-Infrastruktur, Schema-Bindung, Kill-Switch</li>
+        <li class="done">Enforcement-Achse + Prädikate (<code>_diagnostic_sql</code>) vorhanden</li>
+        <li class="done"><strong>O5-Kern bestätigt (2026-07-11):</strong> Tabellen-Import aus dem Open-SQL-Schema (Entität zeigt live auf hdbtable) + Cross-Space-Sharing funktionieren — Flow-Konsumpfad entsperrt, kein zweiter DB-User nötig</li>
+        <li class="todo"><strong>Rest-O5:</strong> haben Views denselben Import-/Sharing-Pfad? (nur Variante B) · EXECUTE-Grant an fremde DB-User (nur Rezept R-D)</li>
+        <li class="todo"><strong>O7:</strong> Prädikat-Performance je Lesen — <em>nur falls Variante B gewählt wird</em>; bei Variante A entfällt O7</li>
+        <li class="todo"><strong>O9:</strong> Invalidate muss <em>laut</em> fehlschlagen: bei Variante A Refresh-Stopp + Notification, nach Grace Drop der hdbtable (Import bricht) — verifizieren, dass der Flow dabei wirklich laut fehlschlägt; Marker-View-Frage bleibt für B</li>
+      </ul>
+      <h4>Lohnt sich, wenn …</h4>
+      <div class="proscons">
+        <ul class="plain">
+          <li>Zeilen-Isolation ohne Freigabe-Zeremonie gewünscht ist — Quarantäne heilt sich beim Upstream-Fix selbst</li>
+          <li>Flows ihre Quelle umstellen dürfen (einmaliger, dokumentierter Schritt)</li>
+          <li>kein revisionssicherer „was war wann geparkt“-Nachweis nötig ist</li>
+        </ul>
+        <ul class="plain">
+          <li><strong>Dagegen spricht:</strong> Variante A kopiert den guten Bestand je Lauf (Speicher/Schreibzeit bei sehr großen Objekten — Schwelle setzen); kein Audit-Trail; das Artefakt schützt nur Konsumenten, die es nutzen — Gate bleibt zusätzlich nötig (Belt &amp; Suspenders)</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- Slice 5 -->
+  <article class="slice" id="slice5">
+    <header role="button" tabindex="0" aria-expanded="false">
+      <span class="num">⑤</span><h3>Episodische Quarantäne — physisches Zeilen-Parken</h3>
+      <span class="badge impl">Implementiert · Opt-in</span><span class="chev">›</span>
+      <p class="short">Signal schnappschusst schlechte Zeilen per <code>INSERT…SELECT</code> in <code>DQ_Q_&lt;OBJ&gt;</code> (eigenes Schema), Steward gibt frei, der Kunden-Flow lädt aus der Release-View zurück. Auditierbar, mit Pflicht-TTL.</p>
+    </header>
+    <div class="body">
+      <h4>Prozess</h4>
+      <div class="seq" data-seq="slice5"></div>
+      <h4>Technik</h4>
+      <ul class="plain">
+        <li>Snapshot idempotent je (Episode, Generation) — zweimal anwenden = No-Op; Counts aus dem eigenen INSERT → Episode sofort <code>reconciled</code> (der frühere Skript-Rückkanal ist internalisiert).</li>
+        <li>Freigabe (<code>released</code>, steward+) → Zeilen erscheinen in <code>V_DQ_&lt;OBJ&gt;_RELEASED</code>; Kunden-Flow lädt und bestätigt per <code>P_DQ_CONFIRM_REPROCESS</code> → <code>resolved</code>. Der API-Teil (Release/Confirm) existiert bereits aus Slice ①.</li>
+        <li>TTL-Housekeeping purgt abgelaufene Zeilen, Episode → <code>resolved(expired)</code> — explizit, nie still. Quarantäne-Tabellen sind vom Reconciler-Drop ausgenommen (nur TTL).</li>
+        <li>Volle Rohzeilen inkl. PII bleiben in HANA (G8-Buchstabe gewahrt); Cockpit-Drilldown nur über den gegateten Diagnostics-Pfad.</li>
+      </ul>
+      <h4>Voraussetzungen</h4>
+      <ul class="checklist">
+        <li class="done">Episode-Lifecycle, Release-/Confirm-API, Rollen-Gating (Slice ①)</li>
+        <li class="dep">Slice ④: Reconciler verwaltet Tabellen/Views (Anlage, Registry, Grace-Mechanik)</li>
+        <li class="todo"><strong>O5:</strong> Grant-/Konsum-Pfad der Release-View für den Re-Load-Flow</li>
+        <li class="todo"><strong>O10:</strong> Datenschutz-Review der Data-Custody-Zone — TTL-Default, Löschkonzept, Auftragsverarbeitung</li>
+        <li class="dep">Kopplung an die offene C5-Entscheidung (Reject-Store) — gemeinsam entscheiden, nicht doppelt bauen</li>
+      </ul>
+      <h4>Lohnt sich, wenn …</h4>
+      <div class="proscons">
+        <ul class="plain">
+          <li>regulierte/auditpflichtige Objekte einen Nachweis „was war wann geparkt, wer hat freigegeben“ brauchen</li>
+          <li>Rückführung <em>kompletter</em> Zeilen gewünscht ist (nur physische Kopien sind rückführbar)</li>
+          <li>Vier-Augen-Freigabe Teil des Prozesses sein soll</li>
+        </ul>
+        <ul class="plain">
+          <li><strong>Dagegen spricht:</strong> Signal wird Daten-Verwahrer (Governance-Aufwand O10); Kopie + Speicher + TTL-Jobs; ohne Freigabe-Disziplin stauen sich Episoden</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- Slice 6 -->
+  <article class="slice" id="slice6">
+    <header role="button" tabindex="0" aria-expanded="false">
+      <span class="num">⑥</span><h3>SQL-Trigger-Bridge — frischer Lauf ganz ohne HTTP</h3>
+      <span class="badge impl">Implementiert · Opt-in (O6 offen)</span><span class="chev">›</span>
+      <p class="short"><code>P_DQ_GATE</code> fordert per Tabellen-Insert einen Lauf an, Signals Poller claimt ihn, die Prozedur wartet und prüft dann das frische Verdict. Der volle Gate-Loop aus purem SQL.</p>
+    </header>
+    <div class="body">
+      <h4>Prozess</h4>
+      <div class="seq" data-seq="slice6"></div>
+      <h4>Technik</h4>
+      <ul class="plain">
+        <li><code>DQ_RUN_REQUESTS</code> (requested → claimed → done/error/expired); Insert nur über <code>DEFINER</code>-Prozedur, nie per Direkt-Grant.</li>
+        <li>Signals vorhandener Scheduler-Poller claimt optimistisch (<code>UPDATE … WHERE STATUS='requested'</code>) und startet <code>start_object_run(triggered_by="sql_bridge")</code> — der F2-Doppellauf-Schutz greift unverändert.</li>
+        <li>Warte-Schleife in SQLScript: <code>SQLSCRIPT_SYNC:SLEEP_SECONDS</code>; Timeout → 10054 (fail-closed), Lauf-Fehler → 10055.</li>
+        <li>Opt-in per <code>ENFORCEMENT_SQL_BRIDGE_ENABLED</code> (Default aus).</li>
+      </ul>
+      <h4>Voraussetzungen</h4>
+      <ul class="checklist">
+        <li class="done">Slice ③: Verdict-Tabelle + <code>P_DQ_ASSERT_GATE</code> (die Bridge endet in einem Assert)</li>
+        <li class="done">Scheduler-Poller mit Claim-Muster existiert (Migration 009)</li>
+        <li class="todo"><strong>O6:</strong> ist <code>SQLSCRIPT_SYNC</code> im Open-SQL-Kontext des Tenants verfügbar? Fallback: Chain in zwei Prozedur-Schritte teilen (Request → Assert mit <code>min_evaluated_after</code>)</li>
+        <li class="dep">Signal-Service muss dauerhaft laufen (wie beim API-Task)</li>
+      </ul>
+      <h4>Lohnt sich, wenn …</h4>
+      <div class="proscons">
+        <ul class="plain">
+          <li>die HTTP-Connection für API-Tasks governance-blockiert ist</li>
+          <li>reine SQLScript-Pipelines (ohne Task Chain) ein <em>frisches</em> Verdict brauchen — dafür ist es der einzige Trigger-Pfad</li>
+        </ul>
+        <ul class="plain">
+          <li><strong>Dagegen spricht:</strong> Latenz = Poller-Tick + Lauf + Poll-Intervall; belegter Chain-/Prozedur-Slot während der Wartezeit; wo API-Tasks erlaubt sind, sind sie schlicht besser</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+
+  <!-- Slice 7 -->
+  <article class="slice" id="slice7">
+    <header role="button" tabindex="0" aria-expanded="false">
+      <span class="num">⑦</span><h3>Outbound-Trigger — Signal löst die Quarantäne-Chain aus</h3>
+      <span class="badge impl">Implementiert · Opt-in</span><span class="chev">›</span>
+      <p class="short">Bei <code>quarantine</code>-Verdict triggert Signal (opt-in) die Split-/Remediation-Chain über die öffentliche Task-Chain-API — das Drei-Wege-Verdict wird trotz binärem API-Task vollständig orchestrierbar.</p>
+    </header>
+    <div class="body">
+      <h4>Prozess</h4>
+      <div class="seq" data-seq="slice7"></div>
+      <h4>Technik</h4>
+      <ul class="plain">
+        <li>Kein Daten-Schreiben, aber ein <em>Handeln</em> auf dem Tenant: eigener technischer OAuth-User, Setting <code>DATASPHERE_ALLOW_TRIGGER</code> (Default <strong>false</strong>), jede Auslösung als Activity-Event auditiert, Trigger-Budget gegen Schleifen.</li>
+        <li>Schließt den Kreis mit Prozess A: Promote-Chain gated fail-closed (FAILED bei quarantine), Signal ruft parallel die Quarantine-Chain — zwei Chains, drei Urteile.</li>
+        <li>Baustein der Self-Healing-Leiter L4 (Load-Retry mit Budget nutzt denselben Mechanismus).</li>
+      </ul>
+      <h4>Voraussetzungen</h4>
+      <ul class="checklist">
+        <li class="done">Slice ①: Verdict + Episode als Auslöser</li>
+        <li class="todo"><strong>O8:</strong> API-Task-/Task-Chain-API-Verhalten am Tenant verifizieren (Status-Codes, Auth) — gleicher Spike wie AP-1</li>
+        <li class="dep">Es muss eine Ziel-Chain geben, die etwas Sinnvolles tut → praktisch gekoppelt an Slice ④ oder ⑤ (Split-/Re-Load-Mechanik)</li>
+        <li class="dep">Governance-Freigabe für einen schreibend agierenden technischen User (nur Chain-Run-Scope)</li>
+      </ul>
+      <h4>Lohnt sich, wenn …</h4>
+      <div class="proscons">
+        <ul class="plain">
+          <li>Promote- und Quarantäne-Pfad als getrennte Chains modelliert sind</li>
+          <li>Remediation automatisch anlaufen soll, statt auf einen Menschen zu warten</li>
+        </ul>
+        <ul class="plain">
+          <li><strong>Dagegen spricht:</strong> Variante B erreicht viel davon ohne Outbound (<code>fail_on=block</code> + CLEAN-View-Konsum in <em>einer</em> Chain); Autonomie braucht Budget/Audit/Kill-Switch-Disziplin</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+</section>
+
+<!-- ============ SPIKES ============ -->
+<section id="spikes">
+  <div class="eyebrow">Vor dem Bau verifizieren</div>
+  <h2>Spike-Matrix: was welche Ausbaustufe blockiert</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Spike</th><th>Frage</th><th>Blockiert</th><th>Aufwand</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">O5 <span class="badge impl">geschrumpft</span></td><td>Kern bestätigt (2026-07-11): Tabellen-Import zeigt live auf die hdbtable, Cross-Space-Sharing funktioniert — Flow-Pfad entsperrt. Rest: View-Import (nur Variante B) · EXECUTE-Grant an fremde DB-User (nur Rezept R-D)</td><td>④-Variante B · R-D</td><td>0,5 PT</td></tr>
+      <tr><td class="mono">O6</td><td>Ist <code>SQLSCRIPT_SYNC:SLEEP_SECONDS</code> im Open-SQL-Kontext verfügbar?</td><td>⑥ (Warte-Schleife; sonst Fallback zweigeteilte Chain)</td><td>&lt; 1 PT</td></tr>
+      <tr><td class="mono">O7</td><td>Prädikat-Performance je Lesen — <strong>nur Variante B</strong>; bei Variante A (materialisierte CLEAN-Tabelle, Refresh je Lauf) entfällt O7</td><td>④ nur bei Views</td><td>nur falls B gewählt</td></tr>
+      <tr><td class="mono">O8</td><td>Exakte Status-Code-/Auth-Erwartung von API-Task und Task-Chain-Run-API am Tenant?</td><td>Feinschliff von ② · ⑦</td><td>1 PT</td></tr>
+      <tr><td class="mono">O9</td><td>Invalidate laut: Variante A = Drop der hdbtable nach Grace (bricht der Flow laut?); Variante B = Marker-View-Konstruktion</td><td>④ (Grace-Mechanik)</td><td>Teil von Rest-O5</td></tr>
+      <tr><td class="mono">O10</td><td>Datenschutz-Review der Data-Custody-Zone (TTL, Löschkonzept, AV)?</td><td>⑤</td><td>Governance-Termin</td></tr>
+    </tbody>
+  </table></div>
+  <p style="margin-top:16px">
+    <strong>Empfohlene Reihenfolge:</strong> Rest-O5/O9 in einem halben Spike-Tag verproben → ④ Reconciler + CLEAN-Tabellen (Variante A) →
+    ⑤ episodisch (nach O10 und gemeinsam mit der C5-Entscheidung) → ⑥ nur bei HTTP-Blockade oder SQLScript-only-Bedarf →
+    ⑦ sobald es eine Ziel-Chain gibt.
+  </p>
+</section>
+
+<footer>
+  Quelle: docs/Konzept_Datasphere_Integration_Gating_Quarantaene.md · Slices ①–③ implementiert in PR #98 ·
+  Fehlercode- und Verdict-Logik gespiegelt aus <span class="mono">dq_core/enforce/ddl.py</span> und <span class="mono">check_engine.py</span>
+</footer>
+</main>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- Verdict-Simulator ---------- */
+var CHECKS = [
+  {name:"A_not_null",   result:"fail", severity:"fail",     enforcement:"quarantine", state:"executed"},
+  {name:"freshness_TS", result:"pass", severity:"warn",     enforcement:"gate",       state:"executed"},
+  {name:"key_ID_unique",result:"pass", severity:"critical", enforcement:"monitor",    state:"executed"}
+];
+var host = document.getElementById("simchecks");
+CHECKS.forEach(function(c,i){
+  var row = document.createElement("div");
+  row.className = "simcheck";
+  row.innerHTML =
+    '<span class="name">'+c.name+'</span>'+
+    '<button class="toggle" data-i="'+i+'" data-kind="result" data-on="'+c.result+'">'+(c.result==="pass"?"PASS":"FAIL")+'</button>'+
+    '<select data-i="'+i+'" data-kind="severity">'+
+      ["critical","fail","warn"].map(function(s){return '<option'+(s===c.severity?" selected":"")+'>'+s+'</option>';}).join("")+
+    '</select>'+
+    '<select data-i="'+i+'" data-kind="enforcement">'+
+      ["gate","quarantine","monitor"].map(function(s){return '<option'+(s===c.enforcement?" selected":"")+'>'+s+'</option>';}).join("")+
+    '</select>';
+  host.appendChild(row);
+});
+host.addEventListener("click", function(e){
+  var b = e.target.closest("button.toggle");
+  if(!b) return;
+  var c = CHECKS[+b.dataset.i];
+  c.result = c.result==="pass" ? "fail" : "pass";
+  b.dataset.on = c.result;
+  b.textContent = c.result==="pass"?"PASS":"FAIL";
+  update();
+});
+host.addEventListener("change", function(e){
+  var s = e.target.closest("select");
+  if(!s) return;
+  CHECKS[+s.dataset.i][s.dataset.kind] = s.value;
+  update();
+});
+document.getElementById("failon").addEventListener("change", update);
+
+function verdict(){
+  var failed = CHECKS.filter(function(c){
+    return c.result==="fail" && (c.severity==="fail"||c.severity==="critical");
+  });
+  if(failed.some(function(c){return c.enforcement==="gate";})) return "block";
+  if(failed.some(function(c){return c.enforcement==="quarantine";})) return "quarantine";
+  return "proceed";
+}
+function update(){
+  var v = verdict();
+  var failOn = document.getElementById("failon").value;
+  var colors = {proceed:"var(--ok)", quarantine:"var(--warn)", block:"var(--err)"};
+  var big = document.getElementById("vBig");
+  big.textContent = v; big.style.color = colors[v];
+  document.getElementById("vExit").textContent = {proceed:"0",block:"1",quarantine:"3"}[v] + "  (--no-enforce → 0)";
+  var apiFailed = v==="block" || (v==="quarantine" && failOn==="block_and_quarantine");
+  document.getElementById("vApi").textContent = apiFailed ? "FAILED" : "COMPLETED";
+  document.getElementById("vApi").style.color = apiFailed ? "var(--err)" : "var(--ok)";
+  var proc = v==="block" ? "SQL_ERROR_CODE 10052"
+           : (v==="quarantine" && failOn==="block_and_quarantine") ? "SQL_ERROR_CODE 10053"
+           : "kehrt zurück (Gate offen)";
+  document.getElementById("vProc").textContent = proc;
+  var chain = v==="block" ? "Chain stoppt — Promotion unterbleibt, Incident/Alarm"
+            : v==="quarantine" ? (failOn==="block" ? "läuft weiter — Isolation trägt die CLEAN-View, Episode wird geöffnet" : "Chain stoppt fail-closed; Episode wird geöffnet")
+            : "läuft weiter — Promotion erfolgt";
+  document.getElementById("vChain").textContent = chain;
+}
+update();
+
+/* ---------- Sequenz-Renderer ---------- */
+var SEQS = {
+ apitask: {
+  actors:[{l:"Task Chain",n:"Datasphere"},{l:"Signal API",n:"FastAPI"},{l:"Engine",n:"dq_core"},{l:"Result-Store",n:"SQLite/HANA"}],
+  steps:[
+   {f:0,t:0,self:1,l:"Load → Staging",d:"Die Chain lädt/repliziert nach Staging. Ab hier liegen ungeprüfte Daten bereit — die Promotion wartet auf das Gate."},
+   {f:0,t:1,l:"API-Task: POST /api/objects/{id}/run",d:"Der API-Task ruft über die HTTP-Connection Signals Run-Endpoint. Auth: technischer Principal mit steward+-Rolle (S5: kein noauth über Loopback hinaus)."},
+   {f:1,t:0,l:"202 Accepted + Location: /api/runs/{id}/status",d:"Signal registriert den Lauf (F2-Doppellauf-Schutz via try_begin_run) und antwortet sofort. Der Location-Header sagt dem API-Task, wo er pollen soll — der 60-s-Sync-Modus ist für DQ-Läufe ungeeignet."},
+   {f:1,t:2,l:"Checks ausführen (Batch, gating=true)",d:"Die Engine führt die kompilierten Checks aus: Frische-Gates zuerst; stale ⇒ teure Checks werden explizit skipped_stale (G6), nie still ausgelassen."},
+   {f:2,t:3,l:"save_run: overall_status + gate_verdict",d:"Verdict-Rollup: gefailte gate-Checks ⇒ block, sonst gefailte quarantine-Checks ⇒ quarantine, sonst proceed. monitor eskaliert nie. Bei quarantine wird zusätzlich die Episode geöffnet."},
+   {f:0,t:1,l:"Polling: GET /api/runs/{id}/status?fail_on=…",d:"Datasphere pollt den Status-Endpoint. Solange der Lauf läuft: RUNNING. fail_on entscheidet, ob quarantine die Chain stoppt (Default: ja, fail-closed) oder passieren lässt (CLEAN-View-Pipelines)."},
+   {f:1,t:0,l:"COMPLETED oder FAILED",d:"proceed ⇒ COMPLETED · block ⇒ FAILED · quarantine ⇒ je nach fail_on. Lauf-Zustand error ⇒ immer FAILED (fail-closed)."},
+   {f:0,t:0,self:1,l:"Verzweigung: Promote nur bei COMPLETED",d:"Der Folge-Schritt (Staging → Curated) läuft nur bei Task-Erfolg. Damit ist das Promotion-Gate (B2) nativ in Datasphere abgebildet — ohne CLI-Umweg."}
+  ]},
+ sqlgate: {
+  actors:[{l:"Chain / Kunden-Proc",n:"SQLScript"},{l:"P_DQ_ASSERT_GATE",n:"Signal-Schema · DEFINER"},{l:"DQ_GATE_STATUS",n:"Signal-Schema"}],
+  steps:[
+   {f:0,t:1,l:"CALL … ('OBJ', max_age, min_evaluated_after, fail_on)",d:"Prozedur-Schritt der Chain oder direkter CALL im Kunden-SQLScript. SECURITY DEFINER: der Aufrufer braucht nur EXECUTE — die Verdict-Tabelle bleibt hinter der Prozedur verschlossen."},
+   {f:1,t:2,l:"SELECT Verdict für OBJECT_ID",d:"Die Prozedur liest den aktuellen Gate-Zustand. Nur Signals Space-User schreibt diese Tabelle — Verdicts sind durch Pipeline-Identitäten nicht fälschbar."},
+   {f:1,t:0,err:1,l:"kein Verdict? → SIGNAL 10050",d:"Fail-closed: Existiert kein Verdict, wird geworfen. Ein nie geprüftes Objekt passiert das Gate nicht."},
+   {f:1,t:0,err:1,l:"veraltet? → SIGNAL 10051",d:"Drei Staleness-Guards: älter als max_age · älter als min_evaluated_after (Chain übergibt ihre Load-Startzeit — präzisester Schutz) · EXPIRES_AT überschritten (TTL aus den Settings)."},
+   {f:1,t:0,err:1,l:"block? → 10052 · quarantine? → 10053",d:"block wirft immer. quarantine wirft nur bei fail_on='block_and_quarantine' — Pipelines, die aus V_…_CLEAN lesen, setzen fail_on='block' und laufen weiter, weil die View die Isolation trägt."},
+   {f:1,t:0,l:"RETURN — Gate offen",d:"Kein Fehler geworfen: die Chain macht mit dem nächsten Schritt weiter (Promote, Folge-Flow). In SQLScript lässt sich der Fehlerfall per EXIT HANDLER FOR SQL_ERROR_CODE gezielt behandeln."}
+  ]},
+ publish: {
+  actors:[{l:"Engine",n:"Lauf endet"},{l:"Enforcement-Hook",n:"services/api"},{l:"Signal-Schema",n:"HANA Open-SQL"}],
+  steps:[
+   {f:0,t:1,l:"Lauf abgeschlossen → publish_verdict(conn, summary)",d:"Nach save_run ruft der Lauf-Pfad den Hook — nie run-kritisch: Fehler bei der Publikation beeinflussen den Lauf nicht, der Result-Store bleibt primär."},
+   {f:1,t:1,self:1,l:"Doppel-Gate prüfen",d:"ENFORCEMENT_MATERIALIZE_ENABLED (Kill-Switch, Default aus) UND DATASPHERE_SIGNAL_SCHEMA müssen gesetzt sein. Ohne beides ist der Hook ein No-Op — kein Überraschungs-Schreiben."},
+   {f:1,t:2,l:"Bootstrap (einmalig je Prozess/Schema)",d:"Tabellen nur wenn abwesend (SYS.TABLES-Check, nie ersetzen — sie tragen Zustand); View + Prozedur idempotent CREATE OR REPLACE. Schema-Name zur Laufzeit gebunden (G2, S2-Identifier-Prüfung)."},
+   {f:1,t:2,l:"UPSERT DQ_GATE_STATUS + INSERT HISTORY",d:"Aktueller Zustand je OBJECT_ID (WITH PRIMARY KEY) plus Append-only-Historie: run_id, verdict, overall_status, contract-Version/-Hash, EVALUATED_AT, optional EXPIRES_AT (TTL)."},
+   {f:2,t:2,self:1,l:"Konsumierbar für P_DQ_ASSERT_GATE & Ad-hoc-SQL",d:"Ab jetzt können Prozess B (SQL-Gate) und beliebige berechtigte Leser (V_DQ_GATE_STATUS) das Urteil SQL-nativ auswerten — ohne Signal-API-Aufruf."}
+  ]},
+ slice4: {
+  actors:[{l:"Contract-Änderung",n:"Steward"},{l:"Reconciler",n:"Signal · geplant"},{l:"Signal-Schema",n:"Views + Registry"},{l:"Transformation Flow",n:"Datasphere"}],
+  steps:[
+   {f:0,t:1,l:"Soll-Zustand berechnen",d:"Aus aktiven Contracts + Quarantäne-Prädikaten entsteht deterministische DDL je Objekt; manifest_hash = Hash der normalisierten DDL. Gleiche Contracts ⇒ gleicher Plan."},
+   {f:1,t:1,self:1,l:"Plan: create / replace / invalidate / drop / drift",d:"Diff Soll ↔ Registry ↔ tatsächliches Schema. Handgeänderte Signal-Objekte = Drift → Flag im Cockpit + Overwrite. Plan ist als Dry-Run sichtbar, bevor irgendetwas angewendet wird."},
+   {f:1,t:2,l:"Apply: DQ_CLEAN_OBJ anlegen (Variante A) — Refresh je Lauf",d:"Tabelle statt View (Tenant-bestätigt: Import zeigt live auf die hdbtable, Sharing trägt sie in andere Spaces). Der Post-Run-Schritt, der das Verdict publiziert, schreibt auch den CLEAN-Bestand: DELETE+INSERT WHERE NOT(bad…) — punktgenau konsistent zum Verdict, Prädikat 1× je Lauf. Registry DQ_OBJECTS hält Name, Kind, manifest_hash, Generation."},
+   {f:3,t:2,l:"Flow importiert DQ_CLEAN_OBJ und liest sie als Quelle",d:"Import einmalig (Entität zeigt live auf die hdbtable), per Standard-Sharing auch space-übergreifend — keine Grants, kein zweiter DB-User. Schlechte Zeilen betreten den Flow nie; upstream Geheiltes kehrt mit dem nächsten Signal-Lauf zurück (on_load-Trigger hält die Lücke klein)."},
+   {f:1,t:2,err:1,l:"Contract weg → invalidate, dann drop",d:"Nie stilles 0-Zeilen-Verhalten (Leeren der Tabelle wäre unsichtbarer Datenverlust!): Invalidate = Refresh-Stopp + Notification + Registry invalidated; nach Grace-Period Drop der hdbtable — der Import bricht laut (O9: genau das verifizieren). Für B-Views bleibt die Marker-Konstruktion die offene Frage."}
+  ]},
+ slice5: {
+  actors:[{l:"Engine",n:"verdict=quarantine"},{l:"Signal-Schema",n:"DQ_Q_… + Release-View"},{l:"Steward",n:"Cockpit"},{l:"Re-Load-Flow",n:"Kunde"}],
+  steps:[
+   {f:0,t:1,l:"INSERT…SELECT WHERE <bad> → DQ_Q_OBJ",d:"Signal schnappschusst die schlechten Zeilen selbst ins eigene Schema (Episode-ID, Run-ID, Generation, Zeitstempel als Metadaten). Idempotent je Generation: doppelt anwenden = No-Op. Das externe Reconcile-Skript entfällt."},
+   {f:0,t:0,self:1,l:"Episode: open → reconciled (Count aus eigenem INSERT)",d:"Weil Signal selbst kopiert, kennt es die Zeilenzahl sofort — der frühere Rückkanal des Skripts ist internalisiert. Cockpit zeigt Episode + N am Objekt."},
+   {f:2,t:1,l:"Freigabe (released, steward+)",d:"Governance-Entscheidung im Cockpit, rollen-gegated, mit Notiz und Timeline. PII-Drilldown in die geparkten Zeilen nur über den gegateten Diagnostics-Pfad (G8)."},
+   {f:3,t:1,l:"Flow liest V_DQ_OBJ_RELEASED und lädt zurück",d:"Harte Grenze: Signal schiebt nie in Kundenziele. Der Kunden-Flow liest die freigegebenen Zeilen aus der Release-View und schreibt sie selbst in sein Ziel."},
+   {f:3,t:1,l:"CALL P_DQ_CONFIRM_REPROCESS(:episode)",d:"Bestätigung der Rückführung → Episode resolved(reprocessed), Zeilen fallen aus der Release-View. Der API-Teil (Confirm) existiert bereits aus Slice ①."},
+   {f:1,t:1,self:1,err:1,l:"TTL-Ablauf: purge + resolved(expired)",d:"Retention ist Pflichtfeld der Quarantäne-Policy (Default z. B. 30 Tage). Housekeeping purgt abgelaufene Zeilen und schließt die Episode explizit — G6-Disziplin, nie still."}
+  ]},
+ slice6: {
+  actors:[{l:"Chain / Kunden-Proc",n:"SQLScript"},{l:"DQ_RUN_REQUESTS",n:"Signal-Schema"},{l:"Poller",n:"Signal-Service"},{l:"Engine + Verdict",n:""}],
+  steps:[
+   {f:0,t:1,l:"P_DQ_GATE → INSERT (requested)",d:"Die Prozedur legt eine Lauf-Anforderung ab (Request-ID, Objekt, Aufrufer, Zeitstempel) — über eine DEFINER-Prozedur, nie per Direkt-Grant auf die Tabelle."},
+   {f:2,t:1,l:"Claim: UPDATE … WHERE STATUS='requested'",d:"Der vorhandene Scheduler-Poller nimmt Requests pro Tick optimistisch in Besitz (gleiches Claim-Muster wie dq_schedules) — mehrere Worker, kein Doppellauf (F2-Schutz greift)."},
+   {f:2,t:3,l:"start_object_run(triggered_by='sql_bridge')",d:"Der Lauf geht durch exakt denselben Ausführungspfad wie HTTP- und Scheduler-Läufe: gleiche Compliance-, Incident-, Baseline- und Verdict-Seiteneffekte."},
+   {f:3,t:1,l:"Request → done + RUN_ID; Verdict publiziert",d:"Nach Lauf-Ende stempelt Signal den Request und publiziert das Verdict nach DQ_GATE_STATUS (Prozess C)."},
+   {f:0,t:0,self:1,l:"Warte-Schleife: SQLSCRIPT_SYNC:SLEEP_SECONDS + Status lesen",d:"Die Prozedur pollt den Request-Status. Voraussetzung O6: die SYNC-Built-in-Library muss im Open-SQL-Kontext verfügbar sein — sonst Fallback: Chain in Request-Schritt + Assert-Schritt teilen."},
+   {f:0,t:0,self:1,err:1,l:"done → ASSERT_GATE · Timeout → 10054 · error → 10055",d:"Endet der Lauf rechtzeitig, prüft P_DQ_ASSERT_GATE das frische Verdict (auf die RUN_ID gepinnt). Timeout wirft fail-closed 10054 und markiert den Request expired; ein Lauf-Fehler wirft 10055."}
+  ]},
+ slice7: {
+  actors:[{l:"Promote-Chain",n:"gated, Prozess A"},{l:"Signal",n:"Verdict + Trigger"},{l:"Task-Chain-API",n:"Datasphere public API"},{l:"Quarantine-Chain",n:"Split/Remediation"}],
+  steps:[
+   {f:0,t:1,l:"API-Task-Gate liefert verdict=quarantine → FAILED",d:"Die Promote-Chain stoppt fail-closed (fail_on=block_and_quarantine). Gute Daten warten, schlechte sollen behandelt werden — dafür braucht es einen zweiten Pfad."},
+   {f:1,t:1,self:1,l:"Opt-in prüfen: DATASPHERE_ALLOW_TRIGGER",d:"Default false. Outbound ist kein Daten-Schreiben, aber ein Handeln auf dem Tenant: eigener technischer OAuth-User mit ausschließlich Chain-Run-Scope, Trigger-Budget gegen Schleifen."},
+   {f:1,t:2,l:"POST …/tasks/chains/<space>/run/<chain>",d:"Signal löst die hinterlegte Quarantine-/Remediation-Chain über die öffentliche Task-Chain-API aus. Jede Auslösung wird als Activity-Event auditiert."},
+   {f:2,t:3,l:"Chain startet: Split / Re-Load / Eskalation",d:"Was die Chain tut, ist Kundensache — sinnvoll wird ⑦ erst, wenn ④ (Split-Views) oder ⑤ (Release-Mechanik) etwas zum Ausführen bereitstellen."},
+   {f:3,t:1,l:"Folgelauf grün → Episode-Recovery",d:"Der nächste grüne Signal-Lauf (bzw. Steward-Freigabe) löst die Episode auf — der Kreis aus Erkennen, Isolieren, Beheben, Freigeben schließt sich ohne manuelles Nachfassen."}
+  ]}
+};
+
+function renderSeq(el, spec){
+  var n = spec.actors.length;
+  var cols = "repeat("+n+",1fr)";
+  var guides = [];
+  for(var i=0;i<n;i++){
+    var p = ((i+0.5)/n*100).toFixed(3)+"%";
+    guides.push("linear-gradient(to right, transparent calc("+p+" - .5px), var(--line) calc("+p+" - .5px), var(--line) calc("+p+" + .5px), transparent calc("+p+" + .5px))");
+  }
+  var scroll = document.createElement("div"); scroll.className="seq-scroll";
+  var inner = document.createElement("div"); inner.className="seq-inner";
+  var actors = document.createElement("div"); actors.className="seq-actors";
+  actors.style.gridTemplateColumns = cols;
+  spec.actors.forEach(function(a){
+    var d = document.createElement("div"); d.className="seq-actor";
+    d.innerHTML = a.l + (a.n?"<small>"+a.n+"</small>":"");
+    actors.appendChild(d);
+  });
+  inner.appendChild(actors);
+
+  var rows = [];
+  spec.steps.forEach(function(s, idx){
+    var row = document.createElement("div");
+    row.className="seq-row"; row.tabIndex=0; row.setAttribute("role","button");
+    row.style.gridTemplateColumns = cols;
+    row.style.backgroundImage = guides.join(",");
+    var msg = document.createElement("div");
+    var a=Math.min(s.f,s.t), b=Math.max(s.f,s.t);
+    msg.className = "seq-msg " + (s.self ? "self" : (s.t>s.f?"dir-r":"dir-l")) + (s.err?" err-step":"");
+    msg.style.gridColumn = s.self ? (s.f+1)+" / "+(s.f+2) : (a+1)+" / "+(b+2);
+    msg.innerHTML = '<span class="n">'+(idx+1)+'</span><span>'+s.l+'</span>';
+    row.appendChild(msg);
+    inner.appendChild(row);
+    rows.push(row);
+  });
+  scroll.appendChild(inner);
+  el.appendChild(scroll);
+
+  var panel = document.createElement("div"); panel.className="seq-panel";
+  panel.innerHTML = '<div class="desc"></div><div class="seq-nav">'+
+    '<button type="button" data-nav="-1" aria-label="Vorheriger Schritt">‹</button>'+
+    '<button type="button" data-nav="1" aria-label="Nächster Schritt">›</button></div>';
+  el.appendChild(panel);
+  var desc = panel.querySelector(".desc");
+  var cur = 0;
+  function select(i){
+    cur = (i+spec.steps.length)%spec.steps.length;
+    rows.forEach(function(r,j){ r.classList.toggle("active", j===cur); });
+    var s = spec.steps[cur];
+    desc.innerHTML = "<strong>Schritt "+(cur+1)+" / "+spec.steps.length+" — "+s.l+"</strong>"+s.d;
+  }
+  rows.forEach(function(r,j){
+    r.addEventListener("click", function(){ select(j); });
+    r.addEventListener("keydown", function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); select(j);} });
+  });
+  panel.querySelectorAll("button").forEach(function(b){
+    b.addEventListener("click", function(){ select(cur + (+b.dataset.nav)); });
+  });
+  select(0);
+}
+document.querySelectorAll(".seq[data-seq]").forEach(function(el){
+  renderSeq(el, SEQS[el.dataset.seq]);
+});
+
+/* ---------- Lifecycle ---------- */
+var LIFE = {
+  open:       "<strong>open</strong> — Ein quarantine-Verdict hat die Episode geöffnet (automatisch im Lauf-Pfad). Höchstens eine nicht-terminale Episode je Objekt: erneute Breaches erhöhen die Generation und hängen ein Event an, statt zu fluten.",
+  reconciled: "<strong>reconciled</strong> — Der Split/Snapshot ist materialisiert, die Episode kennt ihre Zeilenzahl. Heute meldet ein externes Skript den Count über POST /api/quarantine/{id}/reconcile; mit Slice ⑤ kommt der Count direkt aus Signals eigenem INSERT.",
+  released:   "<strong>released</strong> — Steward-Freigabe (steward+, mit Notiz, auditiert). Ab jetzt erscheinen die Zeilen in der Release-View, aus der der Kunden-Flow zurücklädt. Auto-Release nach N grünen Läufen ist als Policy vorgesehen, Default aus.",
+  resolved:   "<strong>resolved</strong> — Terminal. Grund: reprocessed (Rückführung per confirm-reprocess bestätigt), expired (TTL-Housekeeping, Slice ⑤) oder manual. Danach kann ein neues Verdict eine frische Episode öffnen.",
+  superseded: "<strong>superseded</strong> — Terminal. Contract oder Prädikat haben sich geändert — die Episode ist obsolet, ihre Zahlen wären irreführend. Der Reconciler (Slice ④) setzt diesen Zustand bei Prädikatswechsel."
+};
+var lf = document.getElementById("lifecycle");
+var sd = document.getElementById("statedesc");
+function pickState(s){
+  lf.querySelectorAll(".state").forEach(function(b){ b.classList.toggle("active", b.dataset.s===s); });
+  sd.innerHTML = LIFE[s];
+}
+lf.addEventListener("click", function(e){
+  var b = e.target.closest(".state"); if(b) pickState(b.dataset.s);
+});
+pickState("open");
+
+/* ---------- Slice-Karten ---------- */
+document.querySelectorAll(".slice > header").forEach(function(h){
+  function toggle(){
+    var card = h.parentElement;
+    card.classList.toggle("open");
+    h.setAttribute("aria-expanded", card.classList.contains("open") ? "true" : "false");
+  }
+  h.addEventListener("click", toggle);
+  h.addEventListener("keydown", function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); toggle(); } });
+});
+})();
+</script>
+
+</body>
+</html>

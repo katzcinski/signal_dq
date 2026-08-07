@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signal-YAML vs. ODCS — QUNIS</title>
+<style>
+  :root{
+    --cyan:#00CDFF; --black:#061017; --white:#FFFFFF;
+    --purple:#A599FF; --yellow:#CCFE5E; --aqua:#5FEBAC;
+    --line:#1a2a35; --panel:#0b1820; --muted:#8aa0ad;
+    --font:'Aeonik',Arial,Helvetica,sans-serif;
+    --mono:'SFMono-Regular',Consolas,'Liberation Mono',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--black); color:var(--white);
+    font-family:var(--font); font-weight:400;
+    line-height:1.6; font-size:16px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 32px}
+
+  /* ---------- Header ---------- */
+  header{
+    border-bottom:1px solid var(--line);
+    padding:40px 0 36px;
+    position:relative; overflow:hidden;
+  }
+  .keyvisual{
+    position:absolute;top:0;right:0;height:100%;width:340px;
+    opacity:.5;pointer-events:none;
+  }
+  .brand{
+    font-weight:700;letter-spacing:.18em;font-size:15px;
+    color:var(--white);
+  }
+  .brand .dot{color:var(--cyan)}
+  .eyebrow{
+    color:var(--cyan);font-size:12px;font-weight:500;
+    letter-spacing:.22em;text-transform:uppercase;
+    margin:28px 0 14px;
+  }
+  h1{
+    font-size:clamp(30px,5vw,46px);font-weight:500;
+    line-height:1.08;letter-spacing:-.01em;max-width:760px;
+  }
+  h1 .vs{color:var(--cyan)}
+  .lede{
+    color:var(--muted);max-width:680px;margin-top:18px;font-size:17px;
+  }
+
+  /* ---------- Layout cards (the two artifacts) ---------- */
+  section{padding:56px 0;border-bottom:1px solid var(--line)}
+  .sec-label{
+    color:var(--cyan);font-size:12px;font-weight:500;
+    letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px;
+  }
+  h2{font-size:26px;font-weight:500;letter-spacing:-.01em;margin-bottom:22px}
+  h3{font-size:18px;font-weight:500;margin:0 0 10px}
+
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .artifact{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:24px;position:relative;
+  }
+  .artifact .tag{
+    display:inline-block;font-size:11px;font-weight:500;
+    letter-spacing:.12em;text-transform:uppercase;
+    padding:4px 10px;border-radius:4px;margin-bottom:14px;
+  }
+  .tag.source{background:var(--cyan);color:var(--black)}
+  .tag.proj{background:transparent;color:var(--cyan);border:1px solid var(--cyan)}
+  .artifact p{color:var(--muted);font-size:14.5px}
+  .artifact .meta{
+    margin-top:16px;padding-top:14px;border-top:1px solid var(--line);
+    font-size:13px;color:var(--muted);
+  }
+  .artifact .meta strong{color:var(--white);font-weight:500}
+
+  .arrow-row{
+    display:flex;align-items:center;justify-content:center;
+    gap:14px;margin:26px 0 4px;color:var(--cyan);
+    font-size:13px;font-weight:500;letter-spacing:.1em;
+  }
+  .arrow-row svg{flex:none}
+
+  /* ---------- Mapping table ---------- */
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{
+    color:var(--cyan);font-weight:500;font-size:12px;
+    letter-spacing:.1em;text-transform:uppercase;
+  }
+  tbody tr:hover{background:rgba(0,205,255,.04)}
+  code{
+    font-family:var(--mono);font-size:13px;
+    background:rgba(0,205,255,.10);color:var(--cyan);
+    padding:1px 6px;border-radius:4px;
+  }
+  .table-wrap{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+
+  /* status pills */
+  .pill{display:inline-block;font-size:11px;font-weight:500;
+    padding:3px 9px;border-radius:20px;letter-spacing:.04em;white-space:nowrap}
+  .pill.ok{background:rgba(95,235,172,.14);color:var(--aqua)}
+  .pill.warn{background:rgba(204,254,94,.14);color:var(--yellow)}
+  .pill.loss{background:rgba(165,153,255,.16);color:var(--purple)}
+
+  /* ---------- Loss cards ---------- */
+  .loss-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .loss-card{
+    background:var(--panel);border:1px solid var(--line);
+    border-left:3px solid var(--purple);border-radius:8px;padding:20px;
+  }
+  .loss-card h3{display:flex;align-items:center;gap:10px;font-size:16px}
+  .loss-card code{font-size:12.5px}
+  .loss-card p{color:var(--muted);font-size:14px;margin-top:8px}
+  .loss-card .fate{
+    margin-top:12px;font-size:12.5px;color:var(--white);
+    border-top:1px dashed var(--line);padding-top:10px;
+  }
+  .loss-card .fate b{color:var(--purple);font-weight:500}
+
+  /* ---------- Direction / verdict ---------- */
+  .direction{
+    display:grid;grid-template-columns:1fr auto 1fr;
+    align-items:center;gap:24px;
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:30px;
+  }
+  .node{text-align:center}
+  .node .name{font-size:18px;font-weight:500}
+  .node .role{color:var(--muted);font-size:13px;margin-top:4px}
+  .node.truth .name{color:var(--cyan)}
+  .dir-arrow{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--cyan)}
+  .dir-arrow span{font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+
+  .verdict{
+    background:linear-gradient(180deg,rgba(0,205,255,.06),transparent);
+    border:1px solid var(--line);border-radius:10px;
+    padding:28px 30px;margin-top:8px;
+  }
+  .verdict p{font-size:16px;color:var(--white)}
+  .verdict p + p{margin-top:14px;color:var(--muted)}
+  .verdict .kk{color:var(--cyan);font-weight:500}
+
+  footer{padding:34px 0 60px;color:var(--muted);font-size:12.5px}
+  footer .brand{font-size:13px}
+
+  @media(max-width:760px){
+    .duo,.loss-grid{grid-template-columns:1fr}
+    .direction{grid-template-columns:1fr;gap:16px}
+    .dir-arrow{transform:rotate(90deg)}
+    .keyvisual{display:none}
+    .wrap{padding:0 20px}
+    th,td{padding:11px 12px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <svg class="keyvisual" viewBox="0 0 340 300" fill="none" aria-hidden="true">
+    <g stroke="#00CDFF" stroke-width="1" opacity="0.6">
+      <line x1="40" y1="0" x2="40" y2="300"/><line x1="80" y1="0" x2="80" y2="300"/>
+      <line x1="120" y1="0" x2="120" y2="300"/><line x1="160" y1="0" x2="160" y2="300"/>
+      <line x1="200" y1="0" x2="200" y2="300"/><line x1="240" y1="0" x2="240" y2="300"/>
+    </g>
+    <g fill="#00CDFF">
+      <circle cx="120" cy="80" r="2.5"/><circle cx="200" cy="120" r="2.5"/>
+      <circle cx="160" cy="200" r="2.5"/><circle cx="240" cy="60" r="2.5"/>
+      <circle cx="80" cy="160" r="2.5"/>
+    </g>
+  </svg>
+  <div class="wrap">
+    <div class="brand">QUNIS<span class="dot">.</span></div>
+    <div class="eyebrow">Data Contracts · Schema-Vergleich</div>
+    <h1>Signal-YAML <span class="vs">vs.</span> ODCS-Export</h1>
+    <p class="lede">Dieselbe Aussage, anders verkabelt. Was beim Übersetzen der kanonischen
+    Signal-Quelle nach ODCS 3.1 verlustfrei übergeht — und was bewusst auf der Strecke bleibt.
+    Durchgerechnet am <code>DS_SALES_ORDERS</code>-Contract.</p>
+  </div>
+</header>
+
+<!-- ============ THE TWO ARTIFACTS ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-label">Die zwei Artefakte</div>
+    <h2>Quelle und Projektion</h2>
+    <div class="duo">
+      <div class="artifact">
+        <span class="tag source">Signal-YAML · v1</span>
+        <h3>Die kanonische Quelle</h3>
+        <p>Garantie-zentriert: gruppiert nach Garantie-Familie — <code>keys</code>,
+        <code>freshness</code>, <code>volume</code>, <code>referential</code> als
+        Top-Level-Blöcke. Typ-agnostisch; Spalten sind eine reine Namensliste,
+        Typen werden erst zur Laufzeit aus HANA gebunden (Gate G2).</p>
+        <div class="meta">Trägt <strong>Severity-Gating</strong>, <strong>Observability-Konfig</strong>
+        und Enforcement-Semantik. Lebt in Git — bleibt die einzige Wahrheit.</div>
+      </div>
+      <div class="artifact">
+        <span class="tag proj">ODCS 3.1 · Projektion</span>
+        <h3>Der Export</h3>
+        <p>Schema-zentriert: alles hängt an <code>schema[].properties[]</code>.
+        Quality wird zur Annotation an der Spalte (<code>nullValues</code>) oder am
+        Objekt (<code>rowCount</code>). Strukturierbar und typisierbar — aber
+        severity-los.</p>
+        <div class="meta">Eine <strong>typisierbare, struktur-zentrierte Projektion</strong>
+        für externe Kataloge. Reicht für Discovery/Interop, ersetzt aber kein Enforcement.</div>
+      </div>
+    </div>
+
+    <div class="arrow-row">
+      <span>to_odcs( )</span>
+      <svg width="120" height="16" viewBox="0 0 120 16"><line x1="0" y1="8" x2="110" y2="8" stroke="#00CDFF" stroke-width="1.5"/><polyline points="104,3 112,8 104,13" fill="none" stroke="#00CDFF" stroke-width="1.5"/></svg>
+      <span>Einweg</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LOSSLESS MAPPING ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-label">Verlustfrei übersetzt</div>
+    <h2>Was sauber rüberkommt</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Signal-Garantie</th><th>ODCS-Ziel</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Spalten</td><td><code>schema[].properties[].name</code></td><td><span class="pill ok">verlustfrei</span></td></tr>
+          <tr><td><code>keys.unique</code></td><td><code>primaryKey</code> + <code>unique</code> + <code>primaryKeyPosition</code></td><td><span class="pill ok">verlustfrei</span></td></tr>
+          <tr><td><code>not_null</code></td><td><code>required: true</code></td><td><span class="pill ok">verlustfrei</span></td></tr>
+          <tr><td><code>completeness</code></td><td>Quality <code>nullValues</code> (percent)</td><td><span class="pill ok">verlustfrei</span></td></tr>
+          <tr><td><code>volume.min_rows</code></td><td>Quality <code>rowCount</code></td><td><span class="pill ok">verlustfrei</span></td></tr>
+          <tr><td><code>referential</code> (1:1)</td><td><code>relationships[]</code></td><td><span class="pill warn">nur einspaltig</span></td></tr>
+          <tr><td><code>freshness</code></td><td><code>slaProperties.latency</code></td><td><span class="pill warn">nur Latenz-Zahl</span></td></tr>
+          <tr><td><code>version</code></td><td><code>version</code></td><td><span class="pill ok">verlustfrei</span></td></tr>
+          <tr><td><code>lifecycle</code></td><td><code>status</code></td><td><span class="pill ok">verlustfrei</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LOSSY ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-label">Verlustbehaftet</div>
+    <h2>Was verloren geht oder verbogen wird</h2>
+    <div class="loss-grid">
+
+      <div class="loss-card">
+        <h3>Severity-Gating</h3>
+        <code>critical / fail / warn</code>
+        <p>Pro Garantie definierte Schweregrade. ODCS kennt kein Severity-Gating.</p>
+        <div class="fate"><b>Schicksal:</b> fällt komplett weg — die größte semantische Lücke.</div>
+      </div>
+
+      <div class="loss-card">
+        <h3>Closed Schema</h3>
+        <code>schema.mode: closed</code>
+        <p>Verbietet Extra-Spalten am Contract.</p>
+        <div class="fate"><b>Schicksal:</b> nur als <code>customProperty schemaMode</code> gerettet — kein nativer ODCS-Enforcement.</div>
+      </div>
+
+      <div class="loss-card">
+        <h3>Observability-Baseline</h3>
+        <code>volume.baseline: rolling</code>
+        <p>Rollierender Referenzwert für Volumen-Monitoring.</p>
+        <div class="fate"><b>Schicksal:</b> gar nicht — kein ODCS-Konzept. Nur <code>min_rows</code> kommt rüber.</div>
+      </div>
+
+      <div class="loss-card">
+        <h3>Composite FK</h3>
+        <code>len(fk) &gt; 1</code>
+        <p>Mehrspaltige referenzielle Schlüssel.</p>
+        <div class="fate"><b>Schicksal:</b> übersprungen — der Export exportiert nur <code>len(fk)==1</code>-Relationen.</div>
+      </div>
+
+      <div class="loss-card">
+        <h3>Ownership &amp; Boundary</h3>
+        <code>owned_by · kind · owners</code>
+        <p>Eigentum, Boundary-Typ und Owner-Gruppen.</p>
+        <div class="fate"><b>Schicksal:</b> nur als <code>customProperties</code> (Escape Hatch) — keine nativen ODCS-Felder.</div>
+      </div>
+
+      <div class="loss-card">
+        <h3>Spaltentypen</h3>
+        <code>logicalType / physicalType</code>
+        <p>Signal-Spalten haben keine Typen — Bindung erst zur Laufzeit aus HANA (Gate G2).</p>
+        <div class="fate"><b>Schicksal:</b> ODCS-Properties könnten Typen tragen, der Export füllt sie nicht — bewusster Informations-Mangel an der Quelle.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPLIANCE NOTE ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-label">A1-Trennung</div>
+    <h2>Compliance bleibt bewusst draußen</h2>
+    <p class="lede" style="max-width:760px">
+    Kein Lauf-Resultat, keine <code>breached</code>/<code>compliant</code>-Ampel im Export.
+    ODCS modelliert die <span style="color:var(--cyan)">Deklaration</span>, nicht den
+    <span style="color:var(--cyan)">Zustand</span>. Laufzeit-Wahrheit lebt ausschließlich
+    im Signals Result-Store.</p>
+  </div>
+</section>
+
+<!-- ============ DIRECTION ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-label">Richtung</div>
+    <h2>Asymmetrie — Einweg</h2>
+    <div class="direction">
+      <div class="node truth">
+        <div class="name">Git / Signal-YAML</div>
+        <div class="role">bleibt die Wahrheit</div>
+      </div>
+      <div class="dir-arrow">
+        <span>projiziert auf</span>
+        <svg width="80" height="16" viewBox="0 0 80 16"><line x1="0" y1="8" x2="70" y2="8" stroke="#00CDFF" stroke-width="1.5"/><polyline points="64,3 72,8 64,13" fill="none" stroke="#00CDFF" stroke-width="1.5"/></svg>
+        <span>kein Re-Import</span>
+      </div>
+      <div class="node">
+        <div class="name">ODCS-Export</div>
+        <div class="role">Projektion für externe Kataloge</div>
+      </div>
+    </div>
+    <p class="lede" style="margin-top:18px;max-width:760px">
+    ODCS ist kein zweites internes Schema. <code>internal_gate</code>-Sets werfen sogar
+    einen <code>ValueError</code> und sind gar nicht exportierbar.</p>
+  </div>
+</section>
+
+<!-- ============ VERDICT ============ -->
+<section style="border-bottom:none">
+  <div class="wrap">
+    <div class="sec-label">Kurzform</div>
+    <div class="verdict">
+      <p><span class="kk">Signal-YAML</span> ist die vollständige, gating-fähige, typ-agnostische
+      Quelle — mit Severity und Observability-Konfiguration.</p>
+      <p><span class="kk">Der ODCS-Export</span> ist eine typisierbare, struktur-zentrierte,
+      severity-lose Projektion: verlustfrei genug für Discovery und Interop, aber bewusst
+      nicht reich genug, um Signals Enforcement- und Compliance-Semantik zu ersetzen.
+      Genau deshalb ist er Einweg.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand">QUNIS<span class="dot" style="color:var(--cyan)">.</span></div>
+    <p style="margin-top:8px">Beispiel: <code>DS_SALES_ORDERS</code>-Contract · Signal-Schema v1 → ODCS v3.1.0</p>
+  </div>
+</footer>
+
+</body>
+</html>

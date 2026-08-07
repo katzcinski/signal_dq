@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal — Cockpit Vision D: Status quo perfektioniert</title>
+<style>
+:root{
+  --bg0:#090B0F;--bg1:#111520;--bg2:#1B2130;--bg3:#222C3E;
+  --line:#2A3242;--line2:#36445A;
+  --fg:#E7EBF2;--fg2:#98A2B2;--fg3:#7C8696;
+  --obs:#F59E0B;--qual:#00D4AA;--cont:#7B6FEE;
+  --ok:#3FB07A;--warn:#E0B23E;--fail:#E2783C;--crit:#E5484D;
+  --stale:#646E7C;
+  --mono:"JetBrains Mono","Fira Code","SFMono-Regular",monospace;
+  --sans:"Space Grotesk",system-ui,sans-serif;
+  --r:4px;--r-md:6px;--r-lg:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg0);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ── header ── */
+header{position:sticky;top:0;z-index:100;background:rgba(9,11,15,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.hdr{max-width:1150px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:12px;height:52px}
+.brand{font-weight:700;font-size:15px;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:8px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--qual);box-shadow:0 0 0 0 rgba(0,212,170,.55);animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,212,170,.5)}70%{box-shadow:0 0 0 8px rgba(0,212,170,0)}100%{box-shadow:0 0 0 0 rgba(0,212,170,0)}}
+nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
+nav::-webkit-scrollbar{display:none}
+nav a{color:var(--fg3);font-size:12px;padding:5px 9px;border-radius:var(--r-md);white-space:nowrap;text-decoration:none;transition:color .15s,background .15s}
+nav a:hover,nav a.active{color:var(--fg);background:var(--bg3)}
+
+/* ── layout ── */
+.wrap{max-width:1150px;margin:0 auto;padding:0 16px}
+section{padding:60px 0 46px}
+section+section{border-top:1px solid var(--line)}
+.sec-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cont);font-weight:600;margin-bottom:10px}
+h2{font-size:clamp(20px,4vw,29px);line-height:1.15;letter-spacing:-.5px;margin-bottom:8px}
+h3{font-size:15px;font-weight:600;margin-bottom:8px}
+h4{font-size:13px;font-weight:600;margin-bottom:6px}
+p{color:var(--fg2);margin-bottom:12px;max-width:76ch}
+p:last-child{margin-bottom:0}
+code{font-family:var(--mono);font-size:11.5px;background:var(--bg3);padding:1px 5px;border-radius:3px;color:var(--fg)}
+.muted{color:var(--fg3)}
+a.doc{color:var(--cont);text-decoration:none;border-bottom:1px dotted rgba(123,111,238,.5)}
+a.doc:hover{border-bottom-style:solid}
+
+/* ── hero ── */
+#hero{padding:72px 0 52px;border-bottom:1px solid var(--line)}
+.variant-chip{display:inline-flex;align-items:center;gap:8px;background:rgba(123,111,238,.1);border:1px solid rgba(123,111,238,.35);color:var(--cont);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 14px;border-radius:999px;margin-bottom:18px}
+#hero h1{font-size:clamp(26px,5vw,40px);line-height:1.08;letter-spacing:-1px;margin-bottom:14px}
+#hero h1 em{font-style:normal;color:var(--qual)}
+.lede{font-size:16px;color:var(--fg2);max-width:70ch}
+.hero-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:30px}
+.stat{background:var(--bg1);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 16px}
+.stat .v{font-family:var(--mono);font-size:24px;font-weight:700;line-height:1.2}
+.stat .v em{font-style:normal;font-size:14px;color:var(--fg3)}
+.stat .l{font-size:11px;color:var(--fg3);margin-top:2px}
+.stat.qual .v{color:var(--qual)}
+.stat.cont .v{color:var(--cont)}
+.stat.warn .v{color:var(--warn)}
+
+/* ── tags/pills ── */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;letter-spacing:.3px;white-space:nowrap}
+.tag.ref{background:rgba(0,212,170,.14);color:var(--qual)}
+.tag.done{background:rgba(63,176,122,.15);color:var(--ok)}
+.tag.near{background:rgba(224,178,62,.15);color:var(--warn)}
+.tag.gap{background:rgba(226,120,60,.15);color:var(--fail)}
+.tag.pass{background:rgba(123,111,238,.15);color:var(--cont)}
+.tag.side{background:rgba(100,110,124,.15);color:var(--fg3)}
+
+/* ── cards/grids ── */
+.card{background:var(--bg1);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 18px}
+.grid{display:grid;gap:10px}
+.g2{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.g4{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+
+/* ── principles ── */
+.principle{border-left:3px solid var(--cont)}
+.principle h3{display:flex;align-items:baseline;gap:8px}
+.principle .num{font-family:var(--mono);font-size:11px;color:var(--cont)}
+.principle p{font-size:13px;color:var(--fg2)}
+
+/* ── standard anatomy mock ── */
+.anatomy{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+@media(max-width:820px){.anatomy{grid-template-columns:1fr}}
+.mock{background:var(--bg1);border:1px solid var(--line2);border-radius:var(--r-lg);padding:14px;font-size:11px}
+.mock .m-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--qual);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.mock .m-title code{font-size:10px}
+.m-row{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r-md);padding:8px 10px;margin-bottom:6px;position:relative}
+.m-row:last-child{margin-bottom:0}
+.m-row .m-what{font-weight:600;color:var(--fg);font-size:12px}
+.m-row .m-why{color:var(--fg3);font-size:11px;margin-top:1px}
+.m-row .m-code{font-family:var(--mono);font-size:10px;color:var(--cont);margin-top:3px}
+.m-hero{border-color:rgba(0,212,170,.35)}
+.m-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:6px}
+.m-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:6px 8px;font-size:10px;color:var(--fg3)}
+.m-card b{display:block;color:var(--fg);font-family:var(--mono);font-size:12px}
+
+/* ── status board ── */
+.board-legend{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0 20px;font-size:12px;color:var(--fg3)}
+.board-legend span{display:inline-flex;align-items:center;gap:6px}
+.board-group{margin-bottom:26px}
+.board-group>h3{font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:var(--fg3);margin-bottom:10px}
+.pages{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.page-card{background:var(--bg1);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px;cursor:pointer;transition:border-color .15s,background .15s;text-align:left;font-family:inherit;color:inherit;width:100%}
+.page-card:hover{border-color:var(--line2);background:var(--bg2)}
+.page-card.open{border-color:var(--cont);background:rgba(123,111,238,.05)}
+.page-card .pc-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.page-card .pc-name{font-weight:600;font-size:13px}
+.page-card .pc-route{font-family:var(--mono);font-size:10px;color:var(--fg3);margin-top:2px}
+.page-detail{grid-column:1/-1;background:var(--bg1);border:1px solid var(--line2);border-radius:var(--r-lg);padding:16px 18px;display:none;animation:fadeIn .2s ease}
+.page-detail.show{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.page-detail h4{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.page-detail ul{padding-left:18px;font-size:13px;color:var(--fg2);display:flex;flex-direction:column;gap:4px}
+.page-detail ul li::marker{color:var(--fg3)}
+.page-detail .src{font-size:11px;color:var(--fg3);margin-top:12px}
+
+/* ── roadmap ── */
+.progress{height:8px;background:var(--bg2);border-radius:999px;overflow:hidden;margin:18px 0 6px;border:1px solid var(--line)}
+.progress>div{height:100%;width:50%;background:linear-gradient(90deg,var(--qual),var(--ok));border-radius:999px}
+.progress-label{font-size:11px;color:var(--fg3);font-family:var(--mono);margin-bottom:22px}
+.steps{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.rstep{display:flex;gap:14px;padding:12px 14px;border-radius:var(--r-lg);border:1px solid transparent}
+.rstep.done{opacity:.78}
+.rstep.next{border-color:rgba(0,212,170,.35);background:rgba(0,212,170,.04)}
+.rstep-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;font-family:var(--mono);margin-top:1px;border:1px solid var(--line2);background:var(--bg3);color:var(--fg3)}
+.rstep.done .rstep-num{background:rgba(63,176,122,.15);color:var(--ok);border-color:rgba(63,176,122,.35)}
+.rstep.next .rstep-num{background:rgba(0,212,170,.15);color:var(--qual);border-color:rgba(0,212,170,.4)}
+.rstep-body .rs-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rstep-body .rs-sub{font-size:12px;color:var(--fg3);margin-top:2px;max-width:80ch}
+.rstep-connector{width:1px;height:12px;background:var(--line);margin-left:27px}
+
+/* ── DoD checklist ── */
+.dod{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px;margin-top:18px}
+.dod-item{background:var(--bg1);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px;display:flex;gap:12px}
+.dod-item .check{width:20px;height:20px;border-radius:50%;background:rgba(0,212,170,.12);color:var(--qual);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:2px;border:1px solid rgba(0,212,170,.3)}
+.dod-item .t{font-size:13px;font-weight:600}
+.dod-item .d{font-size:12px;color:var(--fg3);margin-top:2px}
+.dod-item .d code{font-size:10.5px}
+
+/* ── non-goals ── */
+.nogo{border-left:3px solid var(--stale)}
+.nogo h3{color:var(--fg2)}
+.nogo p{font-size:13px}
+.nogo .redirect{font-size:11px;font-family:var(--mono);color:var(--fg3);margin-top:8px}
+
+footer{border-top:1px solid var(--line);padding:28px 0 48px;font-size:12px;color:var(--fg3)}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <div class="brand"><span class="dot"></span> Signal · Vision D</div>
+    <nav id="nav">
+      <a href="#these">These</a>
+      <a href="#massstab">Der Maßstab</a>
+      <a href="#board">Status-Board</a>
+      <a href="#programm">Programm</a>
+      <a href="#dod">Definition of Done</a>
+      <a href="#abgrenzung">Abgrenzung</a>
+    </nav>
+  </div>
+</header>
+
+<section id="hero">
+  <div class="wrap">
+    <span class="variant-chip">Zielbild-Variante D</span>
+    <h1>Status quo <em>perfektioniert</em>.</h1>
+    <p class="lede">
+      Vision D ist die konservative der diskutierten Zielbild-Varianten: Sie behält die
+      heutige Informationsarchitektur des Cockpits vollständig bei und investiert
+      ausschließlich in die Exzellenz der Ausführung. Die These dahinter: Das Cockpit hat
+      keine Strukturkrise — es hat eine <b>Konsistenzlücke</b>. Der Referenzstandard
+      existiert bereits im Produkt (die Objekte-Seiten); Vision D hebt jede verbleibende
+      Hauptseite auf genau diesen Standard.
+    </p>
+    <div class="hero-stats">
+      <div class="stat"><div class="v">18<em> Seiten</em></div><div class="l">heutige Routen — keine kommt dazu, keine fällt weg</div></div>
+      <div class="stat qual"><div class="v">2<em> Referenz</em></div><div class="l">Objekt-Katalog + Objekt-Detail als Maßstab</div></div>
+      <div class="stat cont"><div class="v">3<em> / 6</em></div><div class="l">Umsetzungsstufen bereits geliefert (Batch 1+2)</div></div>
+      <div class="stat warn"><div class="v">0<em> API-Änderungen</em></div><div class="l">reine UI-Angleichung — Gates G1–G8 unberührt</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="these">
+  <div class="wrap">
+    <div class="sec-label">These &amp; Prinzipien</div>
+    <h2>Warum „perfektionieren“ statt „umbauen“</h2>
+    <p>
+      Die Navigation (Überblick → Bestand → Betrieb → Governance), die drei Achsen
+      Observability / Qualität / Contracts und die URL-getriebenen Detailseiten haben sich
+      in den Reviews bewährt. Was zwischen den Seiten schwankt, ist nicht die Struktur,
+      sondern die Sorgfalt: Titelgrößen, Ladezustände, Filter-Persistenz, Deep-Links,
+      i18n-Disziplin. Das UI-Konsistenz-Review 2026-07 hat diese Lücke seitengenau
+      vermessen — Vision D ist die konsequente Abarbeitung dieses Befunds bis zur letzten Seite.
+    </p>
+    <div class="grid g4" style="margin-top:20px">
+      <div class="card principle">
+        <h3><span class="num">P1</span> Die IA bleibt</h3>
+        <p>Keine neue Navigation, kein neues Seitenkonzept, keine Umbenennung. Nutzer, die das Cockpit heute kennen, finden morgen alles am selben Ort — nur besser.</p>
+      </div>
+      <div class="card principle">
+        <h3><span class="num">P2</span> Der Standard ist im Produkt</h3>
+        <p>Kein Redesign am Reißbrett: <code>/objects</code> und <code>/objects/:id</code> definieren den Zielzustand. Angleichung heißt Adoption vorhandener Muster, nicht Erfindung neuer.</p>
+      </div>
+      <div class="card principle">
+        <h3><span class="num">P3</span> Primitives vor Seiten</h3>
+        <p>Gemeinsame Bausteine (<code>PageHeader</code>, <code>FilterChip</code>, <code>Button</code>, <code>SidePanel</code>, <code>Table</code>) zuerst — jede spätere Seitenangleichung wird dadurch billig und driftfrei.</p>
+      </div>
+      <div class="card principle">
+        <h3><span class="num">P4</span> Jede Stufe shippbar</h3>
+        <p>Kein Big-Bang: jeder Batch ist unabhängig merge-bar, CI-Gates bleiben grün (Lint 0 Warnings, vitest, G4 advisory), keine API-Typen werden angefasst.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="massstab">
+  <div class="wrap">
+    <div class="sec-label">Der Maßstab</div>
+    <h2>Was die Objekte-Seiten zum Standard macht</h2>
+    <p>
+      Die beiden Referenzseiten wurden zuletzt gezielt optimiert. Ihre Anatomie ist die
+      Checkliste, gegen die jede andere Hauptseite gemessen wird — nichts davon ist
+      dekorativ, jedes Element beantwortet eine wiederkehrende Nutzerfrage.
+    </p>
+    <div class="anatomy">
+      <div class="mock">
+        <div class="m-title">Objekt-Detail <code>/objects/:id?tab=…</code></div>
+        <div class="m-row m-hero">
+          <div class="m-what">Hero-Karte</div>
+          <div class="m-why">Titel, Tags, Meta-Zeile, Fakten, rechtsbündige Aktionen mit Pending-/Disabled-Zuständen</div>
+          <div class="m-code">ObjectHero.tsx · --fs-h1</div>
+        </div>
+        <div class="m-cards">
+          <div class="m-card"><b>98,2 %</b> Pass-Quote</div>
+          <div class="m-card"><b>3</b> offene Checks</div>
+          <div class="m-card"><b>2 h</b> Freshness</div>
+        </div>
+        <div class="m-row">
+          <div class="m-what">Summary-Card-Grid</div>
+          <div class="m-why">label / value / hint / tone — die Zahlen vor dem Scrollen</div>
+          <div class="m-code">ObjectSummaryCard.tsx</div>
+        </div>
+        <div class="m-row">
+          <div class="m-what">Attention-Band</div>
+          <div class="m-why">„Was braucht jetzt Aufmerksamkeit“ — mit Deep-Links in den passenden Tab</div>
+          <div class="m-code">ObjectAttentionBand.tsx</div>
+        </div>
+        <div class="m-row">
+          <div class="m-what">Zweistufige, gruppierte Navigation</div>
+          <div class="m-why">URL-getrieben (<span style="font-family:var(--mono)">?tab=</span>), teil- und refreshbar</div>
+          <div class="m-code">ObjectDetailNavigation.tsx</div>
+        </div>
+        <div class="m-row">
+          <div class="m-what">Layout-treue Skeletons</div>
+          <div class="m-why">Hero- und Sektions-Skeletons statt „Laden…“-Text; Reveal mit <span style="font-family:var(--mono)">prefers-reduced-motion</span>-Fallback</div>
+          <div class="m-code">ObjectDetailSkeletons.tsx</div>
+        </div>
+      </div>
+      <div class="mock">
+        <div class="m-title" style="color:var(--cont)">Objekt-Katalog <code>/objects?…</code></div>
+        <div class="m-row">
+          <div class="m-what">Alle Filter in der URL</div>
+          <div class="m-why">Jede Facette synchronisiert — Ansichten sind teilbar und überleben Reload</div>
+          <div class="m-code">useSearchParamState</div>
+        </div>
+        <div class="m-row">
+          <div class="m-what">Filter-Chips + Aktiv-Filter-Zeile</div>
+          <div class="m-why">Toggle-Chips plus entfernbare Aktiv-Chips mit Einzel-Clear</div>
+          <div class="m-code">FilterChip / ActiveFilterChip</div>
+        </div>
+        <div class="m-row">
+          <div class="m-what">Entprellte Suche, sortierbare Spalten</div>
+          <div class="m-why">Reaktionsschnell auch bei großen Katalogen</div>
+          <div class="m-code">useDeferredValue · Table</div>
+        </div>
+        <div class="m-row">
+          <div class="m-what">Peek-Panel</div>
+          <div class="m-why">Zeile öffnet den Peek, Name navigiert zur Vollseite (R6-1)</div>
+          <div class="m-code">SidePanel — echte Fokus-Falle</div>
+        </div>
+        <div class="m-row">
+          <div class="m-what">Token-Disziplin</div>
+          <div class="m-why">Typo, Spacing, Tints aus Tokens statt Magic Numbers</div>
+          <div class="m-code">--fs-* · --lh-* · --s* · color-mix</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="board">
+  <div class="wrap">
+    <div class="sec-label">Status-Board</div>
+    <h2>Jede Hauptseite gegen den Maßstab</h2>
+    <p>
+      Stand nach UI-Konsistenz-Batch 1+2 (Juli 2026), gegen den Code verifiziert.
+      Karte anklicken für den konkreten Restaufwand je Seite.
+    </p>
+    <div class="board-legend">
+      <span><span class="tag ref">Referenz</span> definiert den Standard</span>
+      <span><span class="tag done">Am Standard</span> angeglichen (Batch 1/2)</span>
+      <span><span class="tag near">Feinschliff</span> nah dran, kleine Lücken</span>
+      <span><span class="tag gap">Lücken</span> Angleichung offen</span>
+      <span><span class="tag pass">Eigener Pass</span> separater Umbau geplant</span>
+      <span><span class="tag side">Eigene Spur</span> außerhalb Vision D</span>
+    </div>
+
+    <div class="board-group">
+      <h3>Überblick</h3>
+      <div class="pages" data-group>
+        <button class="page-card" data-detail="d-cockpit">
+          <span class="pc-top"><span class="pc-name">Cockpit</span><span class="tag near">Feinschliff</span></span>
+          <span class="pc-route">/</span>
+        </button>
+        <button class="page-card" data-detail="d-mywork">
+          <span class="pc-top"><span class="pc-name">My Work</span><span class="tag done">Am Standard</span></span>
+          <span class="pc-route">/my</span>
+        </button>
+        <div class="page-detail" id="d-cockpit">
+          <h4>Cockpit <span class="tag near">Feinschliff</span></h4>
+          <ul>
+            <li>Seitentitel noch als Magic Number (20&nbsp;px) statt <code>PageHeader</code>-Token.</li>
+            <li>Status-Grid ohne Skeleton — nur der KPI-Streifen hat einen.</li>
+            <li>SLA-Panel auf die <code>Table</code>-Komponente heben.</li>
+            <li>KPI-Kacheln als Deep-Links auf die jeweils gefilterte Ansicht (z.&nbsp;B. „Offene Incidents“ → <code>/incidents?status=open</code>).</li>
+          </ul>
+          <p class="src">Review §3 „Cockpit“ · bereits nah am Standard</p>
+        </div>
+        <div class="page-detail" id="d-mywork">
+          <h4>My Work <span class="tag done">Am Standard</span></h4>
+          <ul>
+            <li>Attention-Band-Zusammenfassung oben — die wichtigste Information steht vor dem Scrollen. ✓</li>
+            <li>Zeilen öffnen den konkreten Incident über den <code>?id=</code>-Deep-Link. ✓</li>
+            <li>KPI-Grid auf <code>.dash-kpis</code> (auto-fit) statt fixem <code>repeat(3, 1fr)</code>. ✓</li>
+          </ul>
+          <p class="src">Geliefert in Batch 1+2 · Review §3 „My Work“</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="board-group">
+      <h3>Bestand</h3>
+      <div class="pages" data-group>
+        <button class="page-card" data-detail="d-objects">
+          <span class="pc-top"><span class="pc-name">Objekte (Katalog + Detail)</span><span class="tag ref">Referenz</span></span>
+          <span class="pc-route">/objects · /objects/:id</span>
+        </button>
+        <button class="page-card" data-detail="d-products">
+          <span class="pc-top"><span class="pc-name">Produkte</span><span class="tag gap">Lücken</span></span>
+          <span class="pc-route">/products · /products/:name</span>
+        </button>
+        <button class="page-card" data-detail="d-lineage">
+          <span class="pc-top"><span class="pc-name">Lineage / Coverage</span><span class="tag side">Eigene Spur</span></span>
+          <span class="pc-route">/lineage · /coverage</span>
+        </button>
+        <div class="page-detail" id="d-objects">
+          <h4>Objekte <span class="tag ref">Referenz</span></h4>
+          <ul>
+            <li>Definiert den Maßstab (siehe oben) — hier passiert in Vision D nichts außer Pflege.</li>
+          </ul>
+          <p class="src">Review §1 „Was die Objekte-Seiten zum Maßstab macht“</p>
+        </div>
+        <div class="page-detail" id="d-products">
+          <h4>Produkte <span class="tag gap">Lücken</span></h4>
+          <ul>
+            <li>Geringste Filter-Parität aller Listen: keine Suche, keine Chips, kein URL-State.</li>
+            <li>Toolbar aus dem Objekt-Katalog direkt übertragen (Suche + Lifecycle-/Health-Chips + Aktiv-Filter-Zeile).</li>
+            <li>Optional: Peek-Panel analog R6-1 (Zeile peekt, Name navigiert).</li>
+            <li><code>ProductDetail</code> ist bereits weitgehend angeglichen (Breadcrumbs, Hero-Klassen) — nur Feinschliff.</li>
+          </ul>
+          <p class="src">Review §3 „Products“ · Priorität 3 · nächster Batch</p>
+        </div>
+        <div class="page-detail" id="d-lineage">
+          <h4>Lineage / Coverage <span class="tag side">Eigene Spur</span></h4>
+          <ul>
+            <li>Schaltplan-Board wurde zuletzt separat überarbeitet (Pan/Zoom/Drag, Seed-Scoping, per-Node-Spalten-Expansion).</li>
+            <li>Spalten-Lineage-Ausbau ist durch <b>Daten</b> blockiert (echter CSN-Extract), nicht durch UI — läuft als OPEN-TASKS-Punkt B außerhalb von Vision D.</li>
+          </ul>
+          <p class="src">OPEN_TASKS §B · PLAN_UX-N7_Column_Lineage.md</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="board-group">
+      <h3>Betrieb</h3>
+      <div class="pages" data-group>
+        <button class="page-card" data-detail="d-incidents">
+          <span class="pc-top"><span class="pc-name">Incidents</span><span class="tag done">Am Standard</span></span>
+          <span class="pc-route">/incidents</span>
+        </button>
+        <button class="page-card" data-detail="d-rundetail">
+          <span class="pc-top"><span class="pc-name">Run-Detail / Run-Vergleich</span><span class="tag gap">Lücken</span></span>
+          <span class="pc-route">/runs/:id · /runs/compare</span>
+        </button>
+        <button class="page-card" data-detail="d-schedules">
+          <span class="pc-top"><span class="pc-name">Schedules</span><span class="tag gap">Lücken</span></span>
+          <span class="pc-route">/schedules</span>
+        </button>
+        <div class="page-detail" id="d-incidents">
+          <h4>Incidents <span class="tag done">Am Standard</span></h4>
+          <ul>
+            <li>Drawer auf <code>SidePanel</code> portiert — echte Fokus-Falle, konsistenter Kopf. ✓</li>
+            <li><code>?id=</code>-Deep-Link: Cockpit und My Work öffnen jetzt den konkreten Incident. ✓</li>
+            <li>Zählwerte an den Status-Tabs, Kind-Filter auf der gemeinsamen Chip-Primitive, Aktiv-Filter-Zeile. ✓</li>
+          </ul>
+          <p class="src">Geliefert in Batch 2 · Review §3 „Incidents“ (Priorität 1)</p>
+        </div>
+        <div class="page-detail" id="d-rundetail">
+          <h4>Run-Detail <span class="tag gap">Lücken</span></h4>
+          <ul>
+            <li>Lädt noch mit „Laden…“-Text statt layout-treuem Skeleton.</li>
+            <li>Statistikzeile (Total/Passed/Failed/Warnings) auf das Summary-Card-Grid heben; Kopf Richtung Hero-Muster.</li>
+            <li>„Nur Fehlschläge“-Filterchip bzw. Failures-first-Sortierung — dafür kommt man auf die Seite.</li>
+            <li><code>Button</code>-Adoption für CSV-Export und Vergleich.</li>
+          </ul>
+          <p class="src">Review §3 „RunDetail“ · nach Priorität 1–3</p>
+        </div>
+        <div class="page-detail" id="d-schedules">
+          <h4>Schedules <span class="tag gap">Lücken</span></h4>
+          <ul>
+            <li>Filter + Suche liegen in <code>useState</code> — nicht teil- oder refreshbar. Auf <code>useSearchParamState</code> umstellen.</li>
+            <li>Lokale <code>Tile</code>-Komponente durch das Summary-Card-Muster ersetzen.</li>
+          </ul>
+          <p class="src">Review §3 „Schedules“ · nach Priorität 1–3</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="board-group">
+      <h3>Governance</h3>
+      <div class="pages" data-group>
+        <button class="page-card" data-detail="d-workbench">
+          <span class="pc-top"><span class="pc-name">Contract-Workbench</span><span class="tag pass">Eigener Pass</span></span>
+          <span class="pc-route">/contracts</span>
+        </button>
+        <button class="page-card" data-detail="d-compliance">
+          <span class="pc-top"><span class="pc-name">Compliance</span><span class="tag gap">Lücken</span></span>
+          <span class="pc-route">/compliance</span>
+        </button>
+        <button class="page-card" data-detail="d-proposals">
+          <span class="pc-top"><span class="pc-name">Proposals</span><span class="tag done">Am Standard</span></span>
+          <span class="pc-route">/proposals</span>
+        </button>
+        <button class="page-card" data-detail="d-library">
+          <span class="pc-top"><span class="pc-name">Check-Library</span><span class="tag near">Feinschliff</span></span>
+          <span class="pc-route">/library</span>
+        </button>
+        <div class="page-detail" id="d-workbench">
+          <h4>Contract-Workbench <span class="tag pass">Eigener Pass</span></h4>
+          <ul>
+            <li>1&nbsp;666 Zeilen, ~20 lokale Komponenten, 16× lokales <code>btnStyle</code> — bewusst <b>nicht</b> Teil der Batches 1–5, sondern Stufe 6.</li>
+            <li>Gruppierte Navigation wie im Objekt-Detail: <i>Definition / Prüfung &amp; Diff / Betrieb</i> mit <code>?tab=</code>-URL-State — strukturiert die Scroll-Säule, ohne Funktionen zu verschieben.</li>
+            <li>Datei aufteilen nach <code>components/workbench/</code> (GuaranteeEditor, CheckBuilder, CompilePanel, BreakingDiffPanel, ContractList sind bereits sauber geschnitten).</li>
+            <li>Primitives adoptieren: <code>btnStyle</code> → <code>ui/Button</code>, Skeletons für Liste + Editor, <code>minHeight: 600</code> durch flexible Höhe ersetzen.</li>
+          </ul>
+          <p class="src">Review §4 · risikolose Teile (i18n, Button) liefen in Batch 1 mit</p>
+        </div>
+        <div class="page-detail" id="d-compliance">
+          <h4>Compliance <span class="tag gap">Lücken</span></h4>
+          <ul>
+            <li>Objektstatus rendert noch eine rohe <code>&lt;table&gt;</code> — auf die <code>Table</code>-Komponente umstellen (Row-Hover, Dichte-Tokens, Sortierung); Zeilenklick → Objekt-Detail.</li>
+            <li>Handgerollte KPI-Chips auf <code>Kpi</code>/Summary-Cards heben.</li>
+            <li>Panel-Grid auf <code>.dash-2col</code> ✓ und Banner-i18n ✓ liefen bereits in Batch 1.</li>
+          </ul>
+          <p class="src">Review §3 „Compliance“ · Priorität 3 · nächster Batch</p>
+        </div>
+        <div class="page-detail" id="d-proposals">
+          <h4>Proposals <span class="tag done">Am Standard</span></h4>
+          <ul>
+            <li>i18n-Fixes inkl. korrekter Umlaute und <code>→</code> statt <code>-&gt;</code>. ✓</li>
+            <li>Gruppierung (<code>groupBy</code>) per <code>useSearchParamState</code> in der URL. ✓</li>
+            <li>Status-Filter als Chips analog Objekt-Katalog; Cluster-Ansicht bleibt Default. ✓</li>
+          </ul>
+          <p class="src">Geliefert in Batch 1+2 · Review §3 „Proposals“ (Priorität 2)</p>
+        </div>
+        <div class="page-detail" id="d-library">
+          <h4>Check-Library <span class="tag near">Feinschliff</span></h4>
+          <ul>
+            <li>Guter Stand: URL-Filter und Fieldsets vorhanden.</li>
+            <li>Lokaler <code>chipBtn</code>-Stil auf die gemeinsame <code>FilterChip</code>-Primitive umstellen.</li>
+            <li>Karten-Skeletons statt „Laden…“-Text.</li>
+          </ul>
+          <p class="src">Review §3 „CheckLibrary“ · Feinschliff-Stufe</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="board-group">
+      <h3>System</h3>
+      <div class="pages" data-group>
+        <button class="page-card" data-detail="d-system">
+          <span class="pc-top"><span class="pc-name">Notifications · Environments · Settings · Inventory-Admin</span><span class="tag side">Eigene Spur</span></span>
+          <span class="pc-route">/notifications · /environments · /settings · /inventory-admin</span>
+        </button>
+        <div class="page-detail" id="d-system">
+          <h4>System-Seiten <span class="tag side">Eigene Spur</span></h4>
+          <ul>
+            <li>Nicht Teil des Konsistenz-Reviews — Admin-Flächen mit geringer Besuchsfrequenz.</li>
+            <li>Profitieren automatisch von den gemeinsamen Primitives; eine eigene Angleichungsstufe ist erst nach Stufe 6 sinnvoll.</li>
+          </ul>
+          <p class="src">Außerhalb des Review-Scopes 2026-07</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="programm">
+  <div class="wrap">
+    <div class="sec-label">Programm</div>
+    <h2>Sechs Stufen, drei geliefert</h2>
+    <p>
+      Die Reihenfolge folgt dem Review (§5): erst die Primitives, die alles Folgende billig
+      machen, dann die Seiten nach Priorität. Jede Stufe ist unabhängig shippbar.
+    </p>
+    <div class="progress"><div></div></div>
+    <div class="progress-label">3 von 6 Stufen geliefert · Stand 2026-07-02</div>
+    <div class="steps">
+      <div class="rstep done">
+        <div class="rstep-num">✓</div>
+        <div class="rstep-body">
+          <div class="rs-title">Gemeinsame Primitives <span class="tag done">Batch 1</span></div>
+          <div class="rs-sub"><code>PageHeader</code> + <code>FilterChip</code>/<code>ActiveFilterChip</code> neu, i18n-Fixes nach <code>de.ts</code> (korrekte Umlaute, <code>→</code>), Responsive-Fixes (My-Work-KPIs auf <code>.dash-kpis</code>, Compliance auf <code>.dash-2col</code>), Tests für die neuen Primitives.</div>
+        </div>
+      </div>
+      <div class="rstep-connector"></div>
+      <div class="rstep done">
+        <div class="rstep-num">✓</div>
+        <div class="rstep-body">
+          <div class="rs-title">Incidents <span class="tag done">Batch 2</span></div>
+          <div class="rs-sub">Drawer auf <code>SidePanel</code>, <code>?id=</code>-Deep-Link, Tab-Zählwerte, Kind-Filter auf der Chip-Primitive, Aktiv-Filter-Zeile.</div>
+        </div>
+      </div>
+      <div class="rstep-connector"></div>
+      <div class="rstep done">
+        <div class="rstep-num">✓</div>
+        <div class="rstep-body">
+          <div class="rs-title">My Work + Proposals <span class="tag done">Batch 2</span></div>
+          <div class="rs-sub">Attention-Band in My Work, Incident-Deep-Links aus den Zeilen, Proposals-Gruppierung in der URL, Chips + Skeletons.</div>
+        </div>
+      </div>
+      <div class="rstep-connector"></div>
+      <div class="rstep next">
+        <div class="rstep-num">4</div>
+        <div class="rstep-body">
+          <div class="rs-title">Products + Compliance <span class="tag near">nächster Batch</span></div>
+          <div class="rs-sub">Katalog-Toolbar (Suche, Chips, URL-State) auf Products übertragen; Compliance-Tabelle auf <code>Table</code>, KPI-Chips auf <code>Kpi</code>, Zeilenklick → Objekt-Detail.</div>
+        </div>
+      </div>
+      <div class="rstep-connector"></div>
+      <div class="rstep">
+        <div class="rstep-num">5</div>
+        <div class="rstep-body">
+          <div class="rs-title">RunDetail, Schedules, Cockpit-/Library-Feinschliff</div>
+          <div class="rs-sub">Summary-Cards + Failures-first in RunDetail; Schedules-Filter in die URL; Cockpit-Titel auf Token, Status-Grid-Skeleton, KPI-Deep-Links; Library-Chips auf die Primitive.</div>
+        </div>
+      </div>
+      <div class="rstep-connector"></div>
+      <div class="rstep">
+        <div class="rstep-num">6</div>
+        <div class="rstep-body">
+          <div class="rs-title">Workbench-Umbau <span class="tag pass">eigener Pass</span></div>
+          <div class="rs-sub">Gruppierte <code>?tab=</code>-Navigation (Definition / Prüfung &amp; Diff / Betrieb), Aufteilung nach <code>components/workbench/</code>, Button-/Skeleton-Adoption — Funktionen bleiben, Struktur kommt dazu.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="dod">
+  <div class="wrap">
+    <div class="sec-label">Definition of Done</div>
+    <h2>Die Perfektions-Checkliste je Seite</h2>
+    <p>
+      Aus dem Maßstab abgeleitet: Eine Seite gilt erst dann als „am Standard“, wenn alle
+      acht Punkte erfüllt sind. Das ist zugleich die Review-Checkliste für jeden künftigen
+      Seiten-PR — Konsistenz bleibt so keine Einmal-Aktion, sondern wird prüfbar.
+    </p>
+    <div class="dod">
+      <div class="dod-item"><div class="check">1</div><div><div class="t">Seitenkopf aus der Primitive</div><div class="d"><code>PageHeader</code> mit Token-Typografie, Untertitel und Aktions-Slot — keine 18/20-px-Magic-Numbers.</div></div></div>
+      <div class="dod-item"><div class="check">2</div><div><div class="t">Jeder Zustand in der URL</div><div class="d">Filter, Suche, Tabs, Drawer: <code>useSearchParamState</code>, <code>?tab=</code>, <code>?id=</code> — jede Ansicht ist teil- und refreshbar.</div></div></div>
+      <div class="dod-item"><div class="check">3</div><div><div class="t">Layout-treue Skeletons</div><div class="d">Nie „Laden…“-Text; Skeleton spiegelt das spätere Layout, Reveal respektiert <code>prefers-reduced-motion</code>.</div></div></div>
+      <div class="dod-item"><div class="check">4</div><div><div class="t">Alle Strings in <code>de.ts</code></div><div class="d">Keine hartkodierten Nutzertexte, korrekte Umlaute, typografische Zeichen (<code>→</code> statt <code>-&gt;</code>).</div></div></div>
+      <div class="dod-item"><div class="check">5</div><div><div class="t">Primitives statt Handkopien</div><div class="d"><code>Button</code>, <code>FilterChip</code>, <code>SidePanel</code>, <code>Table</code>, <code>Kpi</code> — keine lokalen <code>btnStyle</code>-/<code>chipBtn</code>-Duplikate.</div></div></div>
+      <div class="dod-item"><div class="check">6</div><div><div class="t">Responsive über die Systemklassen</div><div class="d"><code>.dash-kpis</code>, <code>.dash-2col</code>, echte Media-Queries — keine fixen <code>repeat(n, 1fr)</code>-Grids.</div></div></div>
+      <div class="dod-item"><div class="check">7</div><div><div class="t">Jede Zahl ist ein Deep-Link</div><div class="d">KPIs, Zählwerte und Attention-Zeilen führen in die konkret gefilterte Ansicht bzw. das konkrete Objekt — nie nur in eine ungefilterte Liste.</div></div></div>
+      <div class="dod-item"><div class="check">8</div><div><div class="t">A11y wie die Referenz</div><div class="d">Fokus-Falle in Overlays, Tastatur-Bedienbarkeit, AA-Kontraste, Icon-Labels — Standard der <code>SidePanel</code>-/Objekte-Umsetzung.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="abgrenzung">
+  <div class="wrap">
+    <div class="sec-label">Abgrenzung</div>
+    <h2>Was Vision D bewusst nicht ist</h2>
+    <p>
+      „Status quo perfektioniert“ heißt auch: Nein sagen. Die folgenden Spuren sind wichtig,
+      laufen aber getrennt — Vision D hält den UI-Angleichungspfad frei von Scope-Drift.
+    </p>
+    <div class="grid g2" style="margin-top:18px">
+      <div class="card nogo">
+        <h3>Kein Umbau der Informationsarchitektur</h3>
+        <p>Keine neue Navigation, keine Seiten-Fusionen, kein neues Interaktionsparadigma. Wer strukturelle Alternativen sucht, findet sie in den anderen Zielbild-Varianten — Vision D ist die Antithese dazu.</p>
+      </div>
+      <div class="card nogo">
+        <h3>Keine neuen Funktionsflächen</h3>
+        <p>Teilbarer Quality-Report (A1) und Schema-Drift-Screen (A2) sind funktionale Lücken, keine Konsistenzlücken. Sie folgen der Funktions-Roadmap, sobald Vision D den Standard etabliert hat, auf dem sie aufsetzen.</p>
+        <p class="redirect">→ OPEN_TASKS.md §A</p>
+      </div>
+      <div class="card nogo">
+        <h3>Keine Backend-Abhängigkeiten</h3>
+        <p>Spalten-Lineage (blockiert durch echten CSN-Extract), <code>HanaStore</code>, Managed Service, Enforcement-Modi: alles eigene Spuren mit eigenen Plänen. Vision D fasst keine API-Typen an — G4 bleibt still.</p>
+        <p class="redirect">→ OPEN_TASKS.md §B–§F</p>
+      </div>
+      <div class="card nogo">
+        <h3>Kein visuelles Redesign</h3>
+        <p>Farbsemantik (Familie ⟂ Status), Mono-für-Artefakte, Carbon-Encoding und die Token-Skala sind gesetzt und werden nicht neu verhandelt. Perfektionieren heißt hier: die gesetzten Regeln überall durchsetzen.</p>
+        <p class="redirect">→ OPEN_TASKS.md §A, Prämissen</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Signal · Cockpit Vision D — Status quo perfektioniert · Stand 2026-07-02</span>
+    <span>Quellen: <a class="doc" href="REVIEW_UI_Konsistenz_Hauptseiten_2026-07.md">UI-Konsistenz-Review 2026-07</a> · <a class="doc" href="OPEN_TASKS.md">OPEN_TASKS</a> · <a class="doc" href="Konzept_DQ_Cockpit_UIUX.md">Cockpit-UI/UX-Konzept</a></span>
+  </div>
+</footer>
+
+<script>
+// Status-Board: Karte togglet ihr Detail-Panel (eines pro Gruppe offen)
+document.querySelectorAll('[data-group]').forEach(group => {
+  group.querySelectorAll('.page-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const detail = document.getElementById(card.dataset.detail);
+      const wasOpen = detail.classList.contains('show');
+      group.querySelectorAll('.page-detail').forEach(d => d.classList.remove('show'));
+      group.querySelectorAll('.page-card').forEach(c => c.classList.remove('open'));
+      if (!wasOpen) { detail.classList.add('show'); card.classList.add('open'); }
+    });
+  });
+});
+
+// Scroll-Spy für die Kopfnavigation
+const navLinks = [...document.querySelectorAll('#nav a')];
+const sections = navLinks.map(a => document.querySelector(a.getAttribute('href')));
+const spy = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+    }
+  });
+}, { rootMargin: '-40% 0px -55% 0px' });
+sections.forEach(s => s && spy.observe(s));
+</script>
+</body>
+</html>

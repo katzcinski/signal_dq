@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signal × Datasphere — Technisches Flussdiagramm: Gating & Quarantäne</title>
+</head>
+<body>
+<style>
+:root{
+  --bg:#0e1218;--bg2:#151b24;--bg3:#1c2430;--bg4:#232d3b;
+  --line:#28323f;--line2:#3a4757;
+  --fg:#dde5ec;--fg2:#93a1b0;--fg3:#67747f;
+  --dsp:#5aa9e6;--dsp-bg:rgba(90,169,230,.14);
+  --sig:#45b8ad;--sig-bg:rgba(69,184,173,.14);
+  --sql:#d9a03a;--sql-bg:rgba(217,160,58,.14);
+  --stw:#9a86d6;--stw-bg:rgba(154,134,214,.14);
+  --ok:#41b06e;--err:#e05c5c;
+  --mono:ui-monospace,'JetBrains Mono','SFMono-Regular',Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#f2f4f5;--bg2:#ffffff;--bg3:#eaeef0;--bg4:#dfe5e8;
+    --line:#d5dce0;--line2:#bfc9cf;--fg:#1c242e;--fg2:#4d5a66;--fg3:#7d8a94;
+    --dsp:#2f74b5;--dsp-bg:rgba(47,116,181,.1);
+    --sig:#20857b;--sig-bg:rgba(32,133,123,.1);
+    --sql:#a8721a;--sql-bg:rgba(168,114,26,.1);
+    --stw:#6d55b3;--stw-bg:rgba(109,85,179,.1);
+    --ok:#25874f;--err:#c03d3d;
+  }
+}
+:root[data-theme="dark"]{--bg:#0e1218;--bg2:#151b24;--bg3:#1c2430;--bg4:#232d3b;--line:#28323f;--line2:#3a4757;--fg:#dde5ec;--fg2:#93a1b0;--fg3:#67747f;--dsp:#5aa9e6;--dsp-bg:rgba(90,169,230,.14);--sig:#45b8ad;--sig-bg:rgba(69,184,173,.14);--sql:#d9a03a;--sql-bg:rgba(217,160,58,.14);--stw:#9a86d6;--stw-bg:rgba(154,134,214,.14);--ok:#41b06e;--err:#e05c5c;}
+:root[data-theme="light"]{--bg:#f2f4f5;--bg2:#ffffff;--bg3:#eaeef0;--bg4:#dfe5e8;--line:#d5dce0;--line2:#bfc9cf;--fg:#1c242e;--fg2:#4d5a66;--fg3:#7d8a94;--dsp:#2f74b5;--dsp-bg:rgba(47,116,181,.1);--sig:#20857b;--sig-bg:rgba(32,133,123,.1);--sql:#a8721a;--sql-bg:rgba(168,114,26,.1);--stw:#6d55b3;--stw-bg:rgba(109,85,179,.1);--ok:#25874f;--err:#c03d3d;}
+*{box-sizing:border-box;margin:0;padding:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.55}
+main{max-width:1240px;margin:0 auto;padding:0 20px 80px}
+h1{font-family:var(--mono);font-size:1.5rem;letter-spacing:-.01em;line-height:1.28}
+.eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--sig);margin-bottom:.5rem}
+header{padding:48px 0 6px}
+header p{color:var(--fg2);max-width:78ch;margin-top:10px}
+.controls{display:flex;flex-wrap:wrap;gap:14px;margin:18px 0 6px;align-items:center}
+.legend{display:flex;flex-wrap:wrap;gap:8px}
+.lg{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.68rem;color:var(--fg2);padding:3px 9px;border:1px solid var(--line);border-radius:999px}
+.lg .sw{width:11px;height:11px;border-radius:3px;flex:none}
+.lg .ln{width:18px;height:0;border-top:2px solid currentColor;flex:none}
+.paths{display:flex;flex-wrap:wrap;gap:7px}
+.paths button{font-family:var(--mono);font-size:.72rem;color:var(--fg2);background:var(--bg3);border:1px solid var(--line);border-radius:999px;padding:5px 13px;cursor:pointer;transition:all .15s}
+.paths button:hover{border-color:var(--sig);color:var(--sig)}
+.paths button.on{background:var(--sig-bg);border-color:var(--sig);color:var(--sig)}
+.paths button:focus-visible,.frame:focus-visible{outline:2px solid var(--sig);outline-offset:2px}
+.frame{margin-top:14px;border:1px solid var(--line);border-radius:12px;background:var(--bg2);overflow:auto;max-height:78vh}
+svg.chart{display:block;min-width:1080px}
+.node{cursor:pointer}
+.node rect,.node path.shape,.node ellipse{transition:opacity .18s, stroke .18s}
+.node text{font-family:var(--mono);pointer-events:none;fill:var(--fg)}
+.node .sub{fill:var(--fg3)}
+.node .badge{font-family:var(--mono);font-weight:700}
+.edge path{fill:none;transition:opacity .18s}
+.edge text{font-family:var(--mono);font-size:9.5px;fill:var(--fg3);pointer-events:none}
+.dim{opacity:.12}
+.dim-edge{opacity:.07}
+.detail{margin-top:16px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:16px 20px;min-height:70px}
+.detail h3{font-family:var(--mono);font-size:1rem;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.detail .chip{font-family:var(--mono);font-size:.64rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:999px}
+.detail .body{margin-top:8px;font-size:.9rem;color:var(--fg2)}
+.detail ul{list-style:none;margin-top:8px}
+.detail li{padding:3px 0 3px 18px;position:relative;font-size:.85rem;color:var(--fg2)}
+.detail li::before{content:"–";position:absolute;left:2px;color:var(--fg3)}
+.detail code{font-family:var(--mono);font-size:.85em;background:var(--bg4);border-radius:4px;padding:.06em .35em;color:var(--sig)}
+footer{margin-top:40px;border-top:1px solid var(--line);padding-top:16px;font-size:.76rem;color:var(--fg3);font-family:var(--mono)}
+</style>
+
+<main>
+<header>
+  <div class="eyebrow">Signal × SAP Datasphere · Bestehende Logik · Stand 2026-07-11</div>
+  <h1>Technisches Flussdiagramm — Gating, Quarantäne &amp; Steuerung</h1>
+  <p>
+    Der implementierte Kontrollfluss: <strong>wer</strong> einen Lauf startet (Task-Chain-Schritt vs. Signal),
+    wie das <strong>Verdict</strong> entsteht, welche <strong>Artefakte</strong> Signal in sein Open-SQL-Schema
+    schreibt und wie die Chain darauf <strong>verzweigt</strong>. Farbe = Zuständigkeit, Form = Objekttyp,
+    Linienart = Datenrichtung. <strong>Klick auf einen Knoten</strong> isoliert seine Kanten und zeigt die Technik.
+  </p>
+  <div class="controls">
+    <div class="legend">
+      <span class="lg"><span class="sw" style="background:var(--dsp)"></span>Datasphere / Chain steuert</span>
+      <span class="lg"><span class="sw" style="background:var(--sig)"></span>Signal (Service/Engine)</span>
+      <span class="lg"><span class="sw" style="background:var(--sql)"></span>Signal-Schema (Artefakt)</span>
+      <span class="lg"><span class="sw" style="background:var(--stw)"></span>Mensch (Steward)</span>
+    </div>
+    <div class="legend">
+      <span class="lg" style="color:var(--sig)"><span class="ln"></span>Steuerung</span>
+      <span class="lg" style="color:var(--sql)"><span class="ln" style="border-top-style:dashed"></span>Schreiben</span>
+      <span class="lg" style="color:var(--dsp)"><span class="ln" style="border-top-style:dotted"></span>Lesen</span>
+    </div>
+  </div>
+  <div class="controls">
+    <span style="font-family:var(--mono);font-size:.72rem;color:var(--fg3)">Pfad:</span>
+    <div class="paths" id="paths">
+      <button data-path="all" class="on">Alles</button>
+      <button data-path="trigger">Steuerung (Chain vs Signal)</button>
+      <button data-path="gating">Gating</button>
+      <button data-path="materialize">Materialisierung</button>
+      <button data-path="quarantine">Quarantäne-Lifecycle</button>
+    </div>
+  </div>
+</header>
+
+<div class="frame" tabindex="0" aria-label="Flussdiagramm (scrollbar)">
+  <svg class="chart" id="chart" xmlns="http://www.w3.org/2000/svg"></svg>
+</div>
+<div class="detail" id="detail">
+  <h3>Knoten wählen</h3>
+  <div class="body">Klicke einen Knoten im Diagramm an — hier erscheinen Zuständigkeit, verbundene Objekte und die technischen Details (Endpoint / SQL / Setting).</div>
+</div>
+
+<footer>
+  Bestehende Logik aus PR #98 · Quellen: services/api/{routers/objects.py, enforcement.py, scheduler.py} ·
+  packages/dq_core/enforce/{ddl,split,bridge}.py · Schwester-Seiten: Prozess-Referenz &amp; Logik-Landkarte
+</footer>
+</main>
+
+<script>
+(function(){
+"use strict";
+var LANE = { dsp:180, sig:590, sql:960, sigL:390, stw:180 };
+function ROW(n){ return 60 + n*84; }
+
+// type: process|decision|store|terminal|actor|note ; ctrl: dsp|sig|sql|stw
+var N = [
+ // — Trigger: wer startet den Lauf —
+ {id:"apitask", x:"dsp", r:0, type:"process", ctrl:"dsp", t:"API-Task: POST /run", s:"Chain steuert · 202+Location",
+  paths:["trigger"], d:"Die Task Chain startet den Lauf über eine HTTP-Connection (API-Task, async). Antwort 202 + Location-Header auf den Status-Endpoint. Auth: technischer Principal steward+ (S5).", refs:["POST /api/objects/{id}/run","routers/objects.py trigger_run","F2-Schutz via try_begin_run"]},
+ {id:"onload", x:"sig", r:0, type:"process", ctrl:"sig", t:"on_load / Scheduler", s:"Signal steuert",
+  paths:["trigger"], d:"Signals Poller startet den Lauf selbst: on_load (neuer erfolgreicher Datasphere-Load, Dedupe über last_external_run_id) oder interne Kadenz. Für Objekte, deren Chains man nicht anfasst.", refs:["scheduler.py _on_load_tick / _launch_due","triggered_by=scheduler:on_load","AP-5"]},
+ {id:"bridge", x:"dsp", r:1, type:"process", ctrl:"dsp", t:"SQL-Bridge: CALL P_DQ_GATE", s:"Chain ruft · Signal führt aus",
+  paths:["trigger"], d:"Reines SQL ohne HTTP: die Prozedur fordert einen Lauf an und wartet. Für Chains ohne HTTP-Freigabe und reine SQLScript-Pipelines (Opt-in).", refs:["P_DQ_REQUEST_RUN (DEFINER) → INSERT","ENFORCEMENT_SQL_BRIDGE_ENABLED","SQLSCRIPT_SYNC-Warteschleife (O6)"]},
+ {id:"runreq", x:"sql", r:1, type:"store", ctrl:"sql", t:"DQ_RUN_REQUESTS", s:"requested→claimed→done",
+  paths:["trigger"], d:"Anforderungs-Queue der SQL-Bridge im Signal-Schema. INSERT nur über die DEFINER-Prozedur, nie per Direkt-Grant.", refs:["remote_migration 002","Poller claimt optimistisch","Timeout→10054 / error→10055"]},
+ {id:"claim", x:"sig", r:1, type:"process", ctrl:"sig", t:"Poller: claim + start", s:"",
+  paths:["trigger"], d:"Der Scheduler-Poller nimmt offene Requests in Besitz (UPDATE WHERE STATUS='requested') und startet den Lauf über denselben Pfad wie HTTP.", refs:["enforcement.bridge_tick","start_object_run(triggered_by='sql_bridge')"]},
+
+ // — Engine: Signal steuert —
+ {id:"runstart", x:"sig", r:2, type:"process", ctrl:"sig", t:"start_object_run", s:"F2-Doppellauf-Schutz",
+  paths:["trigger","gating"], d:"Geteilter Ausführungspfad für alle Trigger. Registriert den Lauf im Store (partieller Unique-Index) — ein zweiter paralleler Start prallt als already_running ab.", refs:["routers/objects.py start_object_run","try_begin_run"]},
+ {id:"engine", x:"sig", r:3, type:"process", ctrl:"sig", t:"Engine führt Checks aus", s:"Batch, Statement-Timeout",
+  paths:["gating"], d:"Die aus dem Contract kompilierten Checks laufen als HANA-Batch (UNION ALL über DUMMY) gegen Staging. Contracts sind SQL-frei — SQL erzeugt nur der Compiler (G1).", refs:["check_engine.run_checks","gating=True"]},
+ {id:"gating", x:"sig", r:4, type:"decision", ctrl:"sig", t:"Frische-Gate ok?", s:"",
+  paths:["gating"], d:"Günstige Frische-/Volumen-Gates laufen zuerst. Sind die Daten stale, werden teure Konsistenz-Checks NICHT ausgeführt — sie erscheinen explizit als skipped_stale, nie still ausgelassen.", refs:["GATE_TYPES / EXPENSIVE_TYPES","state=skipped_stale (G6)"]},
+ {id:"skipped", x:"sigL", r:4, type:"note", ctrl:"sig", t:"nein → skipped_stale", s:"statusneutral (G6)",
+  paths:["gating"], d:"Übersprungene Checks sind sichtbar und statusneutral: sie zählen weder als pass noch als fail und eskalieren das Verdict nie.", refs:["_overall_status / _gate_verdict ignorieren skipped"]},
+ {id:"verdict", x:"sig", r:5, type:"decision", ctrl:"sig", t:"Verdict-Rollup", s:"proceed | quarantine | block",
+  paths:["gating","trigger","materialize"], d:"Aus allen executed/error-Ergebnissen: gefailter gate-Check (fail/critical) → block; sonst gefailter quarantine-Check → quarantine; sonst proceed. monitor eskaliert nie, warn ist weiches Signal.", refs:["check_engine._gate_verdict","RunSummary.gate_verdict"]},
+
+ // — Materialisierung: Signal schreibt eigenes Schema —
+ {id:"store", x:"sigL", r:6, type:"store", ctrl:"sig", t:"Result-Store", s:"Episoden = Wahrheit",
+  paths:["materialize","quarantine"], d:"Primäre Wahrheit: Läufe, Verdicts, Quarantäne-Episoden mit Lifecycle und Timeline (SQLite/HANA). Alles im Schema ist davon abgeleitete Projektion.", refs:["Migration 016 dq_quarantine","open/reconcile/release/resolve_quarantine"]},
+ {id:"posthook", x:"sig", r:6, type:"process", ctrl:"sig", t:"post_run-Hook", s:"Kill-Switch + Signal-Schema",
+  paths:["materialize"], d:"Bündelt die Materialisierung nach Lauf-Ende — nie run-kritisch (Fehler beeinflussen den Lauf nicht). Doppelt gegated: ENFORCEMENT_MATERIALIZE_ENABLED (Default aus) UND DATASPHERE_SIGNAL_SCHEMA.", refs:["enforcement.post_run","gleiche Connection/Identität (ADR-0002-Amendment)"]},
+ {id:"pubverdict", x:"sig", r:7, type:"process", ctrl:"sig", t:"Verdict publizieren", s:"",
+  paths:["materialize"], d:"Upsert des aktuellen Zustands + Append in die Historie. Nur Signals User schreibt — Verdicts sind durch Pipeline-Identitäten nicht fälschbar.", refs:["verdict_upsert_statements","UPSERT … WITH PRIMARY KEY"]},
+ {id:"gatestatus", x:"sql", r:7, type:"store", ctrl:"sql", t:"DQ_GATE_STATUS", s:"+History · V_DQ_GATE_STATUS",
+  paths:["materialize","trigger"], d:"Das Urteil als SQL-lesbare Wahrheit je Objekt. EXPIRES_AT erlaubt Verfall: abgelaufen zählt wie fehlend (fail-closed). Konsum über die View oder die Gate-Prozedur, nie direkt.", refs:["remote_migration 001","Spalten: RUN_ID, GATE_VERDICT, EVALUATED_AT, EXPIRES_AT"]},
+ {id:"style", x:"sig", r:8, type:"decision", ctrl:"sig", t:"quarantine.style?", s:"continuous | episodic | both",
+  paths:["materialize"], d:"Contract-Policy steuert, welche Artefakte entstehen. Default both. freshness/volume/schema sind nie zeilenfähig — sie wirken nur übers Objekt-Gate.", refs:["contract.quarantine.style","_style_wants()"]},
+ {id:"refreshclean", x:"sig", r:9, type:"process", ctrl:"sig", t:"CLEAN refresh", s:"DELETE + INSERT WHERE NOT(bad)",
+  paths:["materialize"], d:"Variante A der kontinuierlichen Quarantäne: der bereinigte Bestand wird je Lauf neu materialisiert — punktgenau konsistent zum Verdict, Prädikat 1× je Lauf statt je Lesen.", refs:["split.clean_refresh_statements","enforcement.refresh_clean"]},
+ {id:"dqclean", x:"sql", r:9, type:"store", ctrl:"sql", t:"DQ_CLEAN_⟨OBJ⟩", s:"Tabelle · Import + Sharing",
+  paths:["materialize"], d:"Als Space-Entität importierbar (live auf die hdbtable) und per Sharing space-übergreifend — keine Grants. Transformation Flows lesen hieraus statt aus dem Rohobjekt.", refs:["split.clean_create_ddl","WHERE NOT(bad₁ OR bad₂ …)"]},
+ {id:"openep", x:"sig", r:10, type:"process", ctrl:"sig", t:"open_quarantine → Episode", s:"eine je Objekt",
+  paths:["materialize","quarantine"], d:"Bei quarantine-Verdict: höchstens eine nicht-terminale Episode je Objekt; erneute Breaches erhöhen die Generation statt zu fluten.", refs:["store.open_quarantine","failed_checks = quarantine-Checks"]},
+ {id:"snapshot", x:"sig", r:11, type:"process", ctrl:"sig", t:"Snapshot", s:"INSERT…SELECT WHERE bad",
+  paths:["materialize","quarantine"], d:"Signal parkt die schlechten Zeilen selbst — idempotent je (Episode, Generation), NOT-EXISTS-Guard. Zeilenzahl → Episode reconciled.", refs:["split.quarantine_snapshot_statement","reconcile_quarantine(count)"]},
+ {id:"dqq", x:"sql", r:11, type:"store", ctrl:"sql", t:"DQ_Q_⟨OBJ⟩", s:"volle Rohzeilen · TTL",
+  paths:["materialize","quarantine"], d:"Physisches Zeilen-Parken im Signal-Schema. Rohzeilen bleiben in HANA (G8); _DQ_*-Systemspalten sind fürs Healing vorbereitet. Vom Reconciler-Drop ausgenommen — läuft über TTL aus.", refs:["remote_migration 002","QUARANTINE_TTL_DAYS (Default 30)"]},
+ {id:"mirror", x:"sig", r:12, type:"process", ctrl:"sig", t:"UPSERT DQ_EPISODES", s:"Status spiegeln",
+  paths:["quarantine"], d:"Der Episoden-Status wird bei jedem Lifecycle-Übergang nach HANA gespiegelt — damit die Release-View weiß, was freigegeben ist. Quelle der Wahrheit bleibt der Store.", refs:["split.episode_mirror_statement","mirror_episode / _via_environment"]},
+ {id:"episodes", x:"sql", r:12, type:"store", ctrl:"sql", t:"DQ_EPISODES", s:"Spiegel für Release-View",
+  paths:["quarantine"], d:"SQL-lesbarer Episoden-Status im Schema. Grundlage des JOINs in der Release-View.", refs:["remote_migration 002","STATUS: open→reconciled→released→resolved"]},
+ {id:"ttl", x:"sig", r:13, type:"process", ctrl:"sig", t:"TTL-Purge", s:"→ resolved(expired)",
+  paths:["quarantine"], d:"Pflicht-Retention: abgelaufene Zeilen werden gepurgt, überfällige Episoden explizit als resolved(expired) geschlossen — nie stilles Verschwinden (G6).", refs:["split.ttl_purge_statement","enforcement.expire_quarantine"]},
+
+ // — Gate-Konsum & Chain-Verzweigung: Chain steuert —
+ {id:"statusep", x:"sigL", r:8, type:"process", ctrl:"sig", t:"GET /runs/{id}/status", s:"verdict + fail_on",
+  paths:["trigger"], d:"Der API-Task pollt diesen Endpoint. proceed→COMPLETED, block→FAILED; quarantine folgt fail_on (Default block_and_quarantine ⇒ FAILED). Lauf error ⇒ FAILED (fail-closed).", refs:["routers/runs.get_run_status","fail_on = block | block_and_quarantine"]},
+ {id:"assert", x:"sql", r:8, type:"process", ctrl:"sql", t:"P_DQ_ASSERT_GATE", s:"liest Verdict · fail-closed",
+  paths:["trigger"], d:"SQL-nativer Gate: CALL kommt zurück oder wirft. SECURITY DEFINER — Aufrufer braucht nur EXECUTE. min_evaluated_after bindet das Urteil an den konkreten Load.", refs:["10050 kein Verdict · 10051 veraltet","10052 block · 10053 quarantine"]},
+ {id:"branch", x:"dsp", r:9, type:"decision", ctrl:"dsp", t:"Chain: Gate-Zweig", s:"",
+  paths:["trigger","materialize"], d:"Die Task Chain verzweigt auf das (binäre) Gate-Ergebnis. Das Drei-Wege-Verdict wird über fail_on abgebildet.", refs:["COMPLETED → weiter","FAILED / SIGNAL_SQL_ERROR → Stopp"]},
+ {id:"stop", x:"dsp", r:8, type:"terminal", ctrl:"dsp", t:"Chain stoppt", s:"FAILED / 10052",
+  paths:["trigger"], d:"block (und quarantine bei fail-closed) stoppt die Promotion. Incident/Alarm laufen über den normalen Breach-Pfad.", refs:["Promotion unterbleibt","Exit-Code 1 (CLI)"]},
+ {id:"promote", x:"dsp", r:10, type:"process", ctrl:"dsp", t:"Promote Staging→Curated", s:"nur bei COMPLETED",
+  paths:["trigger"], d:"Der Folge-Schritt läuft nur bei offenem Gate — das native Promotion-Gate (B2).", refs:["proceed / Exit 0"]},
+ {id:"flowclean", x:"dsp", r:11, type:"process", ctrl:"dsp", t:"Flow liest DQ_CLEAN", s:"quarantine + fail_on=block",
+  paths:["materialize","quarantine"], d:"Pipelines, die aus der CLEAN-Tabelle lesen, setzen fail_on=block und laufen bei Quarantäne weiter — die Isolation trägt die Tabelle, gute Daten fließen ohne Wartezeit.", refs:["Transformation Flow · Quelle DQ_CLEAN_⟨OBJ⟩"]},
+
+ // — Quarantäne-Lifecycle: Steward + Kunde —
+ {id:"released", x:"sql", r:13, type:"store", ctrl:"sql", t:"V_DQ_RELEASED_⟨OBJ⟩", s:"JOIN status='released'",
+  paths:["quarantine"], d:"Release-View: zeigt nur Zeilen freigegebener Episoden (JOIN auf DQ_EPISODES). Der Kunden-Flow liest hieraus zurück — Signal schiebt nie.", refs:["split.released_view_ddl"]},
+ {id:"steward", x:"stw", r:13, type:"actor", ctrl:"stw", t:"Steward: Freigabe", s:"Cockpit · steward+",
+  paths:["quarantine"], d:"Governance-Entscheidung im Cockpit, rollen-gegated, mit Notiz + Timeline. Der PII-Drilldown läuft nur über den gegateten Diagnostics-Pfad (G8).", refs:["POST /api/quarantine/{id}/release","release_quarantine → Spiegel"]},
+ {id:"autorel", x:"sig", r:14, type:"process", ctrl:"sig", t:"Auto-Release", s:"nach N grünen Läufen",
+  paths:["quarantine"], d:"Self-Healing L4 (Default aus): offene Episoden schließen automatisch, wenn die letzten N Läufe durchgängig proceed waren (Policy je Contract).", refs:["quarantine.auto_release_after_green_runs","enforcement.auto_release"]},
+ {id:"reload", x:"dsp", r:14, type:"process", ctrl:"dsp", t:"Kunden-Re-Load-Flow", s:"liest Release-View",
+  paths:["quarantine"], d:"Der Kunde lädt die freigegebenen Zeilen aus der Release-View in sein Ziel zurück — die harte Grenze: Signal schreibt nie in Kundenobjekte.", refs:["Quelle V_DQ_RELEASED_⟨OBJ⟩"]},
+ {id:"confirm", x:"sig", r:15, type:"process", ctrl:"sig", t:"confirm-reprocess", s:"→ resolved(reprocessed)",
+  paths:["quarantine"], d:"Bestätigung der Rückführung schließt die Episode; die Zeilen fallen aus der Release-View, der nächste TTL-Purge entfernt sie physisch.", refs:["POST /api/quarantine/{id}/confirm-reprocess"]},
+ {id:"outbound", x:"sig", r:10, type:"process", ctrl:"sig", t:"Outbound-Trigger", s:"opt-in · Remediation-Chain",
+  paths:["quarantine"], d:"Bei quarantine-Verdict löst Signal (Opt-in) die hinterlegte Remediation-/Split-Chain über die öffentliche Task-Chain-API aus — Handeln auf dem Tenant, kein Daten-Schreiben, jede Auslösung auditiert.", refs:["DATASPHERE_ALLOW_TRIGGER (Default aus)","trigger_task_chain · QUARANTINE_TRIGGER_CHAINS"]},
+];
+
+// edges: k = control | write | read | branch
+var E = [
+ {a:"apitask", b:"runstart", k:"control", l:"startet", p:["trigger"]},
+ {a:"onload", b:"runstart", k:"control", l:"startet", p:["trigger"]},
+ {a:"bridge", b:"runreq", k:"write", l:"INSERT requested", p:["trigger"]},
+ {a:"runreq", b:"claim", k:"read", l:"claim", p:["trigger"]},
+ {a:"claim", b:"runstart", k:"control", l:"", p:["trigger"]},
+ {a:"runstart", b:"engine", k:"control", l:"", p:["trigger","gating"]},
+ {a:"engine", b:"gating", k:"control", l:"", p:["gating"]},
+ {a:"gating", b:"skipped", k:"branch", l:"nein", p:["gating"]},
+ {a:"gating", b:"verdict", k:"branch", l:"ja", p:["gating"]},
+ {a:"verdict", b:"posthook", k:"control", l:"", p:["materialize"]},
+ {a:"posthook", b:"store", k:"write", l:"Run/Episode", p:["materialize","quarantine"]},
+ {a:"posthook", b:"pubverdict", k:"control", l:"", p:["materialize"]},
+ {a:"pubverdict", b:"gatestatus", k:"write", l:"UPSERT+History", p:["materialize"]},
+ {a:"pubverdict", b:"style", k:"control", l:"", p:["materialize"]},
+ {a:"style", b:"refreshclean", k:"branch", l:"continuous/both", p:["materialize"]},
+ {a:"refreshclean", b:"dqclean", k:"write", l:"DELETE+INSERT", p:["materialize"]},
+ {a:"style", b:"openep", k:"branch", l:"episodic & quarantine", p:["materialize","quarantine"]},
+ {a:"openep", b:"store", k:"write", l:"open", p:["quarantine"]},
+ {a:"openep", b:"snapshot", k:"control", l:"", p:["materialize","quarantine"]},
+ {a:"snapshot", b:"dqq", k:"write", l:"INSERT WHERE bad", p:["materialize","quarantine"]},
+ {a:"snapshot", b:"mirror", k:"control", l:"reconciled", p:["quarantine"]},
+ {a:"mirror", b:"episodes", k:"write", l:"UPSERT Status", p:["quarantine"]},
+ {a:"mirror", b:"ttl", k:"control", l:"", p:["quarantine"]},
+ {a:"ttl", b:"dqq", k:"write", l:"purge abgelaufen", p:["quarantine"]},
+ // Gate consumption
+ {a:"store", b:"statusep", k:"read", l:"verdict/Zustand", p:["trigger"]},
+ {a:"gatestatus", b:"assert", k:"read", l:"SELECT Verdict", p:["trigger"]},
+ {a:"statusep", b:"branch", k:"control", l:"COMPLETED/FAILED", p:["trigger"]},
+ {a:"assert", b:"branch", k:"control", l:"return / SIGNAL", p:["trigger"]},
+ {a:"bridge", b:"assert", k:"read", l:"P_DQ_GATE → Assert", p:["trigger"]},
+ {a:"apitask", b:"statusep", k:"read", l:"pollt", p:["trigger"]},
+ {a:"branch", b:"stop", k:"branch", l:"block", p:["trigger"]},
+ {a:"branch", b:"promote", k:"branch", l:"proceed", p:["trigger"]},
+ {a:"branch", b:"flowclean", k:"branch", l:"quarantine + fail_on=block", p:["materialize","quarantine"]},
+ {a:"dqclean", b:"flowclean", k:"read", l:"Quelle", p:["materialize","quarantine"]},
+ {a:"verdict", b:"outbound", k:"branch", l:"quarantine · opt-in", p:["quarantine"]},
+ // Lifecycle
+ {a:"dqq", b:"released", k:"read", l:"Zeilen", p:["quarantine"]},
+ {a:"episodes", b:"released", k:"read", l:"status=released", p:["quarantine"]},
+ {a:"steward", b:"store", k:"control", l:"Freigabe", p:["quarantine"]},
+ {a:"autorel", b:"store", k:"control", l:"release", p:["quarantine"]},
+ {a:"released", b:"reload", k:"read", l:"Quelle", p:["quarantine"]},
+ {a:"reload", b:"confirm", k:"control", l:"", p:["quarantine"]},
+ {a:"confirm", b:"store", k:"write", l:"resolved", p:["quarantine"]},
+];
+
+var CTRL_COLOR = {dsp:"var(--dsp)", sig:"var(--sig)", sql:"var(--sql)", stw:"var(--stw)"};
+var CTRL_BG = {dsp:"var(--dsp-bg)", sig:"var(--sig-bg)", sql:"var(--sql-bg)", stw:"var(--stw-bg)"};
+var CTRL_LABEL = {dsp:"Datasphere / Chain", sig:"Signal (Service)", sql:"Signal-Schema", stw:"Steward"};
+var EDGE_COLOR = {control:"var(--sig)", write:"var(--sql)", read:"var(--dsp)", branch:"var(--fg3)"};
+
+var DIMS = {process:[214,52], decision:[168,80], store:[196,58], terminal:[196,46], actor:[196,54], note:[176,46]};
+
+var byId = {};
+N.forEach(function(n){
+  var d = DIMS[n.type];
+  n.w = d[0]; n.h = d[1];
+  n.cx = LANE[n.x]; n.cy = ROW(n.r) + n.h/2;
+  n.left = n.cx - n.w/2; n.top = n.cy - n.h/2;
+  byId[n.id] = n;
+});
+
+var W = 1120, H = ROW(16) + 40;
+var svg = document.getElementById("chart");
+svg.setAttribute("viewBox", "0 0 "+W+" "+H);
+svg.setAttribute("width", W); svg.setAttribute("height", H);
+
+// arrow markers
+var defs = document.createElementNS("http://www.w3.org/2000/svg","defs");
+["control","write","read","branch"].forEach(function(k){
+  var m = document.createElementNS("http://www.w3.org/2000/svg","marker");
+  m.setAttribute("id","ar-"+k); m.setAttribute("viewBox","0 0 10 10");
+  m.setAttribute("refX","8.5"); m.setAttribute("refY","5");
+  m.setAttribute("markerWidth","7"); m.setAttribute("markerHeight","7"); m.setAttribute("orient","auto-start-reverse");
+  var p = document.createElementNS("http://www.w3.org/2000/svg","path");
+  p.setAttribute("d","M0 0 L10 5 L0 10 z"); p.setAttribute("fill", EDGE_COLOR[k]);
+  m.appendChild(p); defs.appendChild(m);
+});
+svg.appendChild(defs);
+
+var edgeLayer = document.createElementNS("http://www.w3.org/2000/svg","g");
+var nodeLayer = document.createElementNS("http://www.w3.org/2000/svg","g");
+svg.appendChild(edgeLayer); svg.appendChild(nodeLayer);
+
+function SVGe(tag, attrs){
+  var e = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for(var k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+// Manhattan route between node borders
+function route(a, b){
+  var dx = b.cx - a.cx, dy = b.cy - a.cy, pts;
+  if(Math.abs(dy) >= Math.abs(dx)){
+    var sy = dy>0 ? a.top+a.h : a.top, ey = dy>0 ? b.top : b.top+b.h;
+    var my = (sy+ey)/2;
+    pts = [[a.cx,sy],[a.cx,my],[b.cx,my],[b.cx,ey]];
+  } else {
+    var sx = dx>0 ? a.left+a.w : a.left, ex = dx>0 ? b.left : b.left+b.w;
+    var mx = (sx+ex)/2;
+    pts = [[sx,a.cy],[mx,a.cy],[mx,b.cy],[ex,b.cy]];
+  }
+  return pts;
+}
+function pathD(pts){
+  return pts.map(function(p,i){ return (i?"L":"M")+p[0]+" "+p[1]; }).join(" ");
+}
+
+var edgeEls = [];
+E.forEach(function(e){
+  var a = byId[e.a], b = byId[e.b];
+  var pts = route(a,b);
+  var g = SVGe("g", {"class":"edge"});
+  g.dataset.a = e.a; g.dataset.b = e.b; g.dataset.paths = e.p.join(",");
+  var col = EDGE_COLOR[e.k];
+  var pth = SVGe("path", {d:pathD(pts), stroke:col, "stroke-width":"1.6",
+    "marker-end":"url(#ar-"+e.k+")",
+    "stroke-dasharray": e.k==="write" ? "6 4" : e.k==="read" ? "1.5 4" : "none",
+    opacity:"0.85"});
+  g.appendChild(pth);
+  if(e.l){
+    var mid = pts[Math.floor(pts.length/2)-1] || pts[1];
+    var mid2 = pts[Math.floor(pts.length/2)] || pts[2];
+    var lx = (mid[0]+mid2[0])/2, ly = (mid[1]+mid2[1])/2;
+    var tw = e.l.length*5.4 + 8;
+    g.appendChild(SVGe("rect", {x:lx-tw/2, y:ly-8, width:tw, height:14, rx:3, fill:"var(--bg2)", opacity:"0.92"}));
+    var tx = SVGe("text", {x:lx, y:ly+2.5, "text-anchor":"middle"}); tx.textContent = e.l;
+    g.appendChild(tx);
+  }
+  edgeLayer.appendChild(g);
+  edgeEls.push(g);
+});
+
+function shapePath(n){
+  var x=n.left,y=n.top,w=n.w,h=n.h;
+  if(n.type==="decision"){
+    var cx=n.cx,cy=n.cy;
+    return "M "+cx+" "+y+" L "+(x+w)+" "+cy+" L "+cx+" "+(y+h)+" L "+x+" "+cy+" Z";
+  }
+  return "";
+}
+
+var nodeEls = {};
+N.forEach(function(n){
+  var g = SVGe("g", {"class":"node", tabindex:"0", role:"button"});
+  g.dataset.id = n.id;
+  var col = CTRL_COLOR[n.ctrl], bg = CTRL_BG[n.ctrl];
+  if(n.type==="decision"){
+    g.appendChild(SVGe("path", {"class":"shape", d:shapePath(n), fill:bg, stroke:col, "stroke-width":"1.6"}));
+  } else if(n.type==="store"){
+    // cylinder
+    var x=n.left,y=n.top,w=n.w,h=n.h,ry=7;
+    var d="M "+x+" "+(y+ry)+" A "+(w/2)+" "+ry+" 0 0 1 "+(x+w)+" "+(y+ry)+
+          " L "+(x+w)+" "+(y+h-ry)+" A "+(w/2)+" "+ry+" 0 0 1 "+x+" "+(y+h-ry)+" Z";
+    g.appendChild(SVGe("path", {"class":"shape", d:d, fill:bg, stroke:col, "stroke-width":"1.6"}));
+    g.appendChild(SVGe("path", {d:"M "+x+" "+(y+ry)+" A "+(w/2)+" "+ry+" 0 0 0 "+(x+w)+" "+(y+ry), fill:"none", stroke:col, "stroke-width":"1.2", opacity:"0.7"}));
+  } else {
+    var rx = n.type==="terminal" ? n.h/2 : n.type==="actor" ? 4 : 8;
+    var r = SVGe("rect", {"class":"shape", x:n.left, y:n.top, width:n.w, height:n.h, rx:rx,
+      fill:bg, stroke:col, "stroke-width":"1.6"});
+    if(n.type==="actor") r.setAttribute("stroke-dasharray","5 3");
+    g.appendChild(r);
+  }
+  // texts
+  var ty = n.type==="decision" ? n.cy-2 : n.top + (n.s? 20 : n.h/2+4);
+  var main = SVGe("text", {x:n.cx, y:ty, "text-anchor":"middle", "font-size":"11.5", "font-weight":"650"});
+  main.textContent = n.t;
+  g.appendChild(main);
+  if(n.s){
+    var sub = SVGe("text", {"class":"sub", x:n.cx, y:ty+13, "text-anchor":"middle", "font-size":"9"});
+    sub.textContent = n.s; g.appendChild(sub);
+  }
+  g.addEventListener("click", function(){ select(n.id); });
+  g.addEventListener("keydown", function(ev){ if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); select(n.id); } });
+  nodeLayer.appendChild(g);
+  nodeEls[n.id] = g;
+});
+
+var detail = document.getElementById("detail");
+var activePath = "all";
+
+function applyPath(){
+  edgeEls.forEach(function(g){
+    var on = activePath==="all" || (g.dataset.paths||"").split(",").indexOf(activePath)>=0;
+    g.classList.toggle("dim-edge", !on);
+  });
+  N.forEach(function(n){
+    var on = activePath==="all" || (n.paths||[]).indexOf(activePath)>=0;
+    nodeEls[n.id].classList.toggle("dim", !on);
+  });
+}
+
+function select(id){
+  var n = byId[id];
+  // highlight connected edges + neighbours
+  var connected = {}; connected[id]=true;
+  edgeEls.forEach(function(g){
+    var hit = g.dataset.a===id || g.dataset.b===id;
+    g.classList.toggle("dim-edge", !hit);
+    if(hit){ connected[g.dataset.a]=true; connected[g.dataset.b]=true; }
+  });
+  N.forEach(function(m){ nodeEls[m.id].classList.toggle("dim", !connected[m.id]); });
+  // detail
+  var refs = (n.refs||[]).map(function(r){ return "<li><code>"+r.replace(/</g,"&lt;")+"</code></li>"; }).join("");
+  detail.innerHTML = '<h3>'+n.t+' <span class="chip" style="color:'+CTRL_COLOR[n.ctrl]+';background:'+CTRL_BG[n.ctrl]+'">'+CTRL_LABEL[n.ctrl]+'</span>'+
+    '<span class="chip" style="color:var(--fg-3);background:var(--bg4)">'+n.type+'</span></h3>'+
+    '<div class="body">'+n.d+'</div><ul>'+refs+'</ul>';
+}
+
+document.getElementById("paths").addEventListener("click", function(e){
+  var b = e.target.closest("button"); if(!b) return;
+  activePath = b.dataset.path;
+  document.querySelectorAll("#paths button").forEach(function(x){ x.classList.toggle("on", x===b); });
+  applyPath();
+});
+
+applyPath();
+})();
+</script>
+
+</body>
+</html>

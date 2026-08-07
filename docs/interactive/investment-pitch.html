@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Signal — Investment-Pitch (15–20 Min)</title>
+<style>
+  :root{
+    --bg:#0b0f17; --bg2:#0e1420; --panel:#131b2a; --panel2:#172235;
+    --line:#22304a; --line2:#2c3e5e;
+    --ink:#e6edf6; --muted:#93a4bd; --faint:#64748b;
+    --accent:#38bdf8; --accent2:#818cf8;
+    --green:#34d399; --amber:#fbbf24; --red:#f87171; --pink:#f472b6;
+    --mono:"SFMono-Regular",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:radial-gradient(1400px 800px at 80% -10%,#13203a 0%,var(--bg) 55%);color:var(--ink);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased;overflow:hidden}
+  code,.mono{font-family:var(--mono)}
+  a{color:var(--accent);text-decoration:none}
+
+  /* ---- chrome ---- */
+  #progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;z-index:100;transition:width .35s ease}
+  header.topbar{position:fixed;top:0;left:0;right:0;z-index:50;backdrop-filter:blur(10px);background:rgba(11,15,23,.85);border-bottom:1px solid var(--line)}
+  .topbar .in{max-width:1180px;margin:0 auto;padding:0 22px;display:flex;align-items:center;gap:14px;height:54px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;white-space:nowrap;font-size:14px}
+  .brand .pulse{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:pulse 2.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.55)}70%{box-shadow:0 0 0 8px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+  .timechip{margin-left:auto;font-size:12px;color:var(--faint);white-space:nowrap}
+  .timechip b{color:var(--amber);font-weight:700}
+  .counter{font-size:12px;color:var(--faint);white-space:nowrap}
+  .counter b{color:var(--ink)}
+
+  /* ---- stage ---- */
+  #stage{position:absolute;top:54px;bottom:64px;left:0;right:0;overflow-y:auto}
+  .slide{display:none;max-width:1180px;margin:0 auto;padding:34px 26px 40px;animation:fade .3s ease}
+  .slide.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-weight:600}
+  h1{font-size:clamp(30px,5vw,52px);line-height:1.05;margin:14px 0 12px;letter-spacing:-1px}
+  h1 .grad{background:linear-gradient(95deg,var(--accent),var(--accent2) 60%,var(--green));-webkit-background-clip:text;background-clip:text;color:transparent}
+  h2{font-size:clamp(24px,3.4vw,34px);margin:10px 0 8px;letter-spacing:-.5px}
+  h3{font-size:16px;margin:0 0 6px}
+  .lede{font-size:clamp(15px,2.1vw,19px);color:var(--muted);max-width:920px}
+  .lede strong{color:var(--ink)}
+  .sub{color:var(--muted);max-width:900px;margin:0 0 18px;font-size:15px}
+  .sub strong{color:var(--ink)}
+
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .card .k{font-size:11px;text-transform:uppercase;letter-spacing:1.4px;color:var(--faint);font-weight:700}
+  .card p{color:var(--muted);margin:6px 0 0;font-size:14px}
+  .card p strong{color:var(--ink)}
+  .card.hot{border-color:rgba(52,211,153,.5);box-shadow:0 0 0 1px rgba(52,211,153,.2)}
+  .card.warn{border-color:rgba(248,113,113,.45)}
+
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:.4px}
+  .pill.green{background:rgba(52,211,153,.14);color:var(--green);border:1px solid rgba(52,211,153,.35)}
+  .pill.amber{background:rgba(251,191,36,.14);color:var(--amber);border:1px solid rgba(251,191,36,.35)}
+  .pill.red{background:rgba(248,113,113,.14);color:var(--red);border:1px solid rgba(248,113,113,.35)}
+  .pill.blue{background:rgba(56,189,248,.14);color:var(--accent);border:1px solid rgba(56,189,248,.35)}
+  .pill.pink{background:rgba(244,114,182,.14);color:var(--pink);border:1px solid rgba(244,114,182,.35)}
+
+  table.t{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+  table.t th,table.t td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+  table.t th{color:var(--faint);font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+  table.t td{color:var(--muted)}
+  table.t td strong{color:var(--ink)}
+  tr.hl td{background:rgba(248,113,113,.08)}
+  tr.hl td:first-child{border-left:2px solid var(--red)}
+
+  .quote{border-left:3px solid var(--accent);padding:14px 20px;background:rgba(56,189,248,.06);border-radius:0 12px 12px 0;font-size:clamp(16px,2.4vw,21px);color:var(--ink);max-width:940px;margin:18px 0}
+  .quote small{display:block;color:var(--faint);font-size:12px;margin-top:8px}
+
+  ul.clean{margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:14px}
+  ul.clean li{margin:5px 0}
+  ul.clean li strong{color:var(--ink)}
+
+  .kpi{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .kpi .b{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 16px;min-width:130px}
+  .kpi .b .n{font-size:24px;font-weight:800;color:var(--ink)}
+  .kpi .b .n.gr{color:var(--green)} .kpi .b .n.rd{color:var(--red)} .kpi .b .n.am{color:var(--amber)}
+  .kpi .b .l{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+  /* flow */
+  .flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin-top:16px}
+  .flow .step{flex:1 1 150px;background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:12px;padding:13px 14px;min-width:150px}
+  .flow .arrow{display:flex;align-items:center;padding:0 8px;color:var(--accent);font-size:20px;font-weight:800}
+  .flow .step .k{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--accent);font-weight:700}
+  .flow .step p{font-size:13px;color:var(--muted);margin:4px 0 0}
+  @media(max-width:900px){.flow{flex-direction:column}.flow .arrow{transform:rotate(90deg);justify-content:center;padding:2px 0}}
+
+  /* expanders */
+  .exp{border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,var(--panel),var(--panel2));margin-top:10px;overflow:hidden}
+  .exp>button{all:unset;display:flex;align-items:center;gap:12px;width:100%;padding:13px 16px;cursor:pointer;color:var(--ink);font-weight:600;font-size:15px;box-sizing:border-box}
+  .exp>button:hover{background:rgba(56,189,248,.05)}
+  .exp>button .num{flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:rgba(56,189,248,.15);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+  .exp>button .chev{margin-left:auto;color:var(--faint);transition:.2s}
+  .exp.open>button .chev{transform:rotate(90deg);color:var(--accent)}
+  .exp .body{display:none;padding:0 16px 14px 54px;color:var(--muted);font-size:14px}
+  .exp .body strong{color:var(--ink)}
+  .exp.open .body{display:block}
+
+  /* entropy split */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line2);border-radius:14px;overflow:hidden;margin-top:14px}
+  @media(max-width:900px){.split{grid-template-columns:1fr}}
+  .split .half{padding:18px 20px}
+  .split .half.l{background:linear-gradient(180deg,rgba(129,140,248,.10),rgba(129,140,248,.04));border-right:1px dashed var(--line2)}
+  .split .half.r{background:linear-gradient(180deg,rgba(52,211,153,.10),rgba(52,211,153,.04))}
+  .split h3{display:flex;align-items:center;gap:10px}
+  .split ul{margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:14px}
+  .split ul li{margin:4px 0}
+  .seam{margin-top:12px;text-align:center;font-size:13px;color:var(--faint)}
+  .seam code{color:var(--accent)}
+
+  .note{font-size:13px;color:var(--faint);border-left:2px solid var(--line2);padding-left:12px;margin-top:16px;max-width:900px}
+  .note strong{color:var(--muted)}
+
+  .bigclaim{font-size:clamp(20px,3.2vw,30px);font-weight:750;letter-spacing:-.5px;line-height:1.25;max-width:980px;margin:22px 0 8px}
+  .bigclaim .gd{background:linear-gradient(95deg,var(--accent),var(--green));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+  /* footer nav */
+  footer.nav{position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(11,15,23,.9);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
+  .nav .in{max-width:1180px;margin:0 auto;padding:0 22px;height:64px;display:flex;align-items:center;gap:14px}
+  .nav button.arrowbtn{cursor:pointer;background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 16px;font-family:var(--sans);font-weight:700;font-size:14px}
+  .nav button.arrowbtn:hover{border-color:var(--accent)}
+  .nav button.arrowbtn:disabled{opacity:.35;cursor:default}
+  .dots{display:flex;gap:6px;margin:0 auto;flex-wrap:wrap;justify-content:center}
+  .dots button{width:9px;height:9px;border-radius:50%;border:0;background:var(--line2);cursor:pointer;padding:0}
+  .dots button.on{background:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.25)}
+  .hint{font-size:11px;color:var(--faint);white-space:nowrap}
+  @media(max-width:700px){.hint{display:none}}
+
+  /* presenter notes */
+  #notes{position:fixed;right:0;top:54px;bottom:64px;width:min(430px,90vw);background:var(--bg2);border-left:1px solid var(--line2);z-index:60;padding:20px 22px;overflow-y:auto;display:none}
+  #notes.open{display:block}
+  #notes h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--amber)}
+  #notes .n-body{font-size:14px;color:var(--muted)}
+  #notes .n-body strong{color:var(--ink)}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header class="topbar"><div class="in">
+  <div class="brand"><span class="pulse"></span> Signal · Investment-Pitch</div>
+  <span class="pill blue" style="font-size:10px">Partner-Runde · vertraulich</span>
+  <div class="timechip" id="timechip"></div>
+  <div class="counter" id="counter"></div>
+</div></header>
+
+<div id="stage">
+
+<!-- ========== 1 · HOOK ========== -->
+<section class="slide" data-min="0–1">
+  <span class="eyebrow">◆ Investment Case · 2026-07</span>
+  <h1>In SAP Datasphere gibt es<br>keine Data Quality.<br><span class="grad">Wir besitzen das Werkzeug, das die Lücke füllt.</span></h1>
+  <p class="lede">Signal verwandelt <strong>SQL-freie, semantische Data Contracts</strong> in erzwungene, ausschließlich lesende Quality-Checks gegen HANA/Datasphere — mit Compliance-Ampel, Lineage, Incidents und Observability. <strong>Der Antrag: gezielt weiter investieren</strong> — in die letzte Meile eines Assets, dessen Fundament bezahlt ist.</p>
+  <div class="kpi">
+    <div class="b"><div class="n gr">3</div><div class="l">unabhängige Belege für den Whitespace</div></div>
+    <div class="b"><div class="n">1</div><div class="l">Contribution im Entropy-Ökosystem — von uns</div></div>
+    <div class="b"><div class="n am">jetzt</div><div class="l">BDC-Zeitfenster</div></div>
+  </div>
+</section>
+
+<!-- ========== 2 · PROBLEM ========== -->
+<section class="slide" data-min="1–3">
+  <span class="eyebrow">Das Problem</span>
+  <h2>Datasphere hat für alles einen Ort — außer für Qualität</h2>
+  <p class="sub">Ein Data Contract verteilt sich in DSP/BDC über fünf Schichten. Vier davon haben einen SAP-nativen Anker. <strong>Die fünfte nicht.</strong></p>
+  <table class="t">
+    <thead><tr><th>#</th><th>Schicht</th><th>Verankert in DSP/BDC</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><strong>Schema / Semantik</strong></td><td>Fact View, Analytic Model, Associations</td><td><span class="pill green">nativ</span></td></tr>
+      <tr><td>2</td><td><strong>Katalog / Produkt</strong></td><td>Marketplace, ORD-Descriptor</td><td><span class="pill green">nativ</span></td></tr>
+      <tr><td>3</td><td><strong>Sharing / Output</strong></td><td>Delta Share, exponierte View</td><td><span class="pill green">nativ</span></td></tr>
+      <tr><td>4</td><td><strong>Access / Security</strong></td><td>Data Access Controls, Scoped Roles</td><td><span class="pill green">nativ</span></td></tr>
+      <tr class="hl"><td>5</td><td><strong>Quality / SLA</strong></td><td>nur handgestrickt implementiert (<code>DQ_STATUS</code>-Views, Task Chains) — kein deklarativer Ort, keine Engine, keine Ampel</td><td><span class="pill red">fehlt</span></td></tr>
+    </tbody>
+  </table>
+  <p class="note">Die Folge sehen wir in <strong>jedem Kundenprojekt</strong>: Datenqualität wird pro Projekt neu erfunden, ist nicht versioniert, nicht erzwungen, nicht sichtbar. Genau diese Zeile 5 ist Signals Geschäft.</p>
+</section>
+
+<!-- ========== 3 · MARKTLÜCKE ========== -->
+<section class="slide" data-min="3–5">
+  <span class="eyebrow">Die Marktlücke</span>
+  <h2>Drei unabhängige Belege — niemand bedient das Segment</h2>
+  <p class="sub">Quelle: <code>Marktanalyse_DQ_Observability_2026.md</code> (Vergleich mit Monte Carlo, Anomalo, Bigeye, Soda, Great Expectations, Elementary, datacontract-cli u.&nbsp;a.)</p>
+  <div class="grid g3">
+    <div class="card warn"><div class="k">1 · SAP selbst</div>
+      <p><strong>Kein deklarativer Quality-Ort</strong> in Datasphere/BDC. ORD beschreibt Produkte, erzwingt aber keine Garantien. Keine Roadmap-Ankündigung, die die Lücke schließt.</p></div>
+    <div class="card warn"><div class="k">2 · Die Marktführer</div>
+      <p>Die gesamte Observability-Kategorie verkauft über <strong>Snowflake/BigQuery/Databricks-Konnektoren</strong>. HANA/Datasphere ist für sie Nische — für uns Heimatmarkt.</p></div>
+    <div class="card hot"><div class="k">3 · Das OSS-Ökosystem <span class="pill green" style="margin-left:6px">von uns geschlossen</span></div>
+      <p><code>datacontract test</code> hatte <strong>kein HANA-Backend</strong> — das inzwischen existierende <strong>stammt aus unserem Haus</strong>. Die Lücke war real genug, dass wir sie selbst füllen mussten.</p></div>
+  </div>
+  <p class="bigclaim">Nachgewiesener Bedarf <span class="gd">ohne Wettbewerb im Segment</span> — und wir sind dort bereits Contributor, nicht Zaungast.</p>
+  <p class="note"><strong>Positionierung, keine Schwäche:</strong> Datasphere/HANA-only ist eine dokumentierte Entscheidung. Wir konkurrieren nicht über Connector-Breite, sondern über SAP-Tiefe.</p>
+</section>
+
+<!-- ========== 4 · WAS SIGNAL IST ========== -->
+<section class="slide" data-min="5–7">
+  <span class="eyebrow">Das Asset</span>
+  <h2>Kein Prototyp: Contracts + Quality + Observability, vereint</h2>
+  <p class="sub">Der Markt konvergiert auf genau diese Kombination aus drei früher getrennten Kategorien. Signal ist von Anfang an so gebaut. Befund der Marktanalyse 2026: <strong>„Auf den Grundlagen nicht im Rückstand — die Table Stakes sind abgedeckt."</strong></p>
+  <div class="grid g3">
+    <div class="card"><div class="k">Data Contracts</div>
+      <p>Semantisches, <strong>SQL-freies YAML</strong> · SemVer + Breaking-Change-Gate in CI · <strong>ODCS-3.1-Export</strong> (Industriestandard, Bitol/LF) · Lite/Full-Betriebsmodi.</p></div>
+    <div class="card"><div class="k">Data Quality</div>
+      <p>Deterministisch kompilierte, <strong>ausschließlich lesende</strong> Checks gegen HANA · <strong>SAP-Domänen-Bibliothek</strong>: BSEG-Balance, BKPF-Orphan, Fiscal-Completeness, Replication-Lag.</p></div>
+    <div class="card"><div class="k">Observability</div>
+      <p>Rolling-Baselines · Volumen-/Schema-Drift · Compliance-Ampel mit SLA-Fenstern (7/30/90 d) · Incidents mit Timeline · Lineage-/Coverage-Map · <strong>Proposal-Miner</strong>.</p></div>
+  </div>
+  <div class="flow">
+    <div class="step"><div class="k">Contract (YAML)</div><p>Semantische Garantie — <strong style="color:var(--ink)">kein SQL</strong>, von Fachseite lesbar</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="k">Compiler</div><p>Deterministisch, auditierbar — erzeugt sämtliches SQL aus der Check-Library</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="k">Executor</div><p>Read-only gegen HANA · PII-Gate · Schema erst zur Laufzeit gebunden</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="k">Cockpit</div><p>Ampel · Incidents · Lineage · Proposals — lebendes System, kein CI-Snapshot</p></div>
+  </div>
+  <p class="note">Abgesichert durch <strong>acht build-brechende CI-Gates</strong> (kein SQL im Contract, framework-freie Engine, PII-Gate, fail-closed Auth …) — Architektur-Invarianten, keine Konventionen.</p>
+</section>
+
+<!-- ========== 5 · BDC-CHANCE ========== -->
+<section class="slide" data-min="7–10">
+  <span class="eyebrow">Der Hebel · Timing</span>
+  <h2>BDC: ORD beschreibt — Signal erzwingt</h2>
+  <p class="sub">SAP rollt mit Business Data Cloud und dem <strong>Data Product Studio</strong> ein Data-Product-Ökosystem aus: jedes Produkt bekommt einen ORD-Descriptor, wird auffindbar, teilbar, konsumierbar. Was strukturell fehlt:</p>
+  <div class="quote">ORD-Ports tragen Topologie, Zugriff und Schema-<em>Referenz</em>. Sie tragen <strong>nicht</strong> die durchsetzbaren Garantien: Freshness-SLA, Completeness, Quality-Rules, Terms.<small>Analyse in <code>Zusatz_ContractLifecycle_ORDBDCIntegration.md</code> §2</small></div>
+  <div class="grid g3">
+    <div class="card"><div class="k">Semantisch ergänzen</div><p>Signal legt über jedes BDC-Datenprodukt einen <strong>maschinenlesbaren Contract</strong> — die Quality/SLA-Schicht, die ORD nicht hat. Export als ODCS, stabile Garantien zurück in den ORD-Descriptor. <strong>„BDC beschreibt — Signal erzwingt."</strong></p></div>
+    <div class="card"><div class="k">Contracts einführen</div><p>BDC macht tool-getrieben <strong>alles zum „Foundation Product"</strong> → Governance-Vakuum oder Over-Governance. Signals Tiering (<code>boundary</code> × Lite/Full, datengetrieben über die Lineage) ist die Beratungsantwort, die kein Tool-Anbieter hat.</p></div>
+    <div class="card"><div class="k">Naht ist entschieden</div><p><strong>ADR-0003 (accepted):</strong> Signal erzwingt an der SQL-erreichbaren Oberfläche (HANA-View oder SQL-on-Files/HDLF) — der vorhandene Executor greift <strong>ohne Engine-Änderung</strong>. Kein Forschungsprojekt.</p></div>
+  </div>
+  <p class="bigclaim">BDC-Adoption beginnt bei unseren Kunden <span class="gd">gerade jetzt</span>. Wer die erste Rollout-Welle begleitet, definiert den Standard — in 18 Monaten ist das Fenster besetzt. Von uns oder von anderen.</p>
+</section>
+
+<!-- ========== 6 · ENTROPY ========== -->
+<section class="slide" data-min="10–13">
+  <span class="eyebrow">Ökosystem · Partnerschaft</span>
+  <h2>Entropy Data: Schaufenster — Signal: Enforcement-Engine</h2>
+  <p class="sub"><strong>Entropy Data</strong> (vormals Data Mesh Manager) ist der führende plattformneutrale Data-Product-Marktplatz, ODCS-nativ. Der naheliegende Einwand: <em>„Die haben doch auch Contracts und Data Quality — sind wir nicht Konkurrent?"</em> Nein — und die Trennlinie haben wir selbst gezogen:</p>
+  <div class="split">
+    <div class="half l">
+      <h3><span class="pill pink">Entropy</span> Die linke Lifecycle-Hälfte</h3>
+      <ul>
+        <li>Marktplatz, Discovery, semantische Suche</li>
+        <li>Access-Requests, Consumer-Sign-off</li>
+        <li>Versionierungs-/Deprecation-Ceremony</li>
+        <li><strong style="color:var(--ink)">Führt selbst keine Checks aus</strong> — zeigt publizierte Ergebnisse an</li>
+      </ul>
+      <p style="font-size:13px;color:var(--faint);margin:10px 0 0">= Signals dokumentiert schwache Hälfte. <strong style="color:var(--muted)">Abtreten, nicht bekämpfen.</strong></p>
+    </div>
+    <div class="half r">
+      <h3><span class="pill green">Signal</span> Die rechte Lifecycle-Hälfte</h3>
+      <ul>
+        <li>Checks gegen HANA <strong style="color:var(--ink)">ausführen &amp; erzwingen</strong></li>
+        <li>SAP-Domänen-Checks (BSEG, BKPF, Fiscal …)</li>
+        <li>Read-only + PII-Gate → besteht das Security-Review</li>
+        <li>Kontinuierliche Runtime: Baselines, Ampel, Incidents</li>
+      </ul>
+      <p style="font-size:13px;color:var(--faint);margin:10px 0 0">= die Hälfte, die Entropy per Architektur <strong style="color:var(--muted)">wegdelegiert</strong>.</p>
+    </div>
+  </div>
+  <p class="seam">Integrations-Seam existiert großteils schon: <code>to_odcs()</code> → Entropy ingestiert nativ · Result-Publishing = dünner Publisher · Product-Manifest → ODPS 1.0</p>
+  <div class="card hot" style="margin-top:14px">
+    <div class="k">Der Status der Beziehung — kein Kaltkontakt</div>
+    <p><strong>Das HANA-Backend für Entropys Ausführungspfad (<code>datacontract test</code>) haben wir selbst beigesteuert</strong>, und es besteht ein loser, direkter Austausch zwischen unserem Haus und Entropy. Die Grenzziehung stammt damit von uns: generische CI-Checks laufen über die CLI, die <em>wir</em> HANA-fähig gemacht haben — SAP-Spezialitäten, Governance und Runtime gehören Signal. Positionierung: <strong>„Signal ist das SAP/HANA-Quality-Backend für euren Entropy-Marktplatz."</strong></p>
+  </div>
+</section>
+
+<!-- ========== 7 · MOAT ========== -->
+<section class="slide" data-min="13–15">
+  <span class="eyebrow">Verteidigbarkeit</span>
+  <h2>„Und wenn jemand einen HANA-Connector baut?" — Haben wir. Selbst.</h2>
+  <p class="sub">Der Connector/Transport ist kommoditisierbar — also haben <strong>wir ihn zu unseren Bedingungen kommoditisiert</strong> (Embrace-Move aus dem Strategie-Doc, vollzogen). Signals Wert ist bewusst an vier Dingen verankert, die ein Connector-Patch nicht repliziert. <em>Klick zum Aufklappen:</em></p>
+  <div class="exp open"><button><span class="num">1</span> SQL-freies Garantie→Compiler-Modell <span class="chev">▸</span></button>
+    <div class="body">Wettbewerbstools (inkl. <code>datacontract test</code> — auch mit unserem HANA-Backend) verlangen <strong>handgeschriebenes SQL/SodaCL</strong> im Contract. Signal: semantische Garantie rein → deterministischer Compiler erzeugt das SQL. Ein anderes, assurance-stärkeres Produkt — CI-erzwungen (Gate G1).</div></div>
+  <div class="exp"><button><span class="num">2</span> SAP-Domänen-Bibliothek <span class="chev">▸</span></button>
+    <div class="body">BSEG/BKPF-Balance, Replication-Lag, Fiscal-Completeness, Key-Plausibilität — <strong>kodiertes SAP-ERP-Wissen</strong>. Ein generisches Backend gibt die Fähigkeit, SQL zu fahren — nicht diese Checks. Das ist unsere Beratungs-IP in Produktform, und sie bleibt proprietär.</div></div>
+  <div class="exp"><button><span class="num">3</span> Security-Posture als Feature <span class="chev">▸</span></button>
+    <div class="body">Ausschließlich lesend, PII-Gate (Rohzeilen verlassen HANA nie ohne explizite Freigabe), fail-closed Auth, Hybrid-Executor im Kundennetz. „Externe Test-Engine fragt eure produktive HANA ab" ist im SAP-Haus ein <strong>Security-Review-Problem</strong> — Signals gegatete Posture ist der Moat, der Deals durch die Security bringt.</div></div>
+  <div class="exp"><button><span class="num">4</span> Kontinuierliche Observability <span class="chev">▸</span></button>
+    <div class="body">Jeder CLI-basierte Ansatz ist ein <strong>Punkt-in-Zeit-CI-Gate</strong>. Signal ist Laufzeit: Rolling-Baselines, Compliance-Ampel, SLA-Fenster, Incident-Timeline, Run-Historie, datengetriebene Garantie-Vorschläge — ein lebendes Cockpit.</div></div>
+  <p class="note">Dazu zwei weiche, aber verkaufsrelevante Differenzierer: <strong>German-first</strong> (UI &amp; Incident-Erklärungen — im DACH-Mittelstand ein echtes Argument) und <strong>Determinismus</strong> (kein Black-Box-ML entscheidet, was geprüft wird — auditierbar, prüferfest).</p>
+</section>
+
+<!-- ========== 8 · BUSINESS CASE ========== -->
+<section class="slide" data-min="15–16">
+  <span class="eyebrow">Business Case</span>
+  <h2>Drei Erlös-Hebel aus einem Asset — ohne Lizenzgeschäft</h2>
+  <p class="sub">Signal ist bewusst als <strong>Beratungs-Delivery-Tool</strong> geschnitten; die Übergabemodelle sind juristisch vorgedacht (<code>Uebergabemodelle_und_Lizenz.md</code>). Die Softwareüberlassungs-Schwelle wird im empfohlenen Modell gar nicht erreicht.</p>
+  <div class="grid g3">
+    <div class="card"><div class="k">1 · Delivery-Beschleuniger <span class="pill amber" style="margin-left:4px">Marge</span></div>
+      <p>DQ-/Contract-Arbeit, die sonst je Projekt handgebaut wird, kommt aus dem Werkzeugkasten. Höhere Marge auf bestehenden Engagements, differenzierendes Angebot in Ausschreibungen — Demo läuft <strong>standalone am Tag null</strong>.</p></div>
+    <div class="card hot"><div class="k">2 · Managed Service (A1) <span class="pill green" style="margin-left:4px">Recurring</span></div>
+      <p><strong>Wir betreiben technisch, der Kunde governt fachlich</strong> (owned_by-Split). Monatliches Betriebsentgelt + Rollout-/Härtungs-Engagements. Bei strenger Security: Hybrid-Executor im Kundennetz — nur Ergebnisse fließen zu uns.</p></div>
+    <div class="card"><div class="k">3 · Marktpositionierung <span class="pill blue" style="margin-left:4px">Pipeline</span></div>
+      <p>Thought Leadership „Data Contracts in SAP-Landschaften": Vortrag &amp; Kundendeck liegen fertig im Repo, Entropy-Kanal ist angewärmt, BDC-Frühphase läuft. <strong>Zieht Projekte an, die es ohne das Asset nicht gäbe.</strong></p></div>
+  </div>
+  <p class="note"><strong>Skalierungslogik:</strong> Pilot = 1 Domäne (6–8 Wochen, Festpreis) → Rollouts je weiterer Domäne werden billiger (Templates stehen) → laufender Betrieb als Recurring Revenue. Ein späterer bewusster Schritt ins Produktgeschäft (Lizenzmodell C) bleibt als Option offen — die Checkliste existiert.</p>
+</section>
+
+<!-- ========== 9 · RISIKEN ========== -->
+<section class="slide" data-min="16–17">
+  <span class="eyebrow">Ehrlichkeit zuerst</span>
+  <h2>Die Risiken — benannt, bewertet, adressiert</h2>
+  <div class="grid g3">
+    <div class="card"><div class="k">SAP baut native DQ <span class="pill amber" style="margin-left:4px">mittel</span></div>
+      <p>Möglich, mittelfristig. Dann bleibt Signals Contract-/Governance- und SAP-Domänen-Schicht relevant — aber das Positionierungs-Fenster schrumpft. <strong>Ein Argument für Tempo, nicht dagegen.</strong></p></div>
+    <div class="card"><div class="k">Trittbrettfahrer auf unserem Backend <span class="pill green" style="margin-left:4px">entschärft</span></div>
+      <p>Das frühere Kernrisiko („die CLI könnte HANA lernen") haben <strong>wir selbst vollzogen</strong> — zu unseren Bedingungen. Restrisiko: Dritte bauen Generisches auf unserem Transport. Die vier Moat-Anker adressieren genau das.</p></div>
+    <div class="card"><div class="k">Zwei offene BDC-Annahmen <span class="pill blue" style="margin-left:4px">verifizierbar</span></div>
+      <p>SQL-on-Files-Adressierung (V1) und konkrete ORD-Emission durch Datasphere (R2) sind <strong>benannte Verifikationspunkte</strong> — Gegenstand des nächsten Schritts, nicht des Gesamtinvestments.</p></div>
+  </div>
+  <p class="bigclaim">Das Investment-Risiko ist kein <span class="gd">„wissen wir nicht"</span> — es ist eine Liste konkreter, schriftlich durchgearbeiteter Punkte.</p>
+  <p class="note">Vollständige Herleitung: <code>Marktanalyse_DQ_Observability_2026.md</code> · <code>Zusatz_EntropyData_Integration_und_Defensibility.md</code> · <code>ADR-0003</code> · <code>Uebergabemodelle_und_Lizenz.md</code></p>
+</section>
+
+<!-- ========== 10 · ASK ========== -->
+<section class="slide" data-min="17–19">
+  <span class="eyebrow">Der Ask</span>
+  <h2>Drei konkrete Schritte — priorisiert, begrenzt, messbar</h2>
+  <div class="grid g3">
+    <div class="card"><div class="k">1 · Intelligenz-Schicht bauen</div>
+      <p><strong>Entwicklung.</strong> Die vier marktvalidierten Tier-1-Features umsetzen (Reihenfolge liegt fest): saisonalitätsbewusste Anomalie-Baselines → Root-Cause/Blast-Radius → Segmentierung → Schema-Drift an der Quelle.</p>
+      <p style="margin-top:8px"><span class="pill blue">Ergebnis</span> Im Feature-Vergleich nicht mehr „dümmer" als Monte Carlo/Anomalo — bei vollem SAP-Vorsprung.</p></div>
+    <div class="card hot"><div class="k">2 · Referenzkunde als Managed Service</div>
+      <p><strong>Vertrieb + Delivery.</strong> Ein bestehender Datasphere-Kunde, Modell A1, Lite-Modus, 10–20 reale Contracts entlang der Lineage.</p>
+      <p style="margin-top:8px"><span class="pill blue">Ergebnis</span> Validiert Security-Pfad (Hybrid-Executor), Preismodell und Tiering am lebenden Objekt — und liefert die Referenz-Story.</p></div>
+    <div class="card"><div class="k">3 · Entropy &amp; BDC formalisieren</div>
+      <p><strong>Partnering, geringer Aufwand.</strong> Den bestehenden Austausch — angewärmt durch unsere Backend-Contribution — in eine Integrationsvereinbarung überführen (Result-Ingest, Source-of-Truth-Modus); die zwei BDC-Annahmen am Test-Tenant verifizieren.</p>
+      <p style="margin-top:8px"><span class="pill blue">Ergebnis</span> Distributionskanal außerhalb der eigenen Kundenbasis + entschiedener BDC-Seam.</p></div>
+  </div>
+  <p class="note">Alle drei Schritte sind unabhängig voneinander abbrechbar — kein „alles oder nichts". Schritt 3 ist fast reiner Optionswert.</p>
+</section>
+
+<!-- ========== 11 · SCHLUSS ========== -->
+<section class="slide" data-min="19–20">
+  <span class="eyebrow">Schluss</span>
+  <h2>Die Frage ist nicht, ob diese Lücke gefüllt wird.</h2>
+  <div class="quote" style="font-size:clamp(18px,2.8vw,26px)">
+    Wir besitzen heute das einzige Werkzeug, das Data Contracts in SAP-Landschaften nicht nur beschreibt, sondern <strong>erzwingt</strong> — in einem Markt, den SAP offen lässt und die Observability-Anbieter nicht erreichen. Wo das OSS-Ökosystem SAP inzwischen erreicht, tut es das <strong>über einen Baustein aus unserem Haus</strong>.<br><br>
+    Das Fundament ist bezahlt. Die Roadmap ist marktvalidiert. Das BDC-Zeitfenster ist offen. Der Draht zu Entropy liegt.<br><br>
+    <span style="background:linear-gradient(95deg,var(--accent),var(--green));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800">Die Frage ist nur: von uns — oder von jemand anderem?</span>
+  </div>
+  <p class="note">Vertiefung: <code>docs/Investment_Case_Signal.md</code> (mit Quellverweisen je Abschnitt) · Delivery-Details: <code>docs/interactive/delivery-offering.html</code></p>
+</section>
+
+</div>
+
+<aside id="notes"><h4>Sprechernotizen</h4><div class="n-body" id="notesbody"></div></aside>
+
+<footer class="nav"><div class="in">
+  <button class="arrowbtn" id="prev">← Zurück</button>
+  <div class="dots" id="dots"></div>
+  <button class="arrowbtn" id="next">Weiter →</button>
+  <span class="hint">←/→ blättern · <b>N</b> Notizen</span>
+</div></footer>
+
+<script>
+const NOTES=[
+  'Einstieg ruhig, eine These: <strong>„In Datasphere gibt es keine Data Quality — und wir besitzen das Werkzeug dafür."</strong> Nicht das Tool erklären, die Situation erklären. Der Ask kommt am Ende — hier nur ankündigen: „Ich will heute drei konkrete Schritte vorschlagen."',
+  'Die Tabelle langsam aufbauen: vier grüne Zeilen zeigen, dass SAP <em>strukturiert</em> denkt — umso auffälliger die rote Zeile 5. Kernsatz: <strong>„Qualität wird in Datasphere implementiert, aber nirgends deklariert, versioniert oder erzwungen."</strong> Anker in eigener Projekterfahrung: jedes Projekt baut DQ_STATUS-Views neu.',
+  'Die drei Belege einzeln durchgehen — sie sind unabhängig voneinander, das macht die Lücke robust. Beleg 3 ist der Applausmoment: <strong>„Das HANA-Backend, das es inzwischen gibt, haben wir beigesteuert."</strong> Wer fragt, warum wir eine eigene Lücke schließen: Antwort kommt auf der Moat-Folie.',
+  'Hier NICHT in Features abtauchen — nur zeigen, dass die Table Stakes stehen (Zitat Marktanalyse) und der Flow das Besondere ist: <strong>semantisches YAML rein, deterministisches SQL raus, lebendes Cockpit</strong>. Die acht CI-Gates als Qualitätsbeweis nennen: das ist Ingenieursarbeit, kein Wochenend-Prototyp.',
+  'Timing-Folie — die wichtigste für die Entscheider. ORD-Zitat vorlesen. Dann der Dreischritt: ergänzen (Quality-Schicht), einführen (Tiering statt Over-Governance), Naht entschieden (ADR-0003, keine Forschung). Schlusssatz mit Pause: <strong>„In 18 Monaten ist das Fenster besetzt — von uns oder von anderen."</strong>',
+  'Den Einwand SELBST aussprechen, bevor er aus dem Raum kommt: „Entropy hat doch auch Contracts und Quality?" Dann die Trennung: <strong>anzeigen vs. ausführen</strong>. Bild verwenden: Schaufenster vs. Engine (oder: App Store vs. Compiler). Die Contribution + der lose Austausch machen daraus einen warmen Kanal — das ist Fakt, kein Plan.',
+  'Die härteste Frage offensiv nehmen: <strong>„Haben wir. Selbst."</strong> Kurz erklären, warum das klug war: Der Transport war ohnehin kommoditisierbar — wer ihn selbst legt, bestimmt die Grenze. Dann die vier Anker aufklappen (nicht alle vorlesen — 1 und 3 betonen: Compiler-Modell und Security-Posture).',
+  'Vom Produkt zur Kasse: drei Hebel, der mittlere ist der wichtigste (<strong>Recurring Revenue ohne Lizenzgeschäft</strong>). Betonen: Softwareüberlassungs-Schwelle wird in A1 gar nicht erreicht — Justiziar-Thema ist vorgedacht. Skalierungslogik: Pilot → billigere Rollouts → Betrieb.',
+  'Risiken aktiv bringen — das kauft Glaubwürdigkeit für den Ask. Risiko 1 als Tempo-Argument drehen. Risiko 2 ist die Pointe: das frühere Kernrisiko haben wir selbst neutralisiert. Risiko 3 klein halten: zwei benannte Prüf-Punkte, Teil von Schritt 3.',
+  'Der Ask: drei Schritte, bewusst unabhängig abbrechbar — <strong>kein „alles oder nichts"</strong>. Wenn nur eines genehmigt wird: Schritt 2 (Referenzkunde) priorisieren, denn er validiert alles andere mit. Mit konkreter Frage enden: „Welchen der drei Schritte geben wir heute frei?"',
+  'Schluss-Slide stehen lassen, Zitat langsam. Letzte Zeile als offene Frage in den Raum — dann schweigen. Backup bei Detailfragen: Investment_Case_Signal.md hat je Abschnitt die Quellverweise.'
+];
+
+const slides=[...document.querySelectorAll('.slide')];
+const dots=document.getElementById('dots');
+const counter=document.getElementById('counter');
+const timechip=document.getElementById('timechip');
+const progress=document.getElementById('progress');
+const notes=document.getElementById('notes');
+const notesbody=document.getElementById('notesbody');
+let cur=0;
+
+slides.forEach((s,i)=>{
+  const d=document.createElement('button');
+  d.addEventListener('click',()=>go(i));
+  dots.appendChild(d);
+});
+
+function go(i){
+  cur=Math.max(0,Math.min(slides.length-1,i));
+  slides.forEach((s,j)=>s.classList.toggle('active',j===cur));
+  [...dots.children].forEach((d,j)=>d.classList.toggle('on',j===cur));
+  counter.innerHTML='<b>'+(cur+1)+'</b> / '+slides.length;
+  timechip.innerHTML='Zeitbudget: <b>Min '+slides[cur].dataset.min+'</b>';
+  progress.style.width=((cur+1)/slides.length*100)+'%';
+  notesbody.innerHTML=NOTES[cur]||'';
+  document.getElementById('prev').disabled=(cur===0);
+  document.getElementById('next').disabled=(cur===slides.length-1);
+  document.getElementById('stage').scrollTo({top:0});
+}
+document.getElementById('prev').addEventListener('click',()=>go(cur-1));
+document.getElementById('next').addEventListener('click',()=>go(cur+1));
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(cur+1);}
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(cur-1);}
+  else if(e.key.toLowerCase()==='n'){notes.classList.toggle('open');}
+  else if(e.key==='Home'){go(0);} else if(e.key==='End'){go(slides.length-1);}
+});
+
+/* expanders (Moat-Folie) */
+document.querySelectorAll('.exp>button').forEach(b=>{
+  b.addEventListener('click',()=>b.parentElement.classList.toggle('open'));
+});
+
+go(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signal — Datenprodukte interaktiv</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--bg2:#181c27;--bg3:#1e2436;--bg4:#252d42;
+  --fg:#e2e8f0;--fg2:#94a3b8;--fg3:#64748b;
+  --accent:#6366f1;--accent2:#818cf8;--accent3:#a5b4fc;
+  --green:#22c55e;--yellow:#eab308;--red:#ef4444;--orange:#f97316;
+  --teal:#14b8a6;--pink:#ec4899;
+  --border:#2d3748;--radius:8px;--radius2:12px;
+}
+body{background:var(--bg);color:var(--fg);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.6;min-height:100vh}
+h1{font-size:1.7rem;font-weight:700;letter-spacing:-.02em}
+h2{font-size:1.15rem;font-weight:600;color:var(--accent3);margin-bottom:.75rem}
+h3{font-size:.95rem;font-weight:600;color:var(--fg);margin-bottom:.5rem}
+p{color:var(--fg2);margin-bottom:.75rem}
+code{font-family:'JetBrains Mono','Fira Code',monospace;font-size:.82em;background:var(--bg4);padding:.1em .35em;border-radius:4px;color:var(--accent3)}
+pre{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;overflow-x:auto;font-family:'JetBrains Mono','Fira Code',monospace;font-size:.8rem;line-height:1.7}
+.tag{display:inline-block;padding:.15em .55em;border-radius:99px;font-size:.72rem;font-weight:600;letter-spacing:.03em}
+.tag-green{background:#14532d;color:#86efac}
+.tag-yellow{background:#713f12;color:#fde68a}
+.tag-red{background:#7f1d1d;color:#fca5a5}
+.tag-blue{background:#1e3a5f;color:#93c5fd}
+.tag-purple{background:#2e1065;color:var(--accent3)}
+.tag-gray{background:var(--bg4);color:var(--fg2)}
+
+/* Layout */
+.shell{display:flex;flex-direction:column;min-height:100vh}
+header{background:var(--bg2);border-bottom:1px solid var(--border);padding:.75rem 2rem;display:flex;align-items:center;gap:1rem}
+.logo{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--teal));border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;color:#fff;flex-shrink:0}
+.subtitle{color:var(--fg3);font-size:.8rem}
+
+/* Tabs */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg2);padding:0 .5rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab-btn{padding:.65rem .85rem;border:none;background:none;color:var(--fg3);cursor:pointer;font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;min-height:44px;touch-action:manipulation;-webkit-tap-highlight-color:rgba(99,102,241,.2)}
+.tab-btn:hover{color:var(--fg)}
+.tab-btn.active{color:var(--accent3);border-bottom-color:var(--accent)}
+
+.content{flex:1;padding:1.5rem 2rem;max-width:1200px;width:100%}
+.panel{display:none}
+.panel.active{display:block}
+
+/* Cards */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:1.25rem;margin-bottom:1rem}
+.card-header{display:flex;align-items:center;gap:.6rem;margin-bottom.75rem}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+@media(max-width:800px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+/* Table */
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{text-align:left;color:var(--fg3);font-weight:500;padding:.5rem .75rem;border-bottom:1px solid var(--border)}
+td{padding:.5rem .75rem;border-bottom:1px solid #1a2035;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+
+/* YAML interactive */
+.yaml-wrap{position:relative}
+.yaml-line{display:block;padding:.05rem 0;cursor:default;border-radius:3px;transition:background .12s}
+.yaml-line[data-tip]:hover{background:rgba(99,102,241,.12);cursor:help}
+.yaml-comment{color:#6b7db3}
+.yaml-key{color:#93c5fd}
+.yaml-val-str{color:#86efac}
+.yaml-val-num{color:#fca5a5}
+.yaml-val-bool{color:#fde68a}
+.yaml-val-sym{color:#c4b5fd}
+.yaml-anchor{color:#94a3b8}
+.tooltip{position:fixed;z-index:999;background:#1e2436;border:1px solid var(--accent);border-radius:var(--radius);padding:.6rem .85rem;font-size:.78rem;color:var(--fg);max-width:280px;pointer-events:none;opacity:0;transition:opacity .15s;line-height:1.5}
+.tooltip.tt-show{opacity:1}
+
+/* Lifecycle FSM */
+.fsm{display:flex;align-items:center;gap:0;padding:1.5rem 0;flex-wrap:wrap}
+.state{border-radius:var(--radius2);padding:.85rem 1.25rem;font-weight:600;font-size:.85rem;text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative;min-width:120px}
+.state:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.state-draft{background:linear-gradient(135deg,#1e2d4a,#1a2540);border:2px solid #3b82f6;color:#93c5fd}
+.state-active{background:linear-gradient(135deg,#14532d,#166534);border:2px solid var(--green);color:#86efac}
+.state-deprecated{background:linear-gradient(135deg,#2d1a1a,#3b1f1f);border:2px solid #6b7280;color:#9ca3af}
+.arrow{color:var(--fg3);font-size:1.5rem;padding:0 .75rem;display:flex;flex-direction:column;align-items:center;gap:.15rem}
+.arrow-label{font-size:.67rem;color:var(--fg3);white-space:nowrap;text-align:center}
+.state-info{display:none;position:absolute;top:110%;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem;width:220px;font-size:.75rem;color:var(--fg2);z-index:10;line-height:1.5}
+.state:hover .state-info{display:block}
+
+/* Compilation pipeline */
+.pipe{display:flex;flex-direction:column;gap:.75rem}
+.pipe-step{display:flex;align-items:flex-start;gap:.75rem;padding:1rem;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:border-color .15s}
+.pipe-step:hover{border-color:var(--accent)}
+.pipe-step.active-step{border-color:var(--accent);background:rgba(99,102,241,.08)}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:.78rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-body{flex:1}
+.step-title{font-weight:600;font-size:.88rem;margin-bottom:.25rem}
+.step-detail{display:none;margin-top:.75rem;font-size:.8rem;color:var(--fg2)}
+.pipe-step.active-step .step-detail{display:block}
+.gate-badge{display:inline-block;background:#2e1065;border:1px solid var(--accent);color:var(--accent3);font-size:.67rem;font-weight:700;padding:.1em .4em;border-radius:4px;margin-left:.4rem}
+
+/* Decision tree */
+.dtree{padding:1rem 0;overflow-x:auto}
+.dtree svg{display:block}
+.node-rect{rx:8;ry:8}
+.node-text{font-family:'Inter',system-ui,sans-serif;font-size:12px;fill:#e2e8f0}
+.node-sub{font-family:'Inter',system-ui,sans-serif;font-size:10px;fill:#94a3b8}
+.edge-label{font-family:'Inter',system-ui,sans-serif;font-size:10px;fill:#94a3b8}
+
+/* Guarantee explorer */
+.guarantee-list{display:flex;flex-direction:column;gap:.5rem}
+.guarantee-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.guarantee-header{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;cursor:pointer;transition:background .12s}
+.guarantee-header:hover{background:var(--bg4)}
+.guarantee-icon{font-size:1rem;width:24px;text-align:center}
+.guarantee-name{font-weight:600;font-size:.88rem;flex:1}
+.guarantee-body{display:none;padding:.75rem 1rem;border-top:1px solid var(--border);font-size:.8rem;color:var(--fg2)}
+.guarantee-body.open{display:block}
+.guarantee-body pre{font-size:.76rem;margin-top:.5rem}
+.chevron{transition:transform .2s;font-size:.7rem;color:var(--fg3)}
+.guarantee-item.open .chevron{transform:rotate(90deg)}
+
+/* Reconciliation findings */
+.finding{display:flex;gap:.75rem;padding:.75rem;border-radius:var(--radius);margin-bottom:.5rem;cursor:pointer;transition:opacity .2s}
+.finding-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:.3rem}
+.finding-content{flex:1}
+.finding-title{font-weight:600;font-size:.85rem}
+.finding-desc{font-size:.78rem;color:var(--fg2)}
+.finding-action{display:none;font-size:.76rem;color:var(--accent3);margin-top:.35rem;padding:.4rem .65rem;background:rgba(99,102,241,.1);border-radius:4px}
+.finding.selected .finding-action{display:block}
+
+/* Gate grid */
+.gate-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem}
+.gate-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;transition:border-color .15s}
+.gate-card:hover{border-color:var(--accent)}
+.gate-id{font-family:monospace;font-size:1rem;font-weight:700;color:var(--accent3)}
+.gate-title{font-size:.82rem;font-weight:600;margin:.3rem 0}
+.gate-desc{font-size:.77rem;color:var(--fg2)}
+.gate-loc{font-size:.7rem;color:var(--fg3);margin-top:.4rem;font-family:monospace}
+
+/* Scroll tweaks */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.panel.active{animation:fadeIn .2s ease}
+
+/* Layer diagram */
+.layer-diagram{display:flex;flex-direction:column;gap:.5rem;padding:1rem}
+.layer-row{display:flex;align-items:stretch;gap:.5rem}
+.layer-label{width:130px;font-size:.75rem;color:var(--fg3);display:flex;align-items:center;justify-content:flex-end;padding-right:.75rem;text-align:right;flex-shrink:0}
+.layer-objs{display:flex;gap:.5rem;flex-wrap:wrap;flex:1}
+.obj-box{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:.45rem .7rem;font-size:.75rem;font-family:monospace;color:var(--fg2);transition:all .2s;cursor:default}
+.obj-box.port{border-color:var(--green);color:#86efac;background:#14532d22}
+.obj-box.interior{border-color:var(--accent);color:var(--accent3);background:#2e106522}
+.obj-box.external{border-color:var(--fg3);background:var(--bg2)}
+.obj-box:hover{transform:scale(1.04)}
+.layer-arrow{display:flex;align-items:center;justify-content:center;color:var(--fg3);font-size:1.1rem;padding:.25rem 0}
+
+/* Enforcement zones */
+.zone{padding:.75rem 1rem;border-radius:var(--radius);margin-bottom:.5rem}
+.zone-yes{background:#14532d22;border-left:3px solid var(--green)}
+.zone-partial{background:#71390022;border-left:3px solid var(--yellow)}
+.zone-no{background:#7f1d1d22;border-left:3px solid var(--red)}
+.zone-title{font-weight:600;font-size:.85rem;margin-bottom:.25rem}
+.zone-body{font-size:.78rem;color:var(--fg2)}
+</style>
+</head>
+<body>
+<div class="shell">
+<header>
+  <div class="logo">S</div>
+  <div>
+    <div style="font-weight:700;font-size:.95rem">Signal — Datenprodukte interaktiv</div>
+    <div class="subtitle">Data Quality &amp; Observability Cockpit · SAP Datasphere · Konzept &amp; Workflow</div>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('overview',this)">Überblick</button>
+  <button class="tab-btn" onclick="switchTab('anatomy',this)">Contract-Anatomie</button>
+  <button class="tab-btn" onclick="switchTab('lifecycle',this)">Lifecycle &amp; Modi</button>
+  <button class="tab-btn" onclick="switchTab('compile',this)">Kompilierung</button>
+  <button class="tab-btn" onclick="switchTab('composition',this)">Produkt-Komposition</button>
+  <button class="tab-btn" onclick="switchTab('studio',this)">Data Product Studio</button>
+  <button class="tab-btn" onclick="switchTab('gates',this)">Security Gates</button>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════ OVERVIEW ═══════════════ -->
+<div id="panel-overview" class="panel active">
+  <h2>Was ist ein Datenprodukt in Signal?</h2>
+  <div class="grid-2" style="margin-bottom:1rem">
+    <div class="card">
+      <h3>Datenprodukt ≠ Dataset ≠ Contract</h3>
+      <p>Ein <strong>Datenprodukt</strong> ist das <em>Ganze</em> — alle Objekte einer einzigen Ownership über alle Layer. Ein <strong>Contract</strong> beschreibt nur die <em>Ränder</em>. Ein <strong>Dataset</strong> ist ein einzelnes technisches Objekt.</p>
+      <table>
+        <tr><th>Begriff</th><th>Was es ist</th></tr>
+        <tr><td><code>Datenprodukt</code></td><td>Eigentums-Aggregat über alle Layer</td></tr>
+        <tr><td><code>Contract</code></td><td>Qualitätszusage an einem Output-Port</td></tr>
+        <tr><td><code>Dataset</code></td><td>Einzelnes Datasphere/HANA-Objekt</td></tr>
+        <tr><td><code>Guarantee</code></td><td>Semantische Qualitätseigenschaft (kein SQL)</td></tr>
+        <tr><td><code>Check</code></td><td>Compiliertes, ausführbares SQL-Template</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Kernprinzip</h3>
+      <p style="font-style:italic;color:var(--accent3);font-size:.9rem;border-left:3px solid var(--accent);padding-left:.75rem;margin-bottom:.75rem">„Ein Data Contract ist nur der Rand des Datenprodukts — das Versprechen an der Konsumgrenze. Das Innere ist interne Angelegenheit." — ADR-0001</p>
+      <p>Signal übersetzt <strong>SQL-freie, semantische Contracts</strong> deterministisch in read-only SQL-Checks, die gegen HANA/Datasphere laufen. Ergebnisse fließen ins Cockpit als Compliance-Ampel, Lineage-Map und Incidents.</p>
+    </div>
+  </div>
+
+  <h2>Layer-Architektur eines Datenprodukts</h2>
+  <div class="card">
+    <p style="font-size:.78rem;color:var(--fg3);margin-bottom:.75rem">Hover über Objekte für Details. <span class="tag tag-green">Grün = Output-Port (Contract)</span> &nbsp;<span class="tag tag-purple">Lila = Interieur (internes Gate)</span> &nbsp;<span class="tag tag-gray">Grau = Extern</span></p>
+    <div class="layer-diagram">
+      <div class="layer-row">
+        <div class="layer-label">Extern / Quellsysteme</div>
+        <div class="layer-objs">
+          <div class="obj-box external" title="Externes Quellsystem">ERP_SOURCE</div>
+          <div class="obj-box external" title="Externes Quellsystem">CRM_FEED</div>
+        </div>
+      </div>
+      <div class="layer-arrow">↓</div>
+      <div class="layer-row">
+        <div class="layer-label">Raw / Replikation</div>
+        <div class="layer-objs">
+          <div class="obj-box interior" title="Interieur — internes Gate, kein Contract nötig">SRC_ORDERS (S)</div>
+          <div class="obj-box interior" title="Interieur — internes Gate">SRC_CUSTOMERS (S)</div>
+        </div>
+      </div>
+      <div class="layer-arrow">↓</div>
+      <div class="layer-row">
+        <div class="layer-label">Integrated Core</div>
+        <div class="layer-objs">
+          <div class="obj-box interior" title="Interieur — internes Gate">INT_ORDERS (I)</div>
+          <div class="obj-box interior" title="Interieur — internes Gate">INT_CUSTOMERS (I)</div>
+        </div>
+      </div>
+      <div class="layer-arrow">↓</div>
+      <div class="layer-row">
+        <div class="layer-label">Business Core</div>
+        <div class="layer-objs">
+          <div class="obj-box interior" title="Interieur — internes Gate">BIZ_SALES (B)</div>
+        </div>
+      </div>
+      <div class="layer-arrow">↓</div>
+      <div class="layer-row">
+        <div class="layer-label">Serving / Output-Port</div>
+        <div class="layer-objs">
+          <div class="obj-box port" title="Output-Port — hat einen consumer_contract mit Guarantees">DS_REVENUE_SUMMARY ✓</div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:.77rem;color:var(--fg3);margin-top:.5rem">Das <strong>Interieur</strong> (alle Objekte bis auf den Port) wird nicht deklariert — es wird aus der Lineage automatisch abgeleitet. Layer ist eine Beschreibung, keine Grenze.</p>
+  </div>
+
+  <h2>Die fünf Bausteine</h2>
+  <div class="grid-3">
+    <div class="card" style="border-color:#1e3a5f">
+      <div style="font-size:1.5rem;margin-bottom:.5rem">📦</div>
+      <h3>Manifest</h3>
+      <p><code>products/&lt;name&gt;.yaml</code> — deklariert nur Identität, Owner-Hülle und Output-Ports. Kein Interieur.</p>
+    </div>
+    <div class="card" style="border-color:#2e1065">
+      <div style="font-size:1.5rem;margin-bottom:.5rem">📋</div>
+      <h3>Contract</h3>
+      <p><code>contracts/&lt;dataset&gt;.yaml</code> — semantische Guarantees am Output-Port. Kein SQL.</p>
+    </div>
+    <div class="card" style="border-color:#14532d">
+      <div style="font-size:1.5rem;margin-bottom:.5rem">⚙️</div>
+      <h3>Compiled Checks</h3>
+      <p><code>checks/&lt;dataset&gt;/checks.yaml</code> — deterministisch aus dem Contract compilierte SQL-Templates.</p>
+    </div>
+    <div class="card" style="border-color:#1a3a2a">
+      <div style="font-size:1.5rem;margin-bottom:.5rem">🔗</div>
+      <h3>Lineage-Graph</h3>
+      <p><code>data/lineage.json</code> — Quelle für das abgeleitete Interieur und die Reconciliation-Befunde.</p>
+    </div>
+    <div class="card" style="border-color:#3d1a00">
+      <div style="font-size:1.5rem;margin-bottom:.5rem">📊</div>
+      <h3>Result-Store</h3>
+      <p>SQLite/HANA — persistiert Check-Ergebnisse, Compliance-Status, Incidents, Baselines.</p>
+    </div>
+    <div class="card" style="border-color:#2d1040">
+      <div style="font-size:1.5rem;margin-bottom:.5rem">🚦</div>
+      <h3>Cockpit</h3>
+      <p>React-Frontend — Compliance-Ampel, Coverage-Map, Contract Workbench, Incidents.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ ANATOMY ═══════════════ -->
+<div id="panel-anatomy" class="panel">
+  <h2>Contract-Anatomie — interaktiv</h2>
+  <p>Hover über <span style="background:rgba(99,102,241,.2);padding:.1em .3em;border-radius:3px;color:var(--accent3)">hervorgehobene Zeilen</span> für Erklärungen.</p>
+
+  <div class="grid-2">
+    <div class="card yaml-wrap">
+      <h3 style="margin-bottom:.75rem">Contract YAML</h3>
+      <pre id="yaml-display"></pre>
+    </div>
+    <div>
+      <h3 style="margin-bottom:.75rem">Guarantee-Typen</h3>
+      <div class="guarantee-list" id="guarantee-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ LIFECYCLE ═══════════════ -->
+<div id="panel-lifecycle" class="panel">
+  <h2>Contract-Lifecycle &amp; Betriebsmodi</h2>
+
+  <div class="card">
+    <h3>Zustandsmaschine — hover für Details</h3>
+    <div class="fsm">
+      <div class="state state-draft">
+        DRAFT
+        <div class="state-info">
+          <strong>Draft</strong><br>
+          Editierbar. Jedes PUT setzt den Contract auf Draft zurück. Kein Enforcement aktiv.<br><br>
+          <em>Erzeugt durch:</em> PUT /contracts/{product} oder /seed
+        </div>
+      </div>
+      <div class="arrow">
+        →
+        <span class="arrow-label">approve<br>(Full)<br>certify (Lite)</span>
+      </div>
+      <div class="state state-active">
+        ACTIVE
+        <div class="state-info">
+          <strong>Active</strong><br>
+          Zertifiziert. .active.yml-Snapshot existiert. Checks laufen. Compliance-Ampel aktiv.<br><br>
+          Gate G3: Breaking Change erfordert Major-Bump.
+        </div>
+      </div>
+      <div class="arrow">
+        →
+        <span class="arrow-label">deprecate</span>
+      </div>
+      <div class="state state-deprecated">
+        DEPRECATED
+        <div class="state-info">
+          <strong>Deprecated</strong><br>
+          Zurückgezogen. Kein Enforcement mehr. Historische Daten bleiben im Store.
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:.5rem">
+      <div style="font-size:.77rem;color:var(--fg3)">← Jede PUT-Operation setzt zurück auf DRAFT</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Lite-Modus</h3>
+      <span class="tag tag-blue">internal_gate / einfacher Contract</span>
+      <p style="margin-top:.75rem">Schnelle interne Gates ohne Approval-Zeremonie. Ein einziger Aufruf:</p>
+      <pre>POST /api/contracts/{product}/certify
+# seed → validate → compile → approve</pre>
+      <ul style="font-size:.8rem;color:var(--fg2);margin-left:1rem;margin-top:.5rem">
+        <li>Kein SemVer-Zwang</li>
+        <li>Kein separater Approval-Schritt</li>
+        <li>Kein Breaking-Change-Block</li>
+        <li>Ideal für: Core-Gates, Monitoring, Bootstrap</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Full-Modus</h3>
+      <span class="tag tag-purple">consumer_contract / provider_contract</span>
+      <p style="margin-top:.75rem">Governance-Zeremonie für Produkt-zu-Produkt-Verträge:</p>
+      <pre>PUT   → diff → approve → compile</pre>
+      <ul style="font-size:.8rem;color:var(--fg2);margin-left:1rem;margin-top:.5rem">
+        <li>SemVer Pflicht (0.1.0, 1.0.0, …)</li>
+        <li>Expliziter Approve-Schritt</li>
+        <li>Gate G3: Breaking Change → Major-Bump</li>
+        <li>Schreibt .active.yml-Snapshot (Git-Commit)</li>
+        <li>ODCS-Export empfohlen</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Vollständiger API-Workflow</h3>
+    <table>
+      <tr><th>Schritt</th><th>Endpoint</th><th>Was passiert</th><th>Modus</th></tr>
+      <tr><td>1. Seed</td><td><code>POST /seed</code></td><td>Draft aus Inventar-Snapshot generieren</td><td>beide</td></tr>
+      <tr><td>2. Edit</td><td><code>PUT /{product}</code></td><td>Guarantees bearbeiten, G1 prüft sofort</td><td>beide</td></tr>
+      <tr><td>3. Diff</td><td><code>POST /diff</code></td><td>Vergleich gegen .active.yml, Breaking-Change-Klassen</td><td>Full</td></tr>
+      <tr><td>4a. Approve</td><td><code>POST /approve</code></td><td>G3-Prüfung, schreibt .active.yml, Git-Commit</td><td>Full</td></tr>
+      <tr><td>4b. Certify</td><td><code>POST /certify</code></td><td>Schritte 1–4a in einem Aufruf</td><td>Lite</td></tr>
+      <tr><td>5. Compile</td><td><code>POST /compile</code></td><td>Guarantees → SQL-Checks-YAML mit compiler_hash</td><td>beide</td></tr>
+      <tr><td>6. Promote</td><td><code>POST /promote</code></td><td>internal_gate → consumer_contract (Draft)</td><td>Upgrade</td></tr>
+      <tr><td>7. Deprecate</td><td><code>POST /deprecate</code></td><td>Active → Deprecated</td><td>beide</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════ COMPILATION ═══════════════ -->
+<div id="panel-compile" class="panel">
+  <h2>Kompilierungs-Pipeline — Klick für Details</h2>
+  <p>Jede Guarantee wird deterministisch in ein SQL-Template übersetzt. SQL verlässt nie den Compiler.</p>
+
+  <div class="grid-2">
+    <div class="pipe" id="pipe-steps"></div>
+    <div class="card" id="compile-detail">
+      <h3>Beispiel wählen</h3>
+      <p>Klicke einen Schritt links, um das konkrete Beispiel zu sehen.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1rem">
+    <h3>Determinism Hash</h3>
+    <p>Jede Compilation wird mit einem reproduzierbaren SHA256-Hash gestempelt:</p>
+    <pre>compiler_hash = sha256(f"{contract_hash}:{library_version}")[:16]</pre>
+    <p style="font-size:.78rem;color:var(--fg2)">Derselbe Contract + dieselbe Library-Version → immer derselbe Hash. Der Hash wird in die erzeugte checks.yaml eingebettet und ermöglicht auditierbare, deterministische Nachvollziehbarkeit.</p>
+  </div>
+</div>
+
+<!-- ═══════════════ COMPOSITION ═══════════════ -->
+<div id="panel-composition" class="panel">
+  <h2>Produkt-Komposition: Manifest + abgeleitetes Interieur</h2>
+
+  <div class="grid-2" style="margin-bottom:1rem">
+    <div class="card">
+      <h3>Das Manifest — dünne Deklaration</h3>
+      <p>Nur Identität, Owner-Hülle und Ports. Das Interieur fehlt bewusst.</p>
+      <pre><span class="yaml-key">product:</span> <span class="yaml-val-str">sales_overview</span>
+<span class="yaml-key">owners:</span> <span class="yaml-val-str">[team-sales]</span>
+
+<span class="yaml-key">output_ports:</span>
+  <span class="yaml-anchor">- dataset:</span> <span class="yaml-val-str">DS_REVENUE_SUMMARY</span>
+
+<span class="yaml-key">inbound:</span>
+  <span class="yaml-anchor">- depends_on:</span>
+      <span class="yaml-key">product:</span> <span class="yaml-val-str">kunde</span>
+      <span class="yaml-key">version:</span> <span class="yaml-val-str">"1.2.0"</span>
+
+<span class="yaml-comment"># interieur: NICHT gelistet</span>
+<span class="yaml-comment"># → aus Lineage abgeleitet</span></pre>
+    </div>
+    <div class="card">
+      <h3>Owner-gegateter Upstream-Walk</h3>
+      <p>Signal läuft vom Output-Port rückwärts durch den Lineage-Graphen:</p>
+      <ol style="font-size:.8rem;color:var(--fg2);margin-left:1.25rem;line-height:2">
+        <li>Start am Output-Port (<code>DS_REVENUE_SUMMARY</code>)</li>
+        <li>Rückwärts durch alle Upstream-Kanten</li>
+        <li>Stopp bei <strong>(a)</strong> Port eines anderen Owner-Sets</li>
+        <li>Stopp bei <strong>(b)</strong> externem Source-Knoten</li>
+        <li>Stopp bei <strong>(c)</strong> bereits besuchtem Knoten</li>
+        <li>Alles dazwischen = <span class="tag tag-purple">Interieur</span></li>
+      </ol>
+      <p style="margin-top:.5rem;font-size:.78rem;color:var(--fg3)">Layer ist Beschreibung, keine Grenze. Owner-Set entscheidet die Zugehörigkeit.</p>
+    </div>
+  </div>
+
+  <h2>Reconciliation-Befunde</h2>
+  <p>Der Abgleich von <strong>Intent</strong> (Manifest) gegen <strong>Reality</strong> (Lineage) erzeugt automatisch Befunde.</p>
+  <div id="findings-list"></div>
+
+  <div class="card" style="margin-top:1rem">
+    <h3>Zweistufige Produkt-Ampel</h3>
+    <div class="grid-2">
+      <div>
+        <div class="tag tag-green" style="margin-bottom:.5rem;display:block;width:fit-content">Eigenes Versprechen</div>
+        <p style="font-size:.8rem;color:var(--fg2)">Compliance der eigenen Outbound-Contracts. Das ist die <em>Produkt-Ampel</em> — governance-relevant.</p>
+      </div>
+      <div>
+        <div class="tag tag-yellow" style="margin-bottom:.5rem;display:block;width:fit-content">Upstream-Risiko</div>
+        <p style="font-size:.8rem;color:var(--fg2)">Compliance der <code>depends_on</code>-Produkte. Bricht <code>kunde</code>, wird <code>sales_overview</code> <em>nicht</em> automatisch rot — es erhält ein Risiko-Signal. Separate Spur, nicht vermischt.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ STUDIO ═══════════════ -->
+<div id="panel-studio" class="panel">
+  <h2>Konvergenz mit Data Product Studio (BDC)</h2>
+  <p style="background:#713f1222;border-left:3px solid var(--yellow);padding:.6rem .85rem;border-radius:4px;font-size:.8rem;color:#fde68a;margin-bottom:1rem">
+    <strong>Hinweis:</strong> Die genaue technische Struktur von Studio-Produkten ist teilweise unverifiziert (V2/V5 aus ADR-0003 offen). Annahmen sind als solche gekennzeichnet.
+  </p>
+
+  <div class="grid-2" style="margin-bottom:1rem">
+    <div class="card">
+      <h3>Was sich NICHT ändert — Konzept-Ebene</h3>
+      <p>Speicher-agnostisch. Gilt 1:1 für Studio-Produkte:</p>
+      <ul style="font-size:.8rem;color:var(--fg2);margin-left:1.25rem;line-height:2">
+        <li><code>boundary</code>-Klassifikation (internal/inbound/outbound)</li>
+        <li>Tiering-Modell (Tier 0/1/2 × Lite/Full)</li>
+        <li>Manifest-Modell (dünne Deklaration)</li>
+        <li>Compliance-Ampel und Incident-System</li>
+        <li>Gekettete Contracts (<code>depends_on</code>)</li>
+        <li>ORD/ODCS als einseitige Derivate</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Was sich ändert — Enforcement-Ebene</h3>
+      <p>Signal enforced nur an SQL-Oberflächen:</p>
+      <pre style="font-size:.75rem">GX-on-HANA (hdbcli, read-only)
+↓
+SQL-Template gegen
+  "{schema}"."{dataset}"
+↓
+20 Bibliotheks-Checks</pre>
+      <p style="font-size:.78rem;color:var(--fg2);margin-top:.5rem"><strong>Kein zweiter Executor.</strong> Ein Spark-/Delta-Executor wird abgelehnt (G7, single executor, ENGINE-FROZEN).</p>
+    </div>
+  </div>
+
+  <h2>Entscheidungsbaum — Wo enforced Signal?</h2>
+  <div class="card dtree">
+    <svg id="dtree-svg" width="760" height="420" viewBox="0 0 760 420" style="max-width:100%"></svg>
+  </div>
+
+  <h2 style="margin-top:1rem">Enforcement-Zonen</h2>
+  <div id="enforcement-zones"></div>
+
+  <div class="card" style="margin-top:1rem">
+    <h3>Ein Studio-Produkt als Fluss (angenommen)</h3>
+    <pre>Input               Transformation(en)         Output
+(inbound)           (Interieur)               (output port)
+SAP-Standard-   →   join / clean /   →        SALES.ORDERS_CURATED
+produkt oder        aggregate                  (SQL-on-Files-View
+HDLF-Roh-File       Zwischen-Files/-Views       oder HANA-View)
+[fremder Owner]     [abgeleitet aus Lineage]   [Contract hier!]</pre>
+    <p style="font-size:.78rem;color:var(--fg2);margin-top:.5rem">Manifest deklariert nur Anfang und Ende. Transformationen werden von der Lineage abgeleitet.</p>
+  </div>
+
+  <div class="card">
+    <h3>HDLF-spezifische Besonderheiten</h3>
+    <table>
+      <tr><th>Aspekt</th><th>Verhalten</th><th>Status</th></tr>
+      <tr><td>Adressierung</td><td><code>"{schema}"."{view}"</code> via SQL-on-Files-View — identisch zu HANA</td><td><span class="tag tag-green">V1 gelöst</span></td></tr>
+      <tr><td>Schema/Closed-Mode</td><td>VIEW_COLUMNS statt TABLE_COLUMNS nötig (G-8 Fix)</td><td><span class="tag tag-green">gefixt</span></td></tr>
+      <tr><td>Freshness</td><td>Braucht eine Datumsspalte; bei Files ggf. Lade-/Partitionsspalte</td><td><span class="tag tag-yellow">V3a offen</span></td></tr>
+      <tr><td>Volume/row_count</td><td>COUNT(*) via Virtual Table — korrekt, aber ggf. Full-Scan</td><td><span class="tag tag-yellow">Partition-Param geplant</span></td></tr>
+      <tr><td>Discovery</td><td>HDLF-Objekte müssen im Inventar-Snapshot erfasst sein</td><td><span class="tag tag-red">V5 offen</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════ GATES ═══════════════ -->
+<div id="panel-gates" class="panel">
+  <h2>Security Gates — unverletzliche Invarianten</h2>
+  <p>Diese Gates werden durch CI erzwungen (<code>.github/workflows/ci.yml</code>). Jeder Verstoß bricht den Build.</p>
+  <div class="gate-grid" id="gate-grid"></div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /shell -->
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+// ─── TAB SWITCHING ───────────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ─── TOOLTIP ────────────────────────────────────────────────────
+const tt = document.getElementById('tooltip');
+document.addEventListener('mousemove', e => {
+  tt.style.left = (e.clientX + 14) + 'px';
+  tt.style.top = (e.clientY + 14) + 'px';
+});
+
+// ─── YAML DISPLAY ───────────────────────────────────────────────
+const yamlLines = [
+  { text: 'product: DS_REVENUE_SUMMARY', tip: 'Technischer Identifier des Datasets/Contracts. Muss SQL-safe sein: ^[A-Za-z_][A-Za-z0-9_]*$', key: 'product', val: 'str' },
+  { text: 'kind: consumer_contract', tip: 'Contract-Kind: internal_gate | consumer_contract | provider_contract. Bestimmt die Governance-Zeremonie.', key: 'kind', val: 'sym' },
+  { text: 'dataset: DS_REVENUE_SUMMARY', tip: 'Technischer Name des Datasphere-Objekts. Wird bei der Compilation als {dataset} gebunden.', key: 'dataset', val: 'str' },
+  { text: 'owned_by: product', tip: 'Ownership-Kategorie: "platform" für Infrastruktur-Gates, "product" für Produkt-eigene Contracts.', key: 'owned_by', val: 'str' },
+  { text: 'lifecycle: active', tip: 'Zustand: draft | active | deprecated. Wird durch approve/certify gesetzt; PUT setzt immer auf draft zurück.', key: 'lifecycle', val: 'sym' },
+  { text: 'version: "1.0.0"', tip: 'SemVer. Im Full-Modus: Breaking Change erfordert Major-Bump (Gate G3). Im Lite-Modus nicht erzwungen.', key: 'version', val: 'str' },
+  { text: 'owners: [team-sales]', tip: 'Verantwortliche Teams. Dienen als Owner-Hülle für den Lineage-Walk (ADR-0004).', key: 'owners', val: 'str' },
+  { text: '', tip: null },
+  { text: 'guarantees:', tip: 'Alle Qualitätszusagen. Kein SQL erlaubt (Gate G1). Der Validator blockiert SQL-Syntax-Muster.', key: 'guarantees', val: null },
+  { text: '  schema:', tip: 'Spalten-Existenz-Guarantee. mode: closed = keine weiteren Spalten erlaubt.', key: '  schema', val: null },
+  { text: '    columns: [REGION, PERIOD, REVENUE, CURRENCY, UPDATED_AT]', tip: 'Erlaubte/geforderte Spalten. Werden gegen das HANA-Katalog geprüft (S2-Identifier-Verteidigung).', key: '    columns', val: 'str' },
+  { text: '    mode: closed', tip: 'closed = kein undeklariertes Schema-Drift erlaubt. open = weitere Spalten ok.', key: '    mode', val: 'sym' },
+  { text: '  keys:', tip: 'Eindeutigkeits-Guarantee. Mappt auf einen DUPLICATE-Check in der Bibliothek.', key: '  keys', val: null },
+  { text: '    - columns: [REGION, PERIOD]', tip: 'Zusammengesetzte Schlüsselspalten für den Uniqueness-Check.', key: '    - columns', val: 'str' },
+  { text: '      unique: true', tip: 'Wenn true: keine Duplikate in dieser Spaltenkombination erlaubt.', key: '      unique', val: 'bool' },
+  { text: '      severity: critical', tip: 'Schweregrad: critical | fail | warn. critical blockiert das Downstream-System.', key: '      severity', val: 'sym' },
+  { text: '  not_null:', tip: 'NULL-Verbot für bestimmte Spalten. Mappt auf NOT_NULL-Checks.', key: '  not_null', val: null },
+  { text: '    - columns: [REGION, PERIOD, REVENUE]', tip: 'Spalten, die keinen NULL-Wert enthalten dürfen.', key: '    - columns', val: 'str' },
+  { text: '      severity: fail', tip: 'fail = Contract-Breach, aber kein hard-block (im Gegensatz zu critical).', key: '      severity', val: 'sym' },
+  { text: '  volume:', tip: 'Zeilenanzahl-Guarantee. Kann mit rolling baseline und auto-bounds arbeiten.', key: '  volume', val: null },
+  { text: '    min_rows: 1000', tip: 'Mindestanzahl Zeilen. Unterschreitung = Breach.', key: '    min_rows', val: 'num' },
+  { text: '    severity: warn', tip: 'warn = Warnung ohne Contract-Breach; Ampel gelb statt rot.', key: '    severity', val: 'sym' },
+  { text: '  freshness:', tip: 'Datenstaleness-Guarantee. Misst Zeitdifferenz zwischen MAX(column) und NOW().', key: '  freshness', val: null },
+  { text: '    column: UPDATED_AT', tip: 'Timestamp-Spalte für die Frische-Messung. Muss in den Spalten des Datasets existieren.', key: '    column', val: 'str' },
+  { text: '    max_age: PT26H', tip: 'ISO-8601-Dauer: PT26H = 26 Stunden. Signal konvertiert in Sekunden für den SQL-Check.', key: '    max_age', val: 'str' },
+  { text: '    severity: warn', tip: 'Freshness-Warn statt Fail — typisch, da Verzögerungen tolerierbar sein können.', key: '    severity', val: 'sym' },
+];
+
+const pre = document.getElementById('yaml-display');
+pre.innerHTML = yamlLines.map(l => {
+  if (!l.text) return '<span class="yaml-line">&nbsp;</span>';
+  let html = l.text
+    .replace(/^(\s*)([\w_]+)(:)/, (m, sp, k, col) => `${sp}<span class="yaml-key">${k}${col}</span>`)
+    .replace(/:\s*"([^"]*)"/, ': <span class="yaml-val-str">"$1"</span>')
+    .replace(/:\s*(\[.*?\])/, ': <span class="yaml-val-str">$1</span>')
+    .replace(/:\s*(true|false)$/, ': <span class="yaml-val-bool">$1</span>')
+    .replace(/:\s*(\d+)$/, ': <span class="yaml-val-num">$1</span>')
+    .replace(/:\s*(active|draft|deprecated|closed|open|critical|fail|warn|consumer_contract|provider_contract|internal_gate|platform|product|PT\w+)$/, ': <span class="yaml-val-sym">$1</span>');
+  const tipAttr = l.tip ? `data-tip="${l.tip.replace(/"/g, '&quot;')}"` : '';
+  return `<span class="yaml-line" ${tipAttr}>${html}</span>`;
+}).join('\n');
+
+pre.querySelectorAll('[data-tip]').forEach(el => {
+  el.addEventListener('mouseenter', e => {
+    tt.textContent = el.dataset.tip;
+    tt.classList.add('tt-show');
+  });
+  el.addEventListener('mouseleave', () => tt.classList.remove('tt-show'));
+});
+
+// ─── GUARANTEE LIST ─────────────────────────────────────────────
+const guarantees = [
+  { icon:'🧱', name:'schema', label:'Schema-Check', desc:'Spaltenexistenz und optionaler Closed-Mode (keine undeklarierten Spalten). Mappt auf SCHEMA-Checks gegen SYS.TABLE_COLUMNS / SYS.VIEW_COLUMNS.', yaml:'schema:\n  columns: [A, B, C]\n  mode: closed   # open erlaubt weitere Spalten' },
+  { icon:'🔑', name:'keys', label:'Uniqueness-Check', desc:'Eindeutigkeit einer Spaltenkombination. Prüft auf Duplikate via GROUP BY + HAVING COUNT(*) > 1.', yaml:'keys:\n  - columns: [ORDER_ID]\n    unique: true\n    severity: critical' },
+  { icon:'🔗', name:'referential', label:'Referentielle Integrität', desc:'Fremdschlüssel-Prüfung: LEFT JOIN + IS NULL-Strategie gegen die Parent-Tabelle.', yaml:'referential:\n  fk: [CUSTOMER_ID]\n  parent: CUSTOMERS\n  parent_key: [ID]' },
+  { icon:'⏱️', name:'freshness', label:'Frische (Freshness)', desc:'Zeitdifferenz zwischen MAX(timestamp_column) und CURRENT_TIMESTAMP. max_age als ISO-8601 (PT26H = 26h).', yaml:'freshness:\n  column: UPDATED_AT\n  max_age: PT26H\n  severity: warn' },
+  { icon:'📊', name:'volume', label:'Volumen', desc:'Zeilenanzahl-Grenzen. Unterstützt rolling baselines und automatische Bounds aus historischen Daten.', yaml:'volume:\n  min_rows: 1000\n  baseline: rolling\n  bounds: auto\n  severity: warn' },
+  { icon:'✅', name:'completeness', label:'Vollständigkeit', desc:'NULL-Anteil in Prozent. min_pct: 99.5 = maximal 0,5% NULLs erlaubt.', yaml:'completeness:\n  column: CUSTOMER_ID\n  min_pct: 99.5' },
+  { icon:'🚫', name:'not_null', label:'Not-Null', desc:'Absolutes NULL-Verbot für eine oder mehrere Spalten. Schnellster Integrity-Check.', yaml:'not_null:\n  columns: [ORDER_ID, ORDER_DATE]\n  severity: fail' },
+  { icon:'📚', name:'checks[]', label:'Bibliotheks-Check (direkt)', desc:'Direkte Referenz auf einen Check aus der Bibliothek (check_library.json, v6, 20+ Checks). Für erweiterte Fälle.', yaml:'checks:\n  - id: invalid\n    params: { SPALTE: COUNTRY_CODE }\n    expect: "< 10"\n    severity: warn' },
+];
+
+document.getElementById('guarantee-list').innerHTML = guarantees.map((g,i) => `
+  <div class="guarantee-item" id="gi-${i}">
+    <div class="guarantee-header" onclick="toggleG(${i})">
+      <span class="guarantee-icon">${g.icon}</span>
+      <span class="guarantee-name">${g.name}</span>
+      <span class="tag tag-gray" style="font-size:.67rem">${g.label}</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="guarantee-body" id="gb-${i}">
+      <p>${g.desc}</p>
+      <pre>${g.yaml}</pre>
+    </div>
+  </div>
+`).join('');
+
+function toggleG(i) {
+  const item = document.getElementById('gi-' + i);
+  const body = document.getElementById('gb-' + i);
+  const open = body.classList.toggle('open');
+  item.classList.toggle('open', open);
+}
+
+// ─── COMPILE STEPS ───────────────────────────────────────────────
+const steps = [
+  {
+    title: 'validate_contract() — Gate G1',
+    gate: 'G1',
+    desc: 'Zweistufige Validierung: JSON-Schema (additionalProperties: false) + SQL-Keyword-Scan in allen Nicht-Freitext-Feldern.',
+    detail: `<strong>JSON-Schema prüft:</strong>
+• additionalProperties: false → kein unbekanntes Feld
+• Identifier-Pattern: ^[A-Za-z_][A-Za-z0-9_]*$
+• Enum: lifecycle, severity, kind, mode
+
+<strong>SQL-Keyword-Scan (S2):</strong>
+• Blockiert: ; -- /* SELECT INSERT DELETE DROP UNION
+• Freitext-Felder (description, rationale) ausgenommen
+
+<strong>Fehler-Beispiel:</strong>
+→ [G1] SQL-verdächtiges Muster in 'product': DROP TABLE`,
+    example: null
+  },
+  {
+    title: 'Identifier-Validierung (S2, 3-stufig)',
+    gate: 'S2',
+    desc: 'Jeder Spalten-/Dataset-Identifier durchläuft drei Verteidigungsschichten bevor er ins SQL einfließt.',
+    detail: `Stufe 1: Regex ^[A-Za-z_][A-Za-z0-9_]*$
+Stufe 2: Optional Inventar-Abgleich (existiert die Spalte?)
+Stufe 3: Quote-Escaping → "{identifier}"
+
+Garantiert: kein Identifier-basierter SQL-Injection-Vektor.`,
+    example: null
+  },
+  {
+    title: 'Template-Bindung — Guarantee → Check',
+    gate: null,
+    desc: 'Jede Guarantee wird auf ein SQL-Template aus der Check-Bibliothek gemappt. {schema} bleibt Platzhalter (Gate G2).',
+    detail: `<strong>freshness → SQL-Template:</strong>`,
+    code: `-- Guarantee:
+freshness:
+  column: UPDATED_AT
+  max_age: PT26H   # 93600 Sekunden
+
+-- Kompiliertes Template:
+SELECT
+  CASE
+    WHEN MAX("UPDATED_AT") IS NULL THEN 1
+    WHEN SECONDS_BETWEEN(MAX("UPDATED_AT"),
+         CURRENT_TIMESTAMP) > 93600 THEN 1
+    ELSE 0
+  END
+FROM "{schema}"."DS_REVENUE_SUMMARY"
+         ↑
+  {schema} = Platzhalter (Gate G2)
+  erst zur Laufzeit durch bind_schema() ersetzt`
+  },
+  {
+    title: 'bind_schema() zur Laufzeit — Gate G2',
+    gate: 'G2',
+    desc: 'Schema-Name wird NIE hardcodiert. Erst beim Ausführen durch bind_schema(schema_name) ersetzt.',
+    detail: `# Zur Laufzeit (CLI oder API):
+bind_schema("MY_SCHEMA")
+→ "{schema}" wird zu "MY_SCHEMA"
+
+Gate G2: CI grep auf Literal "CENTRAL" in packages/
+→ Kein Hardcoding möglich
+
+Warum: Multi-Tenant, Schema-Drift-Schutz, Deploy-Flexibilität.`,
+    example: null
+  },
+  {
+    title: 'DatasetConfig + compiler_hash',
+    gate: null,
+    desc: 'Ausgabe der Compilation: DatasetConfig mit checks: list[CheckDef] und einem Determinism-Hash.',
+    detail: `@dataclass
+class DatasetConfig:
+    dataset: str
+    schema: str          # "{schema}" Platzhalter
+    contract_version: str
+    owned_by: str
+    checks: list[CheckDef]
+
+compiler_hash = sha256(
+  f"{contract_hash}:{library_version}"
+)[:16]
+
+→ In checks/DS_REVENUE_SUMMARY/checks.yaml eingebettet`,
+    example: null
+  },
+];
+
+document.getElementById('pipe-steps').innerHTML = steps.map((s,i) => `
+  <div class="pipe-step" id="ps-${i}" onclick="selectStep(${i})">
+    <div class="step-num">${i+1}</div>
+    <div class="step-body">
+      <div class="step-title">${s.title}${s.gate ? `<span class="gate-badge">${s.gate}</span>` : ''}</div>
+      <div style="font-size:.78rem;color:var(--fg2)">${s.desc}</div>
+      <div class="step-detail" id="sd-${i}">
+        <pre>${s.detail || ''}${s.code ? '\n\n' + s.code : ''}</pre>
+      </div>
+    </div>
+  </div>
+`).join('');
+
+let activeStep = -1;
+function selectStep(i) {
+  document.querySelectorAll('.pipe-step').forEach((el,j) => {
+    el.classList.toggle('active-step', j === i);
+  });
+  document.getElementById('compile-detail').innerHTML = `
+    <h3>${steps[i].title}</h3>
+    <p style="font-size:.8rem;color:var(--fg2);margin-bottom:.75rem">${steps[i].desc}</p>
+    <pre style="font-size:.76rem">${(steps[i].detail || '') + (steps[i].code ? '\n\n' + steps[i].code : '')}</pre>
+  `;
+}
+
+// ─── RECONCILIATION FINDINGS ────────────────────────────────────
+const findings = [
+  { color:'#ef4444', title:'Boundary-Leak', desc:'Reality hat grenzüberschreitenden Konsumenten, Intent hat keinen Port deklariert.', action:'→ Outbound-Contract anlegen. Das ist die automatisierte §10.2-Prüfung aus ADR-0001.' },
+  { color:'#eab308', title:'Over-Declaration', desc:'Intent sagt Port, Reality hat keinen grenzüberschreitenden Konsumenten.', action:'→ Tier-0-Verdacht: Over-Governance. Port überprüfen, ggf. zurückziehen.' },
+  { color:'#6366f1', title:'Contested-Interior', desc:'Zwei Produkte beanspruchen dasselbe Interieur-Objekt.', action:'→ Foundation-Product-Kandidat. Tool erzwingt explizite Auflösung — keine stille Vermischung.' },
+  { color:'#f97316', title:'Orphan-Interior', desc:'Objekt speist Output-Port, kein Produkt beansprucht es.', action:'→ Owner-Hülle zu eng. Manifest erweitern oder als Foundation-Product promoten.' },
+  { color:'#14b8a6', title:'Dangling-Port', desc:'Manifest deklariert Output-Port ohne existierendes Objekt oder Contract.', action:'→ Drift zwischen Manifest und Realität. Objekt anlegen oder Port entfernen.' },
+];
+
+document.getElementById('findings-list').innerHTML = findings.map((f,i) => `
+  <div class="finding" id="f-${i}" onclick="selectFinding(${i})" style="background:${f.color}11;border-left:3px solid ${f.color}">
+    <div class="finding-dot" style="background:${f.color}"></div>
+    <div class="finding-content">
+      <div class="finding-title">${f.title}</div>
+      <div class="finding-desc">${f.desc}</div>
+      <div class="finding-action">${f.action}</div>
+    </div>
+  </div>
+`).join('');
+
+function selectFinding(i) {
+  document.querySelectorAll('.finding').forEach((el,j) => el.classList.toggle('selected', j===i));
+}
+
+// ─── ENFORCEMENT ZONES ──────────────────────────────────────────
+const zones = [
+  { cls:'zone-yes', title:'✅ Fall A — Happy Path: SQL-Output-Port', body:'HANA-Space-Produkt oder HDLF-Produkt mit SQL-on-Files-View. Enforcement direkt gegen schema.object. Alle 20 Bibliotheks-Checks ohne Code-Änderung. 1:1:1:1 — ein Contract pro Output-Port.' },
+  { cls:'zone-partial', title:'⚠️ Fall B — Transitiv: HDLF ohne SQL-Sicht, aber SQL-Upstream', body:'Delta Share / Object Store ohne SQL-Sicht, aber SQL-erreichbare Repräsentation desselben Inhalts existiert. Deklaration (am Delta Share) ≠ Enforcement (an der SQL-Repräsentation).' },
+  { cls:'zone-no', title:'🚫 Fall C — Out-of-scope: Reiner Delta Share', body:'Kein SQL-Endpoint. Direkt nicht prüfbar. Ehrlich als monitored: false führen — nicht grün vortäuschen. Kein zweiter Executor (G7, ENGINE-FROZEN). Governance-Seite bleibt vollständig gültig.' },
+];
+
+document.getElementById('enforcement-zones').innerHTML = zones.map(z => `
+  <div class="zone ${z.cls}">
+    <div class="zone-title">${z.title}</div>
+    <div class="zone-body">${z.body}</div>
+  </div>
+`).join('');
+
+// ─── DECISION TREE SVG ──────────────────────────────────────────
+const svg = document.getElementById('dtree-svg');
+const nodes = [
+  { id:'start', x:340, y:20, w:160, h:40, fill:'#252d42', stroke:'#6366f1', label:'Studio-Datenprodukt', sub:'Custom, BDC' },
+  { id:'q1', x:280, y:100, w:200, h:48, fill:'#1e2d4a', stroke:'#3b82f6', label:'Output-Port spricht SQL?', sub:'HANA-View / SQL-on-Files / ODBC' },
+  { id:'direct', x:60, y:200, w:180, h:44, fill:'#14532d', stroke:'#22c55e', label:'Direktes Enforcement', sub:'GX-on-HANA gegen schema.obj' },
+  { id:'q2', x:480, y:200, w:200, h:48, fill:'#1e2d4a', stroke:'#3b82f6', label:'SQL-erreichbare Repr.?', sub:'SQL-on-Files / HANA-Upstream' },
+  { id:'transitive', x:360, y:310, w:180, h:44, fill:'#4a3500', stroke:'#eab308', label:'Transitives Enforcement', sub:'an der SQL-Repräsentation' },
+  { id:'outofscope', x:560, y:310, w:175, h:44, fill:'#3b1f1f', stroke:'#ef4444', label:'Out-of-scope', sub:'Kein 2. Executor (G7)' },
+  { id:'boundary', x:60, y:330, w:180, h:44, fill:'#2e1065', stroke:'#818cf8', label:'boundary?', sub:'→ outbound / internal Contract' },
+];
+const edges = [
+  { from:'start', to:'q1', label:'' },
+  { from:'q1', to:'direct', label:'ja' },
+  { from:'q1', to:'q2', label:'nein' },
+  { from:'q2', to:'transitive', label:'ja' },
+  { from:'q2', to:'outofscope', label:'nein' },
+  { from:'direct', to:'boundary', label:'' },
+];
+
+function cx(n){ return n.x + n.w/2; }
+function cy(n){ return n.y + n.h/2; }
+function nById(id){ return nodes.find(n=>n.id===id); }
+
+let svgHtml = '';
+edges.forEach(e => {
+  const a = nById(e.from), b = nById(e.to);
+  const x1=cx(a), y1=a.y+a.h, x2=cx(b), y2=b.y;
+  const mx=(x1+x2)/2, my=(y1+y2)/2;
+  svgHtml += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#3b4a6b" stroke-width="1.5" marker-end="url(#arr)"/>`;
+  if(e.label) svgHtml += `<text x="${mx+6}" y="${my}" class="edge-label">${e.label}</text>`;
+});
+nodes.forEach(n => {
+  svgHtml += `<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="8" ry="8" fill="${n.fill}" stroke="${n.stroke}" stroke-width="1.5"/>`;
+  svgHtml += `<text x="${cx(n)}" y="${n.y+n.h/2-5}" class="node-text" text-anchor="middle" dominant-baseline="middle">${n.label}</text>`;
+  if(n.sub) svgHtml += `<text x="${cx(n)}" y="${n.y+n.h/2+10}" class="node-sub" text-anchor="middle">${n.sub}</text>`;
+});
+
+svg.innerHTML = `<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#3b4a6b"/></marker></defs>${svgHtml}`;
+
+// ─── GATES ───────────────────────────────────────────────────────
+const gates = [
+  { id:'G1', title:'Kein SQL in Contracts', desc:'Contracts tragen nur semantische Guarantees — niemals SQL. Validator blockiert SQL-Keywords und erzwingt JSON-Schema-Constraints.', loc:'contract/validator.py · JSON-Schema + SQL-Keyword-Scan' },
+  { id:'G2', title:'Schema-Bindung zur Laufzeit', desc:'Niemals Schema-Namen hardcodieren. {schema}-Platzhalter wird erst bei Ausführung durch bind_schema() ersetzt. CI grep auf "CENTRAL".', loc:'contract/compiler.py · bind_schema()' },
+  { id:'G3', title:'Breaking Change → Major-Bump', desc:'Jede brechende Änderung an einem Active-Contract erfordert einen SemVer-Major-Bump. Blockiert bei POST /approve ohne Major-Bump.', loc:'routers/contracts.py · POST /approve' },
+  { id:'G6', title:'Gating-States vollständig', desc:'Jeder CheckResult.state (executed|skipped_stale|skipped_dependency|downgraded|error) muss in models.py definiert und vom Store persistiert werden.', loc:'engine/models.py · CheckResult.state' },
+  { id:'G7', title:'dq_core framework-frei', desc:'Nichts unter packages/dq_core/ darf FastAPI, Flask oder Starlette importieren. Der Engine-Code bleibt [ENGINE-FROZEN].', loc:'CI import-check · packages/dq_core/' },
+  { id:'G8', title:'PII-Gate', desc:'Rohdaten verlassen HANA nie ohne explizites Opt-in. Diagnostics erfordern diagnostics_enabled + Spalten-Allowlist. Store gated hinter _allow_diagnostics.', loc:'store/ · _allow_diagnostics' },
+  { id:'S2', title:'Identifier-Safety (3-stufig)', desc:'Regex → Inventar-Abgleich → Quote-Escaping. Verhindert Identifier-basierte SQL-Injection-Vektoren in Guarantee-Feldern.', loc:'contract/compiler.py · S2-Verteidigung' },
+  { id:'S5', title:'Fail-closed Bind', desc:'AUTH_MODE=noauth darf nur auf Loopback binden. assert_bind_policy() prüft beim Start — kein stilles Fail-Open.', loc:'services/api/main.py · assert_bind_policy()' },
+];
+
+document.getElementById('gate-grid').innerHTML = gates.map(g => `
+  <div class="gate-card">
+    <div class="gate-id">${g.id}</div>
+    <div class="gate-title">${g.title}</div>
+    <div class="gate-desc">${g.desc}</div>
+    <div class="gate-loc">📁 ${g.loc}</div>
+  </div>
+`).join('');
+</script>
+</body>
+</html>

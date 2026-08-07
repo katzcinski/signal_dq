@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="780" viewBox="0 0 960 780" font-family="'DM Sans','Segoe UI',system-ui,sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7c8694"/>
+    </marker>
+    <marker id="arrowRead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#f0b429"/>
+    </marker>
+    <style>
+      .h    { fill:#e8ecf3; font-weight:700; }
+      .sub  { fill:#9aa4b2; font-size:12px; }
+      .mono { font-family:'JetBrains Mono','Consolas',monospace; fill:#c4ccd8; font-size:12px; }
+      .lbl  { fill:#7c8694; font-size:11.5px; }
+      .tag  { font-family:'JetBrains Mono',monospace; font-size:10.5px; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="960" height="780" fill="#0e1217"/>
+  <text x="40" y="44" class="h" font-size="22">Signal — Architektur</text>
+  <text x="40" y="66" class="sub">Data Quality &amp; Observability Cockpit für SAP Datasphere · ein Code, zwei Deployments</text>
+
+  <!-- Frontend -->
+  <rect x="250" y="92" width="460" height="74" rx="12" fill="#13202e" stroke="#4aa3ff" stroke-width="1.5"/>
+  <text x="480" y="122" class="h" font-size="15" text-anchor="middle">apps/cockpit — React 18 + TS (strict)</text>
+  <text x="480" y="144" class="sub" text-anchor="middle">Status-Grid · Coverage-Map · Contract-Workbench · Runs · Incidents</text>
+
+  <!-- arrow FE->API -->
+  <line x1="480" y1="166" x2="480" y2="206" stroke="#7c8694" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="492" y="190" class="lbl">HTTP · OpenAPI-Typen (G4)</text>
+
+  <!-- API -->
+  <rect x="190" y="208" width="580" height="92" rx="12" fill="#0f1f1d" stroke="#2dd4bf" stroke-width="1.5"/>
+  <text x="480" y="236" class="h" font-size="15" text-anchor="middle">services/api — FastAPI (uvicorn)</text>
+  <text x="480" y="260" class="mono" text-anchor="middle">Router · Auth (OIDC | NoAuth) · SSE · Git-Writer · Settings</text>
+  <text x="480" y="282" class="sub" text-anchor="middle">RFC-7807 Fehler · fail-closed Bind (S5) · serverseitig autoritativ [AUTHZ]</text>
+
+  <!-- arrow API->core -->
+  <line x1="480" y1="300" x2="480" y2="350" stroke="#7c8694" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="492" y="328" class="lbl">importiert (Engine framework-frei)</text>
+
+  <!-- dq_core -->
+  <rect x="120" y="352" width="720" height="150" rx="12" fill="#0f1d18" stroke="#34d399" stroke-width="1.5"/>
+  <text x="480" y="380" class="h" font-size="15" text-anchor="middle">packages/dq_core — frameworkfrei (G7)</text>
+
+  <!-- submodule chips -->
+  <g class="tag">
+    <rect x="146" y="398" width="150" height="30" rx="7" fill="#16241f" stroke="#2f6f57"/>
+    <text x="221" y="417" fill="#9be7c4" text-anchor="middle">engine · [FROZEN]</text>
+
+    <rect x="306" y="398" width="226" height="30" rx="7" fill="#16241f" stroke="#2f6f57"/>
+    <text x="419" y="417" fill="#9be7c4" text-anchor="middle">contract · validator/compiler/diff</text>
+
+    <rect x="542" y="398" width="120" height="30" rx="7" fill="#16241f" stroke="#2f6f57"/>
+    <text x="602" y="417" fill="#9be7c4" text-anchor="middle">store</text>
+
+    <rect x="672" y="398" width="142" height="30" rx="7" fill="#16241f" stroke="#2f6f57"/>
+    <text x="743" y="417" fill="#9be7c4" text-anchor="middle">connect · hdbcli/mock</text>
+
+    <rect x="146" y="436" width="150" height="30" rx="7" fill="#16241f" stroke="#2f6f57"/>
+    <text x="221" y="455" fill="#9be7c4" text-anchor="middle">library</text>
+
+    <rect x="306" y="436" width="150" height="30" rx="7" fill="#16241f" stroke="#2f6f57"/>
+    <text x="381" y="455" fill="#9be7c4" text-anchor="middle">lineage</text>
+
+    <rect x="466" y="436" width="196" height="30" rx="7" fill="#16241f" stroke="#2f6f57"/>
+    <text x="564" y="455" fill="#9be7c4" text-anchor="middle">obs · baselines/miner</text>
+
+    <rect x="672" y="436" width="142" height="30" rx="7" fill="#16241f" stroke="#2f6f57"/>
+    <text x="743" y="455" fill="#9be7c4" text-anchor="middle">migrations</text>
+  </g>
+  <text x="480" y="488" class="sub" text-anchor="middle">Garantien → Compiler (deterministisch, G1/G2/S2) → CheckDefs → run_checks</text>
+
+  <!-- arrows to 3 stores -->
+  <line x1="300" y1="502" x2="220" y2="566" stroke="#7c8694" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="480" y1="502" x2="480" y2="566" stroke="#7c8694" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="660" y1="502" x2="745" y2="566" stroke="#f0b429" stroke-width="1.5" marker-end="url(#arrowRead)"/>
+
+  <!-- Git -->
+  <rect x="80" y="568" width="260" height="118" rx="12" fill="#16121f" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="210" y="596" class="h" font-size="14" text-anchor="middle">Git — Wahrheit</text>
+  <text x="210" y="620" class="mono" text-anchor="middle" font-size="11">contracts/&lt;p&gt;.yaml</text>
+  <text x="210" y="640" class="mono" text-anchor="middle" font-size="11">&lt;p&gt;.active.yml (Snapshot)</text>
+  <text x="210" y="660" class="mono" text-anchor="middle" font-size="11">checks/&lt;p&gt;/checks.yml</text>
+  <text x="210" y="679" class="sub" text-anchor="middle" font-size="11">1 Commit je Approve/Certify</text>
+
+  <!-- Result Store -->
+  <rect x="350" y="568" width="260" height="118" rx="12" fill="#1f1a0e" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="480" y="596" class="h" font-size="14" text-anchor="middle">Result-Store</text>
+  <text x="480" y="620" class="sub" text-anchor="middle" font-size="11">SQLite (lokal) · HANA dq_results_lt</text>
+  <text x="480" y="640" class="mono" text-anchor="middle" font-size="11">dq_runs · dq_check_results</text>
+  <text x="480" y="660" class="mono" text-anchor="middle" font-size="11">dq_compliance · contract_index</text>
+  <text x="480" y="679" class="mono" text-anchor="middle" font-size="11">dq_baselines · incidents</text>
+
+  <!-- HANA -->
+  <rect x="620" y="568" width="260" height="118" rx="12" fill="#171b21" stroke="#9aa4b2" stroke-width="1.5"/>
+  <text x="750" y="596" class="h" font-size="14" text-anchor="middle">HANA / Datasphere</text>
+  <text x="750" y="624" class="sub" text-anchor="middle" font-size="11">die geprüften Daten</text>
+  <rect x="688" y="638" width="124" height="26" rx="13" fill="#2a210b" stroke="#f0b429"/>
+  <text x="750" y="655" class="tag" fill="#f5c451" text-anchor="middle" font-size="11">NUR LESEND</text>
+  <text x="750" y="679" class="sub" text-anchor="middle" font-size="11">Schema-Bind zur Laufzeit (G2)</text>
+
+  <!-- footer note -->
+  <text x="480" y="730" class="lbl" text-anchor="middle">Identitäts-Join mapping-frei:  lineage.node.id  ==  inventory.technicalName  ==  dq_object_status.object_name  ==  product</text>
+  <text x="480" y="752" class="lbl" text-anchor="middle">Scheduling extern (Cron/Task-Chain → cli/dq_check_runner.py) · API triggert nur ad hoc</text>
+</svg>
