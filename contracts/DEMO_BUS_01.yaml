@@ -1,0 +1,34 @@
+product: DEMO_BUS_01
+kind: provider_contract
+dataset: DEMO_BUS_01
+owned_by: product
+owners:
+- team-commercial
+version: 2.1.0
+lifecycle: active
+description: Commercial core facts exposed as a stable provider port.
+guarantees:
+  schema:
+    columns:
+    - BUS_COL_01
+    - BUS_COL_02
+    - BUS_COL_03
+    - BUS_COL_04
+    mode: closed
+  keys:
+  - columns:
+    - BUS_COL_01
+    unique: true
+    severity: critical
+  not_null:
+  - columns:
+    - BUS_COL_01
+    - BUS_COL_02
+    severity: fail
+  volume:
+    min_rows: 10000
+    severity: warn
+  freshness:
+    column: BUS_COL_01
+    max_age: PT12H
+    severity: warn

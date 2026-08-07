@@ -1,0 +1,39 @@
+product: DEMO_BUS_02
+kind: consumer_contract
+dataset: DEMO_BUS_02
+owned_by: product
+owners:
+- team-finance
+version: 1.4.0
+lifecycle: active
+description: Revenue mart consumed by finance and planning workflows.
+quality_proposals:
+- check_name: freshness_BUS_COL_01
+  proposed_expect: <= 10
+  rationale: Weekend loads settle later than the original draft threshold.
+  accepted_by: Mia Steward
+guarantees:
+  schema:
+    columns:
+    - BUS_COL_01
+    - BUS_COL_02
+    - BUS_COL_03
+    - BUS_COL_04
+    mode: closed
+  keys:
+  - columns:
+    - BUS_COL_01
+    unique: true
+    severity: critical
+  not_null:
+  - columns:
+    - BUS_COL_01
+    - BUS_COL_04
+    severity: fail
+  volume:
+    min_rows: 8000
+    severity: warn
+  freshness:
+    column: BUS_COL_01
+    max_age: PT8H
+    severity: warn

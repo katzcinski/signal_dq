@@ -1,0 +1,37 @@
+product: DEMO_BUS_06
+kind: consumer_contract
+dataset: DEMO_BUS_06
+owned_by: product
+owners:
+- team-ops
+version: 1.0.0
+description: Operational signal pack for downstream monitoring consumers.
+guarantees:
+  schema:
+    columns:
+    - BUS_COL_01
+    - BUS_COL_02
+    - BUS_COL_03
+    - BUS_COL_04
+    - BUS_COL_05
+    mode: open
+  keys:
+  - columns:
+    - BUS_COL_01
+    unique: true
+    severity: critical
+  not_null:
+  - columns:
+    - BUS_COL_01
+    - BUS_COL_06
+    severity: fail
+  volume:
+    min_rows: 5000
+    severity: warn
+  freshness:
+    column: BUS_COL_01
+    max_age: PT24H
+    severity: warn
+observability: {}
+checks: []
+lifecycle: draft

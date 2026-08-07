@@ -1,0 +1,23 @@
+# contract_hash: d2b9761b31c132b5
+# library_version: 5
+# compiler_hash: bb4924b4d1c03ff8
+dataset: DEMO_SRC_04
+schema: '{schema}'
+contract_version: 0.1.0
+checks:
+- name: schema_columns
+  sql: SELECT COUNT(*) FROM "SYS"."TABLE_COLUMNS" WHERE SCHEMA_NAME = '{schema}' AND
+    TABLE_NAME = 'DEMO_SRC_04'
+  expect: = 7
+  severity: critical
+  timeout_s: 60
+  enabled: true
+  type: schema
+- name: freshness_SRC_COL_01
+  sql: SELECT SECONDS_BETWEEN(MAX("SRC_COL_01"), CURRENT_TIMESTAMP) FROM "{schema}"."DEMO_SRC_04"
+  expect: < 86400
+  severity: warn
+  timeout_s: 60
+  enabled: true
+  type: freshness
+  unit: s

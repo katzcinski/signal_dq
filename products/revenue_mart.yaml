@@ -1,0 +1,8 @@
+product: revenue_mart
+owners:
+- team-finance
+output_ports:
+- dataset: DEMO_BUS_02
+inbound:
+- product: commercial_core
+  version: 2.0.0

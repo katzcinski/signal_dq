@@ -1,0 +1,20 @@
+product: DEMO_SRC_06
+dataset: DEMO_SRC_06
+owned_by: product
+kind: internal_gate
+owners: []
+version: 0.1.0
+lifecycle: draft
+guarantees:
+  schema:
+    columns:
+    - SRC_COL_01
+    - SRC_COL_02
+    - SRC_COL_03
+    - SRC_COL_04
+    - SRC_COL_05
+    mode: closed
+  volume:
+    baseline: rolling
+    bounds: auto
+    severity: warn

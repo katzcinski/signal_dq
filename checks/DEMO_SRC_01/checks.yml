@@ -1,0 +1,22 @@
+# contract_hash: 1c84f22ecf0583ac
+# library_version: 5
+# compiler_hash: 1de05d6f9ddb5b01
+dataset: DEMO_SRC_01
+schema: '{schema}'
+contract_version: 0.1.0
+checks:
+- name: schema_columns
+  sql: SELECT COUNT(*) FROM "SYS"."TABLE_COLUMNS" WHERE SCHEMA_NAME = '{schema}' AND
+    TABLE_NAME = 'DEMO_SRC_01'
+  expect: = 12
+  severity: critical
+  timeout_s: 60
+  enabled: true
+  type: schema
+- name: invalid_SRC_COL_01
+  sql: SELECT COUNT(*) FROM "{schema}"."DEMO_SRC_01" WHERE "SRC_COL_01" < 0
+  expect: < 10
+  severity: fail
+  timeout_s: 60
+  enabled: true
+  type: invalid

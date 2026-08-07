@@ -1,0 +1,28 @@
+product: DS_REVENUE_SUMMARY
+kind: consumer_contract
+dataset: DS_REVENUE_SUMMARY
+owned_by: product
+lifecycle: active
+version: "1.2.0"
+description: "Monthly revenue summary with YoY and MoM delta columns"
+
+guarantees:
+  schema:
+    columns:
+      - YEAR_MONTH
+      - REGION_CODE
+      - GROSS_REVENUE
+      - NET_REVENUE
+      - YOY_DELTA_PCT
+      - MOM_DELTA_PCT
+    mode: closed
+  keys:
+    - columns: [YEAR_MONTH, REGION_CODE]
+      unique: true
+      severity: critical
+  not_null:
+    - columns: [YEAR_MONTH, REGION_CODE, GROSS_REVENUE, NET_REVENUE]
+      severity: fail
+  volume:
+    min_rows: 12
+    severity: warn

@@ -1,0 +1,33 @@
+product: DS_SALES_ORDERS
+kind: consumer_contract
+dataset: DS_SALES_ORDERS
+owned_by: product
+lifecycle: active
+version: "1.0.0"
+description: "Sales order fact table — harmonised from RAW_SALES and RAW_ORDERS"
+
+guarantees:
+  schema:
+    columns:
+      - ORDER_ID
+      - CUSTOMER_ID
+      - PRODUCT_ID
+      - ORDER_DATE
+      - NET_AMOUNT
+      - CURRENCY
+      - STATUS
+    mode: closed
+  keys:
+    - columns: [ORDER_ID]
+      unique: true
+      severity: critical
+  not_null:
+    - columns: [ORDER_ID, CUSTOMER_ID, ORDER_DATE, NET_AMOUNT]
+      severity: fail
+  volume:
+    min_rows: 1000
+    severity: warn
+  freshness:
+    column: ORDER_DATE
+    max_age: PT26H
+    severity: warn

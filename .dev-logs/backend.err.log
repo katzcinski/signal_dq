@@ -1,0 +1,841 @@
+INFO:     Started server process [47268]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+2026-07-04 08:48:34,400 INFO dq_cockpit request_id=b7e4a73c-9158-4b2b-8fc7-4293de579de8 method=GET path=/api/incidents status=200 duration_ms=42.1
+2026-07-04 08:48:34,449 INFO dq_cockpit request_id=686b6a14-10bd-4896-8bec-be83a31ae822 method=GET path=/api/contracts/DEMO_SRC_02_contract/sla status=200 duration_ms=89.8
+2026-07-04 08:48:34,454 INFO dq_cockpit request_id=95475275-f3a9-406b-a28a-914dd2cd702a method=GET path=/api/contracts/DS_REVENUE_SUMMARY/sla status=200 duration_ms=88.6
+2026-07-04 08:48:34,503 INFO dq_cockpit request_id=47b2be53-46bc-4b8a-b2d8-c1c6c4fb8ba9 method=GET path=/api/contracts status=200 duration_ms=151.1
+2026-07-04 08:48:34,525 INFO dq_cockpit request_id=85333a57-f744-47e1-8735-76b46474334f method=GET path=/api/coverage/summary status=200 duration_ms=230.2
+2026-07-04 08:48:34,562 INFO dq_cockpit request_id=5f808533-c3bc-4483-8925-84cf1f55acb1 method=GET path=/api/contracts/DS_SALES_ORDERS/sla status=200 duration_ms=13.1
+2026-07-04 08:48:34,921 INFO dq_cockpit request_id=6db86d78-1f67-42e2-acc6-aab68bae5878 method=GET path=/api/activity status=200 duration_ms=566.9
+2026-07-04 08:48:52,796 INFO dq_cockpit request_id=abb9815f-b064-41f0-ab1e-48ac9d87a6b1 method=GET path=/api/objects status=200 duration_ms=78.8
+2026-07-04 08:48:54,794 INFO dq_cockpit request_id=fb68f288-fecb-46ce-8e10-038fdfeaf20f method=GET path=/api/objects status=200 duration_ms=84.2
+2026-07-04 08:48:55,493 INFO dq_cockpit request_id=0589b0f2-5b5d-458c-8263-dd03a8ad593c method=GET path=/api/objects status=200 duration_ms=99.5
+2026-07-04 08:48:57,173 INFO dq_cockpit request_id=88760639-d8b4-49f1-92b2-739e80c5034e method=GET path=/api/objects status=200 duration_ms=63.6
+2026-07-04 08:48:58,403 INFO dq_cockpit request_id=f553f67d-509b-4183-83a3-8d9b1d8f05d6 method=GET path=/api/health status=200 duration_ms=101.2
+2026-07-04 08:49:01,049 INFO dq_cockpit request_id=c35d8e42-ca83-4d3c-94a9-a9a076fa9a0c method=GET path=/api/objects status=200 duration_ms=100.2
+2026-07-04 08:49:01,120 INFO dq_cockpit request_id=b44d759e-ae89-4e9e-b798-759d513e6002 method=GET path=/api/objects status=200 duration_ms=63.5
+2026-07-04 08:49:01,215 INFO dq_cockpit request_id=60253777-a7d4-4fc0-bbee-00bc70b535e6 method=GET path=/api/objects status=200 duration_ms=87.9
+2026-07-04 08:49:01,306 INFO dq_cockpit request_id=0011cf7d-b95e-40e7-a4fa-5469c1aab502 method=GET path=/api/objects status=200 duration_ms=83.3
+2026-07-04 08:49:01,493 INFO dq_cockpit request_id=56ce1c59-4022-4219-89d3-53b80a1ee720 method=GET path=/api/objects status=200 duration_ms=76.5
+2026-07-04 08:49:04,774 INFO dq_cockpit request_id=6f4e366d-d198-482d-9c94-9e47f0a5c042 method=GET path=/api/contracts/DEMO_SRC_01 status=200 duration_ms=12.1
+2026-07-04 08:49:04,783 INFO dq_cockpit request_id=78437a28-0006-42a1-9167-fe7b7f018549 method=GET path=/api/objects/DEMO_SRC_01/runs status=200 duration_ms=33.4
+2026-07-04 08:49:04,816 INFO dq_cockpit request_id=efb8205c-48c0-4a79-bec2-a49d5faf819a method=GET path=/api/monitoring/config status=200 duration_ms=21.3
+2026-07-04 08:49:04,821 INFO dq_cockpit request_id=a34a9f98-e640-4e46-90ea-a8d828ca4689 method=GET path=/api/monitoring/shares status=200 duration_ms=15.4
+2026-07-04 08:49:04,850 INFO dq_cockpit request_id=53b43cfc-202d-4b11-90ff-411456413867 method=GET path=/api/objects/DEMO_SRC_01 status=200 duration_ms=108.3
+2026-07-04 08:49:04,866 INFO dq_cockpit request_id=3a0abb48-7a4b-4d3d-b719-db038ede8e2a method=GET path=/api/runs/74df8d6e-c714-4396-baad-ca0fa04bf89b status=200 duration_ms=10.9
+2026-07-04 08:49:05,250 ERROR dq_cockpit Unhandled error on GET /api/lineage/columns
+Traceback (most recent call last):
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\ToniLippmann\signal\services\api\middleware.py", line 100, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\middleware\cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 1574, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 2012, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 1594, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 1183, in handle
+    await app(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "C:\Users\ToniLippmann\signal\services\api\routers\lineage.py", line 172, in get_column_lineage
+    from dq_core.lineage._column_lineage import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ToniLippmann\signal\packages\dq_core\lineage\__init__.py", line 1, in <module>
+    from .loader import load_lineage, get_coverage
+  File "<frozen importlib._bootstrap>", line 1368, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 421, in __enter__
+  File "<frozen importlib._bootstrap>", line 346, in acquire
+_frozen_importlib._DeadlockError: deadlock detected by _ModuleLock('dq_core.lineage.loader') at 1710836252496
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\uvicorn\protocols\http\httptools_impl.py", line 421, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\uvicorn\middleware\proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\ToniLippmann\signal\services\api\middleware.py", line 100, in __call__
+    await self.app(scope, receive, send_wrapper)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\middleware\cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 1574, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 2012, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 1594, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 1183, in handle
+    await app(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 129, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 339, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\ToniLippmann\AppData\Roaming\Python\Python314\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+  File "C:\Users\ToniLippmann\signal\services\api\routers\lineage.py", line 172, in get_column_lineage
+    from dq_core.lineage._column_lineage import (
+    ...<3 lines>...
+    )
+  File "C:\Users\ToniLippmann\signal\packages\dq_core\lineage\__init__.py", line 1, in <module>
+    from .loader import load_lineage, get_coverage
+  File "<frozen importlib._bootstrap>", line 1368, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 421, in __enter__
+  File "<frozen importlib._bootstrap>", line 346, in acquire
+_frozen_importlib._DeadlockError: deadlock detected by _ModuleLock('dq_core.lineage.loader') at 1710836252496
+2026-07-04 08:49:05,531 INFO dq_cockpit request_id=cfb83706-e06e-4fb0-a929-5d75c3f5e57c method=GET path=/api/lineage status=200 duration_ms=310.6
+2026-07-04 08:49:05,603 INFO dq_cockpit request_id=108e5f83-63de-4f3a-adca-bb2db5ba66cc method=GET path=/api/contracts/DEMO_SRC_01/version-diff status=200 duration_ms=720.6
+2026-07-04 08:49:05,854 INFO dq_cockpit request_id=bd4ecaac-ee36-4e6f-838f-395e8d566880 method=GET path=/api/coverage/heatmap status=200 duration_ms=16.6
+2026-07-04 08:49:05,885 INFO dq_cockpit request_id=22adb0ab-95ed-47a9-ac9c-4691f83ff629 method=GET path=/api/incidents status=200 duration_ms=44.3
+2026-07-04 08:49:06,046 INFO dq_cockpit request_id=7e7a8f84-39d2-40eb-b0ee-4ea2a47c7ab0 method=GET path=/api/contracts status=200 duration_ms=184.5
+2026-07-04 08:49:06,091 INFO dq_cockpit request_id=0f49d123-54cd-435e-b758-576e810e7311 method=GET path=/api/coverage/summary status=200 duration_ms=233.5
+2026-07-04 08:49:06,175 INFO dq_cockpit request_id=e4a4f729-cb6c-4e73-bdd0-e3b8fe5dfd21 method=GET path=/api/activity status=200 duration_ms=334.8
+2026-07-04 08:49:06,211 INFO dq_cockpit request_id=3d35dc95-a1eb-4259-bf8f-5cbd5c98c512 method=GET path=/api/contracts/DEMO_SRC_02_contract/sla status=200 duration_ms=68.5
+2026-07-04 08:49:06,230 INFO dq_cockpit request_id=12904452-34b2-40a0-9424-e72ac2961877 method=GET path=/api/contracts/DS_SALES_ORDERS/sla status=200 duration_ms=81.1
+2026-07-04 08:49:06,266 INFO dq_cockpit request_id=c3806192-2d59-4bbd-98b2-596802fec15c method=GET path=/api/contracts/DS_REVENUE_SUMMARY/sla status=200 duration_ms=118.2
+2026-07-04 08:49:13,271 INFO dq_cockpit request_id=afb6cae4-7c81-44b1-bad1-5b8d7a236e31 method=GET path=/api/admin/environments status=403 duration_ms=3.3
+2026-07-04 08:49:13,370 INFO dq_cockpit request_id=e86673a6-1ed6-4d0a-bec7-a0d807bcf3c5 method=GET path=/api/library status=200 duration_ms=3.5
+2026-07-04 08:49:13,739 INFO dq_cockpit request_id=08edfcd5-0ef6-465f-a964-e90392a1cae8 method=GET path=/api/incidents/2 status=200 duration_ms=26.6
+2026-07-04 08:49:13,741 INFO dq_cockpit request_id=c789c4a0-e5d4-4545-bd6e-587bb4935952 method=GET path=/api/incidents status=200 duration_ms=26.6
+2026-07-04 08:49:14,443 INFO dq_cockpit request_id=7e21281b-39b3-413e-8f88-9250e88f3e9a method=GET path=/api/admin/environments status=403 duration_ms=1.2
+2026-07-04 08:49:14,877 INFO dq_cockpit request_id=1e65feac-6aff-40ca-ac9d-0d3826aed564 method=GET path=/api/lineage/columns status=200 duration_ms=44.1
+2026-07-04 08:49:14,928 INFO dq_cockpit request_id=fb602095-334b-459e-acf8-b8a340a2d133 method=GET path=/api/lineage/columns/impact status=200 duration_ms=32.2
+2026-07-04 08:49:16,745 INFO dq_cockpit request_id=6f85cf1e-6750-4030-8eb5-004b2c2266d6 method=GET path=/api/objects status=200 duration_ms=55.9
+2026-07-04 08:49:16,953 INFO dq_cockpit request_id=e5f6798a-4493-4969-84ab-092db3c20e6a method=GET path=/api/coverage/heatmap status=200 duration_ms=10.3
+2026-07-04 08:49:17,000 INFO dq_cockpit request_id=79b87b1c-21c6-46e0-af74-bcee54aad72c method=GET path=/api/incidents status=200 duration_ms=55.1
+2026-07-04 08:49:17,072 INFO dq_cockpit request_id=69d46dff-a415-446f-956c-d3c5b5d729c7 method=GET path=/api/contracts status=200 duration_ms=126.5
+2026-07-04 08:49:17,089 INFO dq_cockpit request_id=cdb3a708-bec3-4d89-947c-b2cc125c8a51 method=GET path=/api/coverage/summary status=200 duration_ms=144.9
+2026-07-04 08:49:17,169 INFO dq_cockpit request_id=4271734b-5abe-4709-9b6f-a4118e81d425 method=GET path=/api/activity status=200 duration_ms=225.2
+2026-07-04 08:49:17,350 INFO dq_cockpit request_id=4f7930be-fd00-445b-89b0-b5a583e631d6 method=GET path=/api/contracts/DS_REVENUE_SUMMARY/sla status=200 duration_ms=63.0
+2026-07-04 08:49:17,357 INFO dq_cockpit request_id=e278ab86-0f31-4637-a206-d51bcdcd59c6 method=GET path=/api/contracts/DEMO_SRC_02_contract/sla status=200 duration_ms=70.9
+2026-07-04 08:49:17,358 INFO dq_cockpit request_id=42af5b1c-a358-46d1-9ed4-edc83f15327e method=GET path=/api/contracts/DS_SALES_ORDERS/sla status=200 duration_ms=70.8
+2026-07-04 08:49:46,471 INFO dq_cockpit request_id=3c6725f5-b3f0-40e8-8e6d-d283ab42bd78 method=GET path=/api/objects/DEMO_SRC_04/runs status=200 duration_ms=77.6
+2026-07-04 08:49:46,492 INFO dq_cockpit request_id=420acd8e-9c41-4143-beac-000878d0cc2a method=GET path=/api/objects/DEMO_SRC_04 status=200 duration_ms=100.6
+2026-07-04 08:49:46,509 INFO dq_cockpit request_id=a0b5d465-0ad6-428a-825b-0f2ed5973bf9 method=GET path=/api/runs/9913db67-37b5-4651-bad1-58c737e1a294 status=200 duration_ms=23.4
+2026-07-04 08:49:46,541 INFO dq_cockpit request_id=7cfc4612-ad5f-437b-af43-c1f3a82c617a method=GET path=/api/objects/DEMO_SRC_04/checks/freshness_SRC_COL_01/history status=200 duration_ms=13.4
+2026-07-04 08:49:46,545 INFO dq_cockpit request_id=4dd36f06-5dff-4060-84a6-4521090c442e method=GET path=/api/objects/DEMO_SRC_04/checks/schema_columns/history status=200 duration_ms=15.3
+2026-07-04 08:49:52,445 INFO dq_cockpit request_id=7029237f-7017-45d6-8e06-86b2701ac8e6 method=GET path=/api/monitoring/config status=200 duration_ms=4.2
+2026-07-04 08:49:52,452 INFO dq_cockpit request_id=a85ac3a6-e082-49c3-bed6-a8f4eba6b778 method=GET path=/api/monitoring/shares status=200 duration_ms=5.3
+2026-07-04 08:49:52,462 INFO dq_cockpit request_id=5a8f8a9c-2332-49de-81c4-49dcc12fc1cc method=GET path=/api/contracts/DEMO_SRC_04 status=200 duration_ms=6.8
+2026-07-04 08:49:52,535 INFO dq_cockpit request_id=7e67dc16-56b8-47b7-b6c1-fda0d50517f1 method=GET path=/api/contracts/DEMO_SRC_04/version-diff status=200 duration_ms=55.5
+2026-07-04 08:50:04,015 INFO dq_cockpit request_id=57a6c8cc-edcb-4af2-9a15-f061b921d147 method=GET path=/api/inventory status=200 duration_ms=11.6
+2026-07-04 08:50:04,057 INFO dq_cockpit request_id=99b24274-1a8f-463d-a83e-282031a9baf1 method=GET path=/api/library status=200 duration_ms=6.1
+2026-07-04 08:50:04,076 INFO dq_cockpit request_id=c9992ef8-74ba-4f64-8436-08408931bce1 method=GET path=/api/contracts/DEMO_SRC_04/drift status=200 duration_ms=32.4
+2026-07-04 08:50:04,123 INFO dq_cockpit request_id=3518a3cf-3640-4760-a225-a8d99f5e5a69 method=GET path=/api/contracts status=200 duration_ms=116.9
+2026-07-04 08:50:04,695 INFO dq_cockpit request_id=6fbfb6e2-a965-46d0-92f8-6e9c78fd0412 method=POST path=/api/contracts/DEMO_SRC_04/diff status=200 duration_ms=47.5
+2026-07-04 08:50:06,509 INFO dq_cockpit request_id=2f037062-ce2b-438e-aa56-d1315685249d method=GET path=/api/incidents status=200 duration_ms=9.0
+2026-07-04 08:50:06,724 INFO dq_cockpit request_id=f6bbc7f6-5fe7-4c52-bb7b-a088f73e6511 method=GET path=/api/activity status=200 duration_ms=212.9
+2026-07-04 08:50:08,205 INFO dq_cockpit request_id=0563b1de-9199-4d62-9b38-125ed3597d33 method=GET path=/api/environments status=200 duration_ms=40.1
+2026-07-04 08:50:14,441 INFO dq_cockpit request_id=2b343c65-d236-4c03-abfe-583cbaa0b4dc method=GET path=/api/incidents status=200 duration_ms=33.4
+2026-07-04 08:50:15,763 INFO dq_cockpit request_id=a1fad891-3f40-4bf9-ac81-26972464f61a method=POST path=/api/objects/DEMO_SRC_04/profile status=202 duration_ms=92.3
+2026-07-04 08:50:15,833 INFO dq_cockpit request_id=086966d0-40d9-494c-9e00-60179090b5a7 method=GET path=/api/operations/5fef7589-98e6-4cf3-a776-7cda28d32a71 status=200 duration_ms=44.0
+2026-07-04 08:50:16,862 INFO dq_cockpit request_id=db70f579-bc25-4d2d-8ca7-6d1b32e4162f method=GET path=/api/operations/5fef7589-98e6-4cf3-a776-7cda28d32a71 status=200 duration_ms=16.6
+2026-07-04 08:50:17,009 INFO dq_cockpit request_id=b22ef1b7-0229-4830-a595-d30ea402b10c method=GET path=/api/operations/5fef7589-98e6-4cf3-a776-7cda28d32a71/events status=200 duration_ms=1224.6
+2026-07-04 08:50:29,983 INFO dq_cockpit request_id=e575c54e-012f-4c4d-a938-72f9c8958708 method=GET path=/api/products status=200 duration_ms=206.4
+2026-07-04 08:50:31,218 INFO dq_cockpit request_id=cd1251dd-de8a-4072-9840-e4e900869901 method=GET path=/api/objects status=200 duration_ms=69.6
+2026-07-04 08:50:33,018 INFO dq_cockpit request_id=e6429289-facf-4d21-aea9-fa2dcb628550 method=GET path=/api/proposals status=200 duration_ms=678.4
+2026-07-04 08:50:46,735 INFO dq_cockpit request_id=4e196dc3-53ef-4d57-b38f-76ca2a2345aa method=GET path=/api/contracts status=200 duration_ms=147.5
+2026-07-04 08:50:46,784 INFO dq_cockpit request_id=e40a06c2-3480-4509-8463-2e6fe5192b66 method=GET path=/api/coverage/summary status=200 duration_ms=196.5
+2026-07-04 08:50:52,866 INFO dq_cockpit request_id=6e61c7bc-db39-472a-afb2-78fefb937e19 method=GET path=/api/incidents status=200 duration_ms=12.7
+2026-07-04 08:50:58,172 INFO dq_cockpit request_id=1db4ca70-4b2a-44a1-b691-eeb7f1d075df method=GET path=/api/lineage status=200 duration_ms=61.0
+2026-07-04 08:51:07,432 INFO dq_cockpit request_id=3ec556ce-8798-49c7-9668-0c28123b1b73 method=GET path=/api/incidents status=200 duration_ms=9.7
+2026-07-04 08:51:07,736 INFO dq_cockpit request_id=0a0e842b-4c61-43fa-bbdc-aa3de1aa692b method=GET path=/api/activity status=200 duration_ms=282.4
+2026-07-04 08:51:15,460 INFO dq_cockpit request_id=05766184-1de4-47a4-afce-7a135553fa10 method=GET path=/api/incidents status=200 duration_ms=49.3
+2026-07-04 08:51:28,899 INFO dq_cockpit request_id=2cd02493-8b4b-4f08-9cf5-790d8be933a8 method=GET path=/api/lineage status=200 duration_ms=95.9
+2026-07-04 08:51:28,946 INFO dq_cockpit request_id=54465780-ba4f-4580-ade0-f9fbea120fab method=GET path=/api/objects status=200 duration_ms=142.5
+2026-07-04 08:52:08,452 INFO dq_cockpit request_id=7466c0f5-4cbc-41f9-bbc7-a41c7b477d71 method=GET path=/api/incidents status=200 duration_ms=35.0
+2026-07-04 08:52:08,713 INFO dq_cockpit request_id=02fb6400-deb0-49b8-bbb2-eab53c6e4b6a method=GET path=/api/activity status=200 duration_ms=258.4
+2026-07-04 08:52:17,130 INFO dq_cockpit request_id=fff3fa7e-5146-49dc-b5ed-448f80020ee8 method=GET path=/api/incidents status=200 duration_ms=10.8
+2026-07-04 08:53:09,421 INFO dq_cockpit request_id=9ecf25d4-b004-42cc-aa9b-f0258f378ee7 method=GET path=/api/incidents status=200 duration_ms=9.0
+2026-07-04 08:53:09,718 INFO dq_cockpit request_id=62b20691-555e-4641-8775-8fa92a0182a8 method=GET path=/api/activity status=200 duration_ms=304.4
+2026-07-04 08:53:17,611 INFO dq_cockpit request_id=0cd1b004-f643-48b5-8c9f-0809079e2820 method=GET path=/api/incidents status=200 duration_ms=31.2
+2026-07-04 08:54:10,430 INFO dq_cockpit request_id=99eaa63e-f823-4d4a-b6db-dacbaa0fd1ac method=GET path=/api/incidents status=200 duration_ms=13.2
+2026-07-04 08:54:10,716 INFO dq_cockpit request_id=4289992a-32ff-4a32-a667-677497107540 method=GET path=/api/activity status=200 duration_ms=294.5
+2026-07-04 08:54:18,467 INFO dq_cockpit request_id=0cb28702-dcc7-4a9d-b0f1-25fdfa4adcd0 method=GET path=/api/incidents status=200 duration_ms=50.7
+2026-07-04 08:55:11,482 INFO dq_cockpit request_id=564ec7db-492e-46b5-9a51-39cb16c81952 method=GET path=/api/incidents status=200 duration_ms=46.0
+2026-07-04 08:55:11,726 INFO dq_cockpit request_id=876caf01-28d7-4e42-aecd-266943d388c4 method=GET path=/api/activity status=200 duration_ms=289.4
+2026-07-04 08:55:19,464 INFO dq_cockpit request_id=80a92bd3-aa6f-4085-bb00-a69b9b5e9d0c method=GET path=/api/incidents status=200 duration_ms=51.5
+2026-07-04 08:56:12,438 INFO dq_cockpit request_id=6595ac2e-ab41-4f2f-925f-382b96501d9a method=GET path=/api/incidents status=200 duration_ms=13.6
+2026-07-04 08:56:12,739 INFO dq_cockpit request_id=7a4afb44-380a-416c-a3be-2ad1dfce558a method=GET path=/api/activity status=200 duration_ms=312.8
+2026-07-04 08:56:20,477 INFO dq_cockpit request_id=2c155d2b-286f-4a1f-96c6-70e6fd4b7a7d method=GET path=/api/incidents status=200 duration_ms=56.5
+2026-07-04 08:57:13,426 INFO dq_cockpit request_id=fae26133-f627-4062-aacf-d16a7c8ea5fd method=GET path=/api/incidents status=200 duration_ms=9.7
+2026-07-04 08:57:13,703 INFO dq_cockpit request_id=0c556bde-f45d-4a6f-b3ea-d953b43f2d58 method=GET path=/api/activity status=200 duration_ms=271.5
+2026-07-04 08:57:21,429 INFO dq_cockpit request_id=b0686293-b524-40da-bc7a-7683623f8a6e method=GET path=/api/incidents status=200 duration_ms=11.5
+2026-07-04 08:58:14,467 INFO dq_cockpit request_id=af366bce-4a09-48a7-8f64-5f1df83cfd84 method=GET path=/api/incidents status=200 duration_ms=55.7
+2026-07-04 08:58:14,803 INFO dq_cockpit request_id=d7d72a37-425d-4e86-91ce-f0199830c229 method=GET path=/api/activity status=200 duration_ms=388.9
+2026-07-04 08:58:22,433 INFO dq_cockpit request_id=c426ddd9-98c4-4803-804a-2ecd8b9ddf7e method=GET path=/api/incidents status=200 duration_ms=14.3
+2026-07-04 08:59:15,472 INFO dq_cockpit request_id=10805ab1-1318-4406-9057-5047798e22ae method=GET path=/api/incidents status=200 duration_ms=55.4
+2026-07-04 08:59:15,751 INFO dq_cockpit request_id=2e779f8f-74d6-4e03-a727-d9ea2bf079fb method=GET path=/api/activity status=200 duration_ms=332.3
+2026-07-04 08:59:23,473 INFO dq_cockpit request_id=26f0650a-afc9-41d1-bdf8-fddce47752c6 method=GET path=/api/incidents status=200 duration_ms=54.5
+2026-07-04 09:00:16,469 INFO dq_cockpit request_id=cc7e558c-cacd-4921-8429-6d265270ae69 method=GET path=/api/incidents status=200 duration_ms=52.9
+2026-07-04 09:00:16,732 INFO dq_cockpit request_id=c5718b4e-e7fd-47fc-9ddb-f327500fe7f0 method=GET path=/api/activity status=200 duration_ms=312.5
+2026-07-04 09:00:24,432 INFO dq_cockpit request_id=7031ce16-6104-4e9d-b496-32cf09693ac9 method=GET path=/api/incidents status=200 duration_ms=14.2
+2026-07-04 09:00:48,500 INFO dq_cockpit request_id=d1ac1acd-5f7b-4b19-a875-0912d86cdd89 method=GET path=/api/incidents status=200 duration_ms=92.6
+2026-07-04 09:00:48,511 INFO dq_cockpit request_id=8703b858-5f82-47eb-ab29-f4751260ac35 method=GET path=/api/coverage/heatmap status=200 duration_ms=101.1
+2026-07-04 09:00:48,729 INFO dq_cockpit request_id=9e028f35-81fb-4035-b671-e9e5e2258996 method=GET path=/api/contracts/DEMO_SRC_02_contract/sla status=200 duration_ms=154.9
+2026-07-04 09:00:48,734 INFO dq_cockpit request_id=aca650a4-767d-4700-863f-2c880104754c method=GET path=/api/contracts status=200 duration_ms=324.4
+2026-07-04 09:00:48,751 INFO dq_cockpit request_id=252c53ef-7d9b-46b1-9567-c98628ac17b2 method=GET path=/api/objects status=200 duration_ms=343.7
+2026-07-04 09:00:48,787 INFO dq_cockpit request_id=0f3a0eea-aad3-42c8-b6b9-46a1925e52a8 method=GET path=/api/contracts/DS_REVENUE_SUMMARY/sla status=200 duration_ms=199.6
+2026-07-04 09:00:48,829 INFO dq_cockpit request_id=e59d1d7a-1b97-47ef-a43b-4cfc58f461d0 method=GET path=/api/contracts/DS_SALES_ORDERS/sla status=200 duration_ms=62.9
+2026-07-04 09:00:48,859 INFO dq_cockpit request_id=3bf51fe5-15a1-4ac9-ba76-7a49c782705b method=GET path=/api/coverage/summary status=200 duration_ms=451.1
+2026-07-04 09:00:48,952 INFO dq_cockpit request_id=2d882866-d5dc-42f0-b6e3-7b90f07c8261 method=GET path=/api/activity status=200 duration_ms=541.8
+2026-07-04 09:01:20,115 INFO dq_cockpit request_id=8ad5802e-3c71-4a75-b5a6-3e16090ddbe6 method=GET path=/api/objects status=200 duration_ms=55.6
+2026-07-04 09:01:24,694 INFO dq_cockpit request_id=3fc73cde-39e5-4c0a-96db-38e4b9fdb074 method=GET path=/api/objects/DEMO_SRC_03/runs status=200 duration_ms=9.1
+2026-07-04 09:01:24,728 INFO dq_cockpit request_id=d5dceae5-4ea3-41af-8f82-23731e6b7b19 method=GET path=/api/runs/6a0dfb0d-20d5-4d39-9025-936e295ad355 status=200 duration_ms=24.2
+2026-07-04 09:01:24,767 INFO dq_cockpit request_id=a9c21439-de55-4b74-9108-58bac440fa12 method=GET path=/api/objects/DEMO_SRC_03/checks/completeness_pct/history status=200 duration_ms=23.0
+2026-07-04 09:01:24,768 INFO dq_cockpit request_id=38a815cc-32db-42d0-ba08-fdd071d60d00 method=GET path=/api/objects/DEMO_SRC_03/checks/row_count/history status=200 duration_ms=27.3
+2026-07-04 09:01:24,791 INFO dq_cockpit request_id=14c8d018-a9cb-438c-a5af-d893a93f05a0 method=GET path=/api/objects/DEMO_SRC_03/checks/null_key/history status=200 duration_ms=47.7
+2026-07-04 09:01:24,793 INFO dq_cockpit request_id=4f829906-d21b-4db3-933b-2df6b4ecdba6 method=GET path=/api/objects/DEMO_SRC_03 status=200 duration_ms=107.5
+2026-07-04 09:01:25,430 INFO dq_cockpit request_id=6be976f3-16b4-4eda-828d-3e022716dfe6 method=GET path=/api/incidents status=200 duration_ms=9.3
+2026-07-04 09:01:29,606 INFO dq_cockpit request_id=8c5090d4-607f-4b25-9187-0fcc49f91d8a method=GET path=/api/objects/DEMO_SRC_04/runs status=200 duration_ms=12.0
+2026-07-04 09:01:29,627 INFO dq_cockpit request_id=7b42fb6d-43cb-4c6f-ab15-d1dc69085295 method=GET path=/api/runs/9913db67-37b5-4651-bad1-58c737e1a294 status=200 duration_ms=8.5
+2026-07-04 09:01:29,666 INFO dq_cockpit request_id=78932649-9bad-40c4-87d8-03043e5a024e method=GET path=/api/objects/DEMO_SRC_04/checks/schema_columns/history status=200 duration_ms=25.6
+2026-07-04 09:01:29,669 INFO dq_cockpit request_id=0ccf17f3-a766-4aa4-af9e-741353151ec4 method=GET path=/api/objects/DEMO_SRC_04/checks/freshness_SRC_COL_01/history status=200 duration_ms=29.0
+2026-07-04 09:01:29,696 INFO dq_cockpit request_id=77e34c4c-5e73-4455-806a-4e4cac76ab87 method=GET path=/api/objects/DEMO_SRC_04 status=200 duration_ms=101.6
+2026-07-04 09:01:37,542 INFO dq_cockpit request_id=8549538b-af86-40ea-a31a-4168a368bc44 method=GET path=/api/objects/DEMO_SRC_06/runs status=200 duration_ms=14.2
+2026-07-04 09:01:37,586 INFO dq_cockpit request_id=6b4b8902-c986-4354-8a4e-dc30a479bc42 method=GET path=/api/objects/DEMO_SRC_06 status=200 duration_ms=40.0
+2026-07-04 09:01:40,387 INFO dq_cockpit request_id=178d89ee-a3ce-4d66-840c-d1ba14384e3c method=GET path=/api/objects/DEMO_HARM_02/runs status=200 duration_ms=16.0
+2026-07-04 09:01:40,411 INFO dq_cockpit request_id=d0490144-d652-4d84-8e4e-179b3cc4564d method=GET path=/api/runs/6145dd3e-0f07-42b2-a242-f23d8f0c7df6 status=200 duration_ms=10.8
+2026-07-04 09:01:40,447 INFO dq_cockpit request_id=e5a00d97-6832-40cf-aac2-95fab56e0c21 method=GET path=/api/objects/DEMO_HARM_02 status=200 duration_ms=75.4
+2026-07-04 09:01:53,130 INFO dq_cockpit request_id=80025e0b-85dd-481e-a69e-b1c86c0b6b90 method=GET path=/api/objects status=200 duration_ms=37.4
+2026-07-04 09:02:26,470 INFO dq_cockpit request_id=3c2dcd64-2b77-4daa-86ea-dc342db69f51 method=GET path=/api/incidents status=200 duration_ms=50.3
+2026-07-04 09:03:27,431 INFO dq_cockpit request_id=c4807fcf-03d7-4b22-9015-759118d662bb method=GET path=/api/incidents status=200 duration_ms=23.4
+2026-07-04 09:04:28,429 INFO dq_cockpit request_id=e8301413-d327-4271-8f95-f6ae2e69c1e6 method=GET path=/api/incidents status=200 duration_ms=8.3
+2026-07-04 09:05:01,629 INFO dq_cockpit request_id=93cc4684-cdaf-4a16-9852-7533b45a1d6b method=GET path=/api/objects status=200 duration_ms=85.4
+2026-07-04 09:05:41,647 INFO dq_cockpit request_id=e62a6fef-82dc-4703-89a8-a5ae182b8a43 method=GET path=/api/incidents status=200 duration_ms=9.4
+2026-07-04 09:06:08,806 INFO dq_cockpit request_id=dad770c4-af38-444a-9dc6-91c2f991a211 method=GET path=/api/objects status=200 duration_ms=83.1
+2026-07-04 09:06:42,425 INFO dq_cockpit request_id=d8b8febb-cc9e-4cbb-9cd8-4db50fda2432 method=GET path=/api/incidents status=200 duration_ms=5.2
+2026-07-04 09:07:08,824 INFO dq_cockpit request_id=b013f691-0916-41ab-b9a6-a8591d48e286 method=GET path=/api/objects status=200 duration_ms=78.8
+2026-07-04 09:07:22,187 INFO dq_cockpit request_id=6558c16a-048d-4eaa-892f-321465e26d77 method=GET path=/api/objects/DEMO_SRC_02/runs status=200 duration_ms=16.2
+2026-07-04 09:07:22,225 INFO dq_cockpit request_id=6078ed5f-abf7-4433-99f7-7573c8906476 method=GET path=/api/runs/4f700c62-4ab7-4e51-9f20-d92ac207046f status=200 duration_ms=29.2
+2026-07-04 09:07:22,256 INFO dq_cockpit request_id=238e54c3-2951-4d42-9aa0-b6ae85bd0dc8 method=GET path=/api/objects/DEMO_SRC_02/checks/null_key/history status=200 duration_ms=16.7
+2026-07-04 09:07:22,270 INFO dq_cockpit request_id=461017df-3425-4985-95b1-0048f2ed8be1 method=GET path=/api/objects/DEMO_SRC_02/checks/duplicate_key/history status=200 duration_ms=29.6
+2026-07-04 09:07:22,273 INFO dq_cockpit request_id=5dda3ec0-5180-4841-a0fc-27cc3b00ee33 method=GET path=/api/objects/DEMO_SRC_02 status=200 duration_ms=83.7
+2026-07-04 09:07:22,284 INFO dq_cockpit request_id=4b554b9f-610d-4101-9dec-862208c3d996 method=GET path=/api/objects/DEMO_SRC_02/checks/row_count/history status=200 duration_ms=44.3
+2026-07-04 09:07:36,486 INFO dq_cockpit request_id=f7db59f0-11e9-4766-af05-ef3cbd4632cd method=GET path=/api/monitoring/config status=200 duration_ms=3.8
+2026-07-04 09:07:36,488 INFO dq_cockpit request_id=68be247a-2962-44db-a064-0cd2307ea34f method=GET path=/api/monitoring/shares status=200 duration_ms=4.9
+2026-07-04 09:07:36,490 INFO dq_cockpit request_id=a6c8b1aa-7b87-4d39-84b8-711a55ba2c7e method=GET path=/api/contracts/DEMO_SRC_02 status=200 duration_ms=6.3
+2026-07-04 09:07:36,509 INFO dq_cockpit request_id=30c8fb9f-bbe2-4c25-9d2b-c654cdc5d169 method=GET path=/api/contracts/DEMO_SRC_02/version-diff status=200 duration_ms=3.3
+2026-07-04 09:07:43,459 INFO dq_cockpit request_id=bb2b83f1-8b90-4236-add9-225671d350dc method=GET path=/api/incidents status=200 duration_ms=47.1
+2026-07-04 09:07:44,471 INFO dq_cockpit request_id=2b71f83e-022c-4bc4-85bc-183e8961549b method=GET path=/api/badge/DEMO_SRC_02 status=200 duration_ms=5.4
+2026-07-04 09:07:49,824 INFO dq_cockpit request_id=4904226f-fff6-4bc3-adfb-c892d64fefd0 method=GET path=/api/objects status=200 duration_ms=45.0
+2026-07-04 09:08:44,421 INFO dq_cockpit request_id=e07c57f5-5269-4ba9-89fb-80347cab6446 method=GET path=/api/incidents status=200 duration_ms=6.3
+2026-07-04 09:09:45,463 INFO dq_cockpit request_id=24930969-f118-4338-9610-c414ceee5ecc method=GET path=/api/incidents status=200 duration_ms=53.4
+2026-07-04 09:10:46,128 INFO dq_cockpit request_id=f624eefd-38fc-4453-80b3-5c79a2f7ede3 method=GET path=/api/objects status=200 duration_ms=29.6
+2026-07-04 09:10:46,416 INFO dq_cockpit request_id=300fd5c9-c3cd-46a3-bdd3-ad4d277692ae method=GET path=/api/incidents status=200 duration_ms=6.1
+2026-07-04 09:10:48,367 INFO dq_cockpit request_id=f07e85d8-afdf-4721-8f97-cba7cf199c3b method=GET path=/api/objects/DEMO_SRC_01/runs status=200 duration_ms=5.6
+2026-07-04 09:10:48,386 INFO dq_cockpit request_id=2d8e85f7-4a46-4057-a50f-0e1778f3522f method=GET path=/api/runs/74df8d6e-c714-4396-baad-ca0fa04bf89b status=200 duration_ms=12.3
+2026-07-04 09:10:48,416 INFO dq_cockpit request_id=ce2bcf87-7225-43b3-ba1d-96a7539b4f0d method=GET path=/api/objects/DEMO_SRC_01/checks/invalid_SRC_COL_01/history status=200 duration_ms=20.0
+2026-07-04 09:10:48,429 INFO dq_cockpit request_id=149bbdca-0ead-4fd7-82ec-cca51278ce11 method=GET path=/api/objects/DEMO_SRC_01 status=200 duration_ms=68.2
+2026-07-04 09:10:48,437 INFO dq_cockpit request_id=b1f6e3a7-d6f7-4d94-aadf-9da80448227f method=GET path=/api/objects/DEMO_SRC_01/checks/schema_columns/history status=200 duration_ms=41.4
+2026-07-04 09:11:47,462 INFO dq_cockpit request_id=ea4e538b-f934-4258-b373-8d759d0aeafe method=GET path=/api/incidents status=200 duration_ms=49.8
+2026-07-04 09:12:48,426 INFO dq_cockpit request_id=c1d8fe67-8563-449d-adf9-1b8259b96536 method=GET path=/api/incidents status=200 duration_ms=7.6
+2026-07-04 09:13:49,473 INFO dq_cockpit request_id=b799f908-9a5b-4e36-8189-bfb79d3cd3c6 method=GET path=/api/incidents status=200 duration_ms=51.9
+2026-07-04 09:14:50,470 INFO dq_cockpit request_id=7c915222-2ca2-4c5e-88b7-52c2b1f446a4 method=GET path=/api/incidents status=200 duration_ms=49.2
+2026-07-04 09:15:51,462 INFO dq_cockpit request_id=42d3b4f0-a2ba-49bc-8b68-36c1b09cee91 method=GET path=/api/incidents status=200 duration_ms=48.5
+2026-07-04 09:16:11,846 INFO dq_cockpit request_id=aced1ff6-78aa-4338-b09a-c6242bf6ee3a method=GET path=/api/objects status=200 duration_ms=63.1
+2026-07-04 09:16:52,423 INFO dq_cockpit request_id=c4083981-5f6f-480e-b8db-54eb884c29ba method=GET path=/api/incidents status=200 duration_ms=5.3
+2026-07-04 09:17:53,463 INFO dq_cockpit request_id=154b4b81-b9bf-497f-aba9-48660177f2c4 method=GET path=/api/incidents status=200 duration_ms=48.7
+2026-07-04 09:18:54,462 INFO dq_cockpit request_id=ec9a980b-c4e3-46ac-b7a6-368e81231930 method=GET path=/api/incidents status=200 duration_ms=48.4
+2026-07-04 09:19:55,464 INFO dq_cockpit request_id=2a35bfaf-a405-4864-b522-12a4971da1c7 method=GET path=/api/incidents status=200 duration_ms=50.8
+2026-07-04 09:20:35,619 INFO dq_cockpit request_id=dbce3847-5194-46e8-8583-c7deab74cc69 method=GET path=/api/objects status=200 duration_ms=35.5
+2026-07-04 09:20:36,526 INFO dq_cockpit request_id=d6d97153-dc82-4144-9521-2c1caaa4712b method=GET path=/api/objects status=200 duration_ms=75.9
+2026-07-04 09:20:36,562 INFO dq_cockpit request_id=60ebe3a5-9bf3-45d5-81da-de6692dbacb5 method=GET path=/api/objects status=200 duration_ms=31.0
+2026-07-04 09:20:46,335 INFO dq_cockpit request_id=c968468f-b08a-4ea9-949f-ed75168a5c96 method=GET path=/api/coverage/heatmap status=200 duration_ms=53.6
+2026-07-04 09:20:46,384 INFO dq_cockpit request_id=6f82e3d6-d4c4-422e-98c5-13cfef345eec method=GET path=/api/incidents status=200 duration_ms=47.0
+2026-07-04 09:20:46,470 INFO dq_cockpit request_id=f289e4a1-111a-4b99-b198-c880f2afa655 method=GET path=/api/coverage/summary status=200 duration_ms=132.4
+2026-07-04 09:20:46,492 INFO dq_cockpit request_id=f1ba027d-472b-43ee-be50-ce1be0819c10 method=GET path=/api/contracts status=200 duration_ms=155.3
+2026-07-04 09:20:46,574 INFO dq_cockpit request_id=69051e62-2886-4893-b0c6-d4fb4e32e5bb method=GET path=/api/activity status=200 duration_ms=290.5
+2026-07-04 09:20:46,666 INFO dq_cockpit request_id=b9a8a163-7cb9-4a65-96ce-1a11637368a1 method=GET path=/api/contracts/DS_REVENUE_SUMMARY/sla status=200 duration_ms=61.0
+2026-07-04 09:20:46,667 INFO dq_cockpit request_id=b29df091-e7b9-4b42-9199-35ddb8513403 method=GET path=/api/contracts/DS_SALES_ORDERS/sla status=200 duration_ms=61.7
+2026-07-04 09:20:46,685 INFO dq_cockpit request_id=e31b1b99-b857-44f1-987a-1423466d4008 method=GET path=/api/contracts/DEMO_SRC_02_contract/sla status=200 duration_ms=80.5
+2026-07-04 09:20:56,420 INFO dq_cockpit request_id=e4c31e04-37a3-4461-9890-32339dafdcbd method=GET path=/api/incidents status=200 duration_ms=9.2
+2026-07-04 09:20:56,876 INFO dq_cockpit request_id=e13f240a-a053-4a47-99ca-713b18cb3310 method=GET path=/api/proposals status=200 duration_ms=90.0
+2026-07-04 09:21:14,333 INFO dq_cockpit request_id=4b8b3f58-0f11-40ed-91ce-d273b1f6ef19 method=GET path=/api/incidents/3 status=200 duration_ms=7.4
+2026-07-04 09:21:26,615 INFO dq_cockpit request_id=421539a7-a9d9-4ba3-a404-4a9feeee6d08 method=GET path=/api/monitoring/config status=200 duration_ms=50.0
+2026-07-04 09:21:26,618 INFO dq_cockpit request_id=b4730f39-b423-438e-b0a7-45e2d416f189 method=GET path=/api/monitoring/shares status=200 duration_ms=51.6
+2026-07-04 09:21:26,620 INFO dq_cockpit request_id=7591b69b-0c15-406f-b807-cd3b555fa7fd method=GET path=/api/contracts/DEMO_BUS_02 status=200 duration_ms=58.4
+2026-07-04 09:21:26,621 INFO dq_cockpit request_id=2ca1fbd7-92a1-4af8-ae9b-f32b03f7ac7e method=GET path=/api/objects/DEMO_BUS_02/runs status=200 duration_ms=66.5
+2026-07-04 09:21:26,625 INFO dq_cockpit request_id=7b330f08-833f-4fb2-9517-8fcc770607ac method=GET path=/api/objects/DEMO_BUS_02 status=200 duration_ms=72.6
+2026-07-04 09:21:26,638 INFO dq_cockpit request_id=ae1a4241-4148-4087-974a-77cf264e1277 method=GET path=/api/contracts/DEMO_BUS_02/version-diff status=200 duration_ms=3.4
+2026-07-04 09:21:26,647 INFO dq_cockpit request_id=13520959-0fe4-42bf-998c-461dc581b84f method=GET path=/api/runs/seed-demo_bus_02-34 status=200 duration_ms=11.4
+2026-07-04 09:21:26,648 INFO dq_cockpit request_id=08cc1f40-38ac-4b8e-8f4f-922594094065 method=GET path=/api/lineage/columns status=200 duration_ms=5.7
+2026-07-04 09:21:26,677 INFO dq_cockpit request_id=b4fd313a-1de7-495b-8153-4807c3f800d7 method=GET path=/api/lineage status=200 duration_ms=36.2
+2026-07-04 09:21:26,693 INFO dq_cockpit request_id=3c3ee8eb-3171-46eb-8df8-7ee3f954480a method=GET path=/api/lineage/columns/impact status=200 duration_ms=34.2
+2026-07-04 09:21:31,968 INFO dq_cockpit request_id=e051ee7a-6fc3-4572-a13b-e30929adea01 method=GET path=/api/objects status=200 duration_ms=45.1
+2026-07-04 09:21:32,366 INFO dq_cockpit request_id=660f21ea-5934-4214-ba00-7193a6ee17e9 method=GET path=/api/objects status=200 duration_ms=38.8
+2026-07-04 09:21:57,421 INFO dq_cockpit request_id=8023dc15-18c6-47fd-a168-44e37d40b1a1 method=GET path=/api/incidents status=200 duration_ms=8.1
+2026-07-04 09:22:58,465 INFO dq_cockpit request_id=216a8ec1-9dec-42f3-aae5-918ebc158019 method=GET path=/api/incidents status=200 duration_ms=45.4
+2026-07-04 09:23:59,467 INFO dq_cockpit request_id=b19d6751-ceec-4fd8-924f-933de2723de1 method=GET path=/api/incidents status=200 duration_ms=48.7
+2026-07-04 09:24:33,358 INFO dq_cockpit request_id=bcc340a7-1a98-45a5-8c5d-6962cfc7caa4 method=GET path=/api/lineage status=200 duration_ms=31.1
+2026-07-04 09:24:33,383 INFO dq_cockpit request_id=b8605e2d-fed9-4c6c-ad6a-281d302c455b method=GET path=/api/objects status=200 duration_ms=56.6
+2026-07-04 09:24:35,660 INFO dq_cockpit request_id=70066d71-db7b-4e45-884f-90857871ebd3 method=GET path=/api/objects status=200 duration_ms=45.0
+2026-07-04 09:24:35,750 INFO dq_cockpit request_id=ffd21a55-1ec4-4acd-8c32-e944a1b1154e method=GET path=/api/objects status=200 duration_ms=42.8
+2026-07-04 09:24:35,798 INFO dq_cockpit request_id=3a23c8e7-4d91-4955-9aa8-33cd00a963b6 method=GET path=/api/objects status=200 duration_ms=40.3
+2026-07-04 09:24:36,653 INFO dq_cockpit request_id=f492fe67-a5d0-44e2-aa3b-f12ff001a724 method=GET path=/api/incidents/2 status=200 duration_ms=45.9
+2026-07-04 09:24:36,654 INFO dq_cockpit request_id=ca74bf26-440b-42e7-93c5-7009fa22da5d method=GET path=/api/incidents status=200 duration_ms=46.5
+2026-07-04 09:24:36,763 INFO dq_cockpit request_id=68d2e074-a70b-411f-bbbd-7715f061c863 method=GET path=/api/admin/environments status=403 duration_ms=2.9
+2026-07-04 09:24:36,768 INFO dq_cockpit request_id=0b0044e9-f1fe-4207-a841-033f19f983c3 method=GET path=/api/objects status=200 duration_ms=51.3
+2026-07-04 09:24:36,837 INFO dq_cockpit request_id=a828a9a9-ad40-4ce1-8edd-c01976434e94 method=GET path=/api/lineage/columns status=200 duration_ms=7.5
+2026-07-04 09:24:36,880 INFO dq_cockpit request_id=0df264c2-3e7e-45ad-8804-445747c6ab84 method=GET path=/api/contracts/DEMO_BUS_02 status=200 duration_ms=33.6
+2026-07-04 09:24:36,904 INFO dq_cockpit request_id=b3f9cbc2-1e6f-4aca-a37a-3ed5d409c39d method=GET path=/api/contracts/DEMO_BUS_02/version-diff status=200 duration_ms=13.5
+2026-07-04 09:24:36,911 INFO dq_cockpit request_id=c66e83d6-a487-483d-b086-b3cc2f4fb47e method=GET path=/api/objects/DEMO_BUS_02/runs status=200 duration_ms=77.9
+2026-07-04 09:24:36,923 INFO dq_cockpit request_id=f2cf569e-8851-44f9-88bf-0dcadd833d0f method=GET path=/api/objects status=200 duration_ms=100.9
+2026-07-04 09:24:36,925 INFO dq_cockpit request_id=3ba1a0d2-57fd-4a96-a20d-5ed47dcb7ae0 method=GET path=/api/lineage status=200 duration_ms=96.3
+2026-07-04 09:24:36,927 INFO dq_cockpit request_id=904aca53-d767-4251-a478-a89e08484eed method=GET path=/api/monitoring/config status=200 duration_ms=10.2
+2026-07-04 09:24:36,933 INFO dq_cockpit request_id=1227385d-1558-4bef-9bb2-f7cdab7fc250 method=GET path=/api/lineage/columns/impact status=200 duration_ms=103.4
+2026-07-04 09:24:36,936 INFO dq_cockpit request_id=170b3c51-be61-4846-9962-e217d728b1f8 method=GET path=/api/monitoring/shares status=200 duration_ms=12.7
+2026-07-04 09:24:36,959 INFO dq_cockpit request_id=bee745b8-386e-42fe-90dd-7c6e4b40c1f7 method=GET path=/api/runs/seed-demo_bus_02-34 status=200 duration_ms=20.3
+2026-07-04 09:24:36,980 INFO dq_cockpit request_id=54cb602c-1596-4c77-a458-dcefebd8f327 method=GET path=/api/objects/DEMO_BUS_02 status=200 duration_ms=147.9
+2026-07-04 09:24:37,013 INFO dq_cockpit request_id=18bbd91c-c8c1-4068-9ca3-b55e9be9dd8e method=GET path=/api/objects status=200 duration_ms=71.5
+2026-07-04 09:24:37,510 INFO dq_cockpit request_id=a71cdcb0-49af-4e7b-a874-781eaa3540a1 method=GET path=/api/objects status=200 duration_ms=35.9
+2026-07-04 09:24:37,540 INFO dq_cockpit request_id=3638424e-8b3d-4ad1-8ff5-7b0dd198ffbd method=GET path=/api/lineage/columns status=200 duration_ms=6.6
+2026-07-04 09:24:37,561 INFO dq_cockpit request_id=5551a624-1686-4e7c-a9e8-fe14d7acb8e8 method=GET path=/api/contracts/DEMO_SRC_01 status=200 duration_ms=14.0
+2026-07-04 09:24:37,583 INFO dq_cockpit request_id=f591bfae-cb11-4bd9-83e7-14d168b4d8f3 method=GET path=/api/contracts/DEMO_SRC_01/version-diff status=200 duration_ms=14.7
+2026-07-04 09:24:37,590 INFO dq_cockpit request_id=7ff8c850-88e7-435d-9217-8e50fea7ad79 method=GET path=/api/lineage status=200 duration_ms=57.7
+2026-07-04 09:24:37,604 INFO dq_cockpit request_id=57954b32-0dfb-48df-a882-79e5d7a9c4a4 method=GET path=/api/monitoring/config status=200 duration_ms=7.1
+2026-07-04 09:24:37,608 INFO dq_cockpit request_id=d94a2cf3-1487-4d8e-96d9-66a323d23db9 method=GET path=/api/monitoring/shares status=200 duration_ms=7.5
+2026-07-04 09:24:37,617 INFO dq_cockpit request_id=bcaa624c-a3b0-46de-96a8-dce6b499e0f0 method=GET path=/api/lineage/columns/impact status=200 duration_ms=82.5
+2026-07-04 09:24:37,623 INFO dq_cockpit request_id=2e20b85b-3b6f-4b2a-956d-a3afe2d9b059 method=GET path=/api/objects/DEMO_SRC_01/runs status=200 duration_ms=87.6
+2026-07-04 09:24:37,637 INFO dq_cockpit request_id=e7f8203e-4eea-4741-bf0b-ca05d6039632 method=GET path=/api/objects status=200 duration_ms=106.0
+2026-07-04 09:24:37,644 INFO dq_cockpit request_id=c87cef9f-18c7-410c-86d7-fceb05d82340 method=GET path=/api/runs/74df8d6e-c714-4396-baad-ca0fa04bf89b status=200 duration_ms=24.3
+2026-07-04 09:24:37,647 INFO dq_cockpit request_id=6c6ece8e-34f2-402c-ae3d-98617b6ca39e method=GET path=/api/objects/DEMO_SRC_01 status=200 duration_ms=112.6
+2026-07-04 09:24:37,674 INFO dq_cockpit request_id=43c9da01-7c63-44b8-9036-2172cfd78484 method=GET path=/api/objects status=200 duration_ms=30.8
+2026-07-04 09:24:38,464 INFO dq_cockpit request_id=48fa6340-d302-4135-a4e8-c2e5c8d8193d method=GET path=/api/admin/environments status=403 duration_ms=43.0
+2026-07-04 09:25:37,468 INFO dq_cockpit request_id=ccce0ef9-021a-4ff0-a665-54e259e469e5 method=GET path=/api/incidents status=200 duration_ms=48.2
+2026-07-04 09:26:38,419 INFO dq_cockpit request_id=a6694245-aefd-45ad-beb8-45b2002fbb59 method=GET path=/api/incidents status=200 duration_ms=5.5
+2026-07-04 09:27:09,130 INFO dq_cockpit request_id=4444d8ab-82e9-44cd-be97-fa06faa467c7 method=GET path=/api/lineage status=200 duration_ms=96.1
+2026-07-04 09:27:09,133 INFO dq_cockpit request_id=c1f6a1d3-66d8-49b3-87d1-ca2b3d0040d7 method=GET path=/api/objects status=200 duration_ms=101.4
+2026-07-04 09:27:39,467 INFO dq_cockpit request_id=1638d626-c25b-4ec3-94d5-d8d7fcb1d16f method=GET path=/api/incidents status=200 duration_ms=54.1
+2026-07-04 09:28:05,732 INFO dq_cockpit request_id=7c2c4e7b-59be-4b9c-9555-ed529da93235 method=GET path=/api/objects status=200 duration_ms=58.5
+2026-07-04 09:28:08,674 INFO dq_cockpit request_id=e619747a-2b2d-4832-a8e6-5b770bbafd2a method=GET path=/api/objects/DEMO_SRC_01/timeseries status=200 duration_ms=12.2
+2026-07-04 09:28:08,677 INFO dq_cockpit request_id=c6dc4ebc-25c0-4b19-97ea-6091d3198b8a method=GET path=/api/objects/DEMO_SRC_01/runs status=200 duration_ms=12.6
+2026-07-04 09:28:08,679 INFO dq_cockpit request_id=9a456c26-7387-47db-b7e8-c23e165c411f method=GET path=/api/objects/DEMO_SRC_01/schedule status=200 duration_ms=19.1
+2026-07-04 09:28:08,723 INFO dq_cockpit request_id=f369500c-4c89-4202-9fc9-0bb809f588cd method=GET path=/api/objects/DEMO_SRC_01 status=200 duration_ms=60.2
+2026-07-04 09:28:08,735 INFO dq_cockpit request_id=f8a671d9-5518-4090-9d2e-b2768f08b7bf method=GET path=/api/runs/1987c766-25a8-43d3-aed1-5e3948f361b3 status=200 duration_ms=18.2
+2026-07-04 09:28:08,771 INFO dq_cockpit request_id=cb935b30-4a21-428a-99a0-e63d83ec0b3a method=GET path=/api/runs/74df8d6e-c714-4396-baad-ca0fa04bf89b status=200 duration_ms=57.4
+2026-07-04 09:28:08,804 INFO dq_cockpit request_id=31d3e145-2d41-4bc0-80fc-88586467efff method=GET path=/api/objects/DEMO_SRC_01/checks/schema_columns/history status=200 duration_ms=17.4
+2026-07-04 09:28:08,813 INFO dq_cockpit request_id=a1b96f39-b5ae-4469-8eff-fc98ef5c4a92 method=GET path=/api/objects/DEMO_SRC_01/checks/invalid_SRC_COL_01/history status=200 duration_ms=26.1
+2026-07-04 09:28:22,573 INFO dq_cockpit request_id=d6a05853-2fdc-437b-bfab-ffd293f31b0e method=GET path=/api/objects status=200 duration_ms=57.0
+2026-07-04 09:28:25,045 INFO dq_cockpit request_id=e9a6f320-a054-47df-98a2-a31e24ccc3db method=GET path=/api/objects/DEMO_SRC_01/timeseries status=200 duration_ms=15.2
+2026-07-04 09:28:25,046 INFO dq_cockpit request_id=1f578585-3f07-4a40-8c7b-320aedb29aec method=GET path=/api/objects/DEMO_SRC_01/schedule status=200 duration_ms=17.6
+2026-07-04 09:28:25,060 INFO dq_cockpit request_id=d9b5bc33-5678-48da-b174-eabaeb10bffb method=GET path=/api/objects/DEMO_SRC_01/runs status=200 duration_ms=27.2
+2026-07-04 09:28:25,099 INFO dq_cockpit request_id=95b3fca0-bd4e-4d30-ae7c-836202364a85 method=GET path=/api/objects/DEMO_SRC_01 status=200 duration_ms=69.1
+2026-07-04 09:28:25,118 INFO dq_cockpit request_id=550f0a1f-9dab-400d-ba23-01d91731f3c7 method=GET path=/api/runs/1987c766-25a8-43d3-aed1-5e3948f361b3 status=200 duration_ms=6.5
+2026-07-04 09:28:25,120 INFO dq_cockpit request_id=8e352f4e-c418-4ff9-a9ec-8f67ffed58fd method=GET path=/api/runs/74df8d6e-c714-4396-baad-ca0fa04bf89b status=200 duration_ms=8.2
+2026-07-04 09:28:25,159 INFO dq_cockpit request_id=aa9be582-8b95-4767-9ce9-df4d069e8877 method=GET path=/api/objects/DEMO_SRC_01/checks/schema_columns/history status=200 duration_ms=5.6
+2026-07-04 09:28:25,173 INFO dq_cockpit request_id=e2822778-112c-4edf-810c-50efdf681820 method=GET path=/api/objects/DEMO_SRC_01/checks/invalid_SRC_COL_01/history status=200 duration_ms=19.5
+2026-07-04 09:28:40,426 INFO dq_cockpit request_id=074ed26a-cfc2-4c65-a673-a705fbded057 method=GET path=/api/incidents status=200 duration_ms=6.9
+2026-07-04 09:28:57,204 INFO dq_cockpit request_id=553464a1-6d1b-4282-9959-df30aba564c7 method=GET path=/api/objects status=200 duration_ms=78.4
+2026-07-04 09:28:59,709 INFO dq_cockpit request_id=c1188efd-8920-43c4-ae84-1a5ba7bc4619 method=GET path=/api/objects/DEMO_SRC_01/schedule status=200 duration_ms=53.8
+2026-07-04 09:28:59,712 INFO dq_cockpit request_id=b37ccb08-a4a0-419e-bbc0-fd458e78e396 method=GET path=/api/objects/DEMO_SRC_01/timeseries status=200 duration_ms=54.3
+2026-07-04 09:28:59,716 INFO dq_cockpit request_id=bc581280-cb8c-4b73-8737-18033dffe24b method=GET path=/api/objects/DEMO_SRC_01/runs status=200 duration_ms=57.8
+2026-07-04 09:28:59,749 INFO dq_cockpit request_id=ccb3c615-77bc-4b06-b164-56c6a991f094 method=GET path=/api/runs/74df8d6e-c714-4396-baad-ca0fa04bf89b status=200 duration_ms=13.1
+2026-07-04 09:28:59,751 INFO dq_cockpit request_id=8179e7f2-014a-4621-b60d-63ef0f1849c8 method=GET path=/api/runs/1987c766-25a8-43d3-aed1-5e3948f361b3 status=200 duration_ms=14.3
+2026-07-04 09:28:59,772 INFO dq_cockpit request_id=dbff64e4-c94c-4d72-ac26-d4365d8f6835 method=GET path=/api/objects/DEMO_SRC_01 status=200 duration_ms=115.0
+2026-07-04 09:28:59,788 INFO dq_cockpit request_id=9c2e5bf1-a41b-4f33-8015-99e7a2bf07e6 method=GET path=/api/objects/DEMO_SRC_01/checks/invalid_SRC_COL_01/history status=200 duration_ms=21.4
+2026-07-04 09:28:59,802 INFO dq_cockpit request_id=07ad71da-e4fb-41b6-b3be-9fa56542342f method=GET path=/api/objects/DEMO_SRC_01/checks/schema_columns/history status=200 duration_ms=35.8
+2026-07-04 09:29:15,775 INFO dq_cockpit request_id=824c0478-6150-4254-a33c-876e2b35e6ba method=GET path=/api/objects status=200 duration_ms=104.2
+2026-07-04 09:29:18,243 INFO dq_cockpit request_id=f2310a74-96d0-4a7d-9bc9-00ab8f0badf8 method=GET path=/api/objects/DEMO_SRC_01/runs status=200 duration_ms=60.8
+2026-07-04 09:29:18,254 INFO dq_cockpit request_id=e6ff479f-58ad-4966-8cd4-e4d799a6c3c9 method=GET path=/api/objects/DEMO_SRC_01 status=200 duration_ms=71.9
+2026-07-04 09:29:18,265 INFO dq_cockpit request_id=21dc5e6d-7ad6-4c4b-a5e0-2d752e781f8a method=GET path=/api/runs/74df8d6e-c714-4396-baad-ca0fa04bf89b status=200 duration_ms=14.7
+2026-07-04 09:29:18,282 INFO dq_cockpit request_id=7e9238e5-b7e0-4ea0-a14c-7d0395cbeac4 method=GET path=/api/objects/DEMO_SRC_01/checks/invalid_SRC_COL_01/history status=200 duration_ms=5.4
+2026-07-04 09:29:18,284 INFO dq_cockpit request_id=612de8ec-e491-47cf-bf39-ebd280bf43f6 method=GET path=/api/objects/DEMO_SRC_01/checks/schema_columns/history status=200 duration_ms=8.8
+2026-07-04 09:29:29,228 INFO dq_cockpit request_id=04692f30-7719-487f-9449-3d6555dc0057 method=GET path=/api/objects status=200 duration_ms=64.5
+2026-07-04 09:29:31,676 INFO dq_cockpit request_id=a7fe702d-12c7-4278-a5f0-2113226b7e79 method=GET path=/api/objects/DEMO_SRC_01/runs status=200 duration_ms=10.8
+2026-07-04 09:29:31,693 INFO dq_cockpit request_id=15179ac6-bfc3-40ee-97bf-7127647a04c8 method=GET path=/api/runs/74df8d6e-c714-4396-baad-ca0fa04bf89b status=200 duration_ms=9.3
+2026-07-04 09:29:31,724 INFO dq_cockpit request_id=c493ca25-11fe-45e2-87da-96c8a4010a73 method=GET path=/api/objects/DEMO_SRC_01/checks/schema_columns/history status=200 duration_ms=15.2
+2026-07-04 09:29:31,731 INFO dq_cockpit request_id=7bf25544-9e95-4f30-98e9-5ede7cfb92fd method=GET path=/api/objects/DEMO_SRC_01/checks/invalid_SRC_COL_01/history status=200 duration_ms=22.4
+2026-07-04 09:29:31,736 INFO dq_cockpit request_id=c08515bd-c353-44b0-8f13-372f59f81e78 method=GET path=/api/objects/DEMO_SRC_01 status=200 duration_ms=71.7
+2026-07-04 09:29:41,444 INFO dq_cockpit request_id=43202bd9-a0c0-43e5-aee6-b9ad49a3c98c method=GET path=/api/incidents status=200 duration_ms=27.1
+2026-07-04 09:30:42,458 INFO dq_cockpit request_id=7c5616e6-7342-4d5a-95cc-daa622e92ae0 method=GET path=/api/incidents status=200 duration_ms=50.5
+2026-07-04 09:31:43,469 INFO dq_cockpit request_id=f569cafa-772f-4742-a295-d9957dbe39a8 method=GET path=/api/incidents status=200 duration_ms=52.4
+2026-07-04 09:32:44,469 INFO dq_cockpit request_id=37b9adad-87de-48ab-bbb0-4974f6a22bcb method=GET path=/api/incidents status=200 duration_ms=51.7
+2026-07-04 09:33:45,442 INFO dq_cockpit request_id=3e758c0d-1acc-40fa-8255-c95150456b97 method=GET path=/api/incidents status=200 duration_ms=28.8
+2026-07-04 09:34:46,473 INFO dq_cockpit request_id=109bc989-f779-4056-9b2e-8f40bc54c85d method=GET path=/api/incidents status=200 duration_ms=51.1
+2026-07-04 09:35:47,472 INFO dq_cockpit request_id=3cced72a-79fe-4e22-9ac9-bcdb8196d6e7 method=GET path=/api/incidents status=200 duration_ms=51.4
+2026-07-04 09:36:48,467 INFO dq_cockpit request_id=59459ba0-da7a-4f67-8866-355226334b2d method=GET path=/api/incidents status=200 duration_ms=50.7
+2026-07-04 09:37:05,254 INFO dq_cockpit request_id=5ce5258e-ee32-4d90-97fa-061a85a419f9 method=GET path=/api/objects status=200 duration_ms=356.3
+2026-07-04 09:37:08,816 INFO dq_cockpit request_id=bbb7d52a-3c59-4352-94bd-cbafd3ca702b method=GET path=/api/objects/DEMO_SRC_02/schedule status=200 duration_ms=52.0
+2026-07-04 09:37:08,821 INFO dq_cockpit request_id=f5d30096-af19-4388-876b-63dcf3d88001 method=GET path=/api/objects/DEMO_SRC_02/timeseries status=200 duration_ms=56.0
+2026-07-04 09:37:08,824 INFO dq_cockpit request_id=9f6b3a70-c8b8-44db-a97d-e32ecbff2646 method=GET path=/api/objects/DEMO_SRC_02/runs status=200 duration_ms=56.7
+2026-07-04 09:37:08,864 INFO dq_cockpit request_id=aaf4ee9a-d83a-422c-b050-8ce493c6fa50 method=GET path=/api/objects/DEMO_SRC_02 status=200 duration_ms=96.9
+2026-07-04 09:37:08,894 INFO dq_cockpit request_id=e020af58-a1bd-4fc4-a361-2b8e69f4e8a1 method=GET path=/api/runs/4f700c62-4ab7-4e51-9f20-d92ac207046f status=200 duration_ms=18.1
+2026-07-04 09:37:08,900 INFO dq_cockpit request_id=77aa53f7-3aed-40d3-8259-ba3861438632 method=GET path=/api/runs/89bed245-549a-4450-8b3a-c890dc8fa737 status=200 duration_ms=24.3
+2026-07-04 09:37:08,923 INFO dq_cockpit request_id=9dc3bb84-753f-4bd4-8f7b-2f8ed0696ec0 method=GET path=/api/objects/DEMO_SRC_02/checks/duplicate_key/history status=200 duration_ms=7.9
+2026-07-04 09:37:08,939 INFO dq_cockpit request_id=5fed2a18-f563-4647-92e5-f5a691a93826 method=GET path=/api/objects/DEMO_SRC_02/checks/row_count/history status=200 duration_ms=20.5
+2026-07-04 09:37:08,946 INFO dq_cockpit request_id=d7cb0d36-e6d7-40ff-b147-ac13f6bd6a79 method=GET path=/api/objects/DEMO_SRC_02/checks/null_key/history status=200 duration_ms=28.2
+2026-07-04 09:37:26,798 INFO dq_cockpit request_id=1ad9b1fc-f417-4d22-90cf-6edb6398ee75 method=GET path=/api/objects/DEMO_BUS_01/runs status=200 duration_ms=49.6
+2026-07-04 09:37:26,806 INFO dq_cockpit request_id=8375f4e2-1fbe-43b6-b08c-7af55e1c4c4f method=GET path=/api/objects/DEMO_BUS_01 status=200 duration_ms=59.9
+2026-07-04 09:37:26,813 INFO dq_cockpit request_id=5a590742-32ec-4a99-905b-b83e0e58db38 method=GET path=/api/runs/cb81059a-4660-4696-a4e9-e00529100c8c status=200 duration_ms=6.1
+2026-07-04 09:37:29,360 INFO dq_cockpit request_id=772369d6-04d3-4bc9-ba90-7eaa4833c32a method=GET path=/api/objects/DEMO_HARM_02/timeseries status=200 duration_ms=58.4
+2026-07-04 09:37:29,368 INFO dq_cockpit request_id=56c2d5e5-a332-47c9-95ae-60b9069fd538 method=GET path=/api/objects/DEMO_HARM_02/schedule status=200 duration_ms=69.1
+2026-07-04 09:37:29,373 INFO dq_cockpit request_id=b825847c-18a3-48cc-b853-e23e4f52d1ae method=GET path=/api/objects/DEMO_HARM_02/runs status=200 duration_ms=66.2
+2026-07-04 09:37:29,396 INFO dq_cockpit request_id=08fdbb45-66d8-47ab-b353-9d87734d0b50 method=GET path=/api/objects/DEMO_HARM_02 status=200 duration_ms=92.0
+2026-07-04 09:37:29,411 INFO dq_cockpit request_id=0a8a1397-94cb-4efb-b6aa-acb976add7af method=GET path=/api/runs/ac120ac1-c355-4e3a-953c-2eb37229af86 status=200 duration_ms=24.5
+2026-07-04 09:37:29,413 INFO dq_cockpit request_id=1146a722-e588-4193-a482-923b045fb33e method=GET path=/api/runs/6145dd3e-0f07-42b2-a242-f23d8f0c7df6 status=200 duration_ms=25.6
+2026-07-04 09:37:40,955 INFO dq_cockpit request_id=38345ce2-fe48-4eae-a4f2-6beeb74ecd4f method=GET path=/api/objects/DEMO_SRC_02/runs status=200 duration_ms=72.5
+2026-07-04 09:37:40,959 INFO dq_cockpit request_id=5e4ce865-ac95-4e91-8ea5-7e8707fd68d2 method=GET path=/api/runs/89bed245-549a-4450-8b3a-c890dc8fa737 status=200 duration_ms=70.2
+2026-07-04 09:37:40,961 INFO dq_cockpit request_id=27873af4-7c81-43a4-9fb7-1b420d5bc552 method=GET path=/api/runs/4f700c62-4ab7-4e51-9f20-d92ac207046f status=200 duration_ms=77.0
+2026-07-04 09:37:40,963 INFO dq_cockpit request_id=24268c59-e7ee-4ee6-ad94-71f828c003f9 method=GET path=/api/objects/DEMO_SRC_02/schedule status=200 duration_ms=85.6
+2026-07-04 09:37:40,965 INFO dq_cockpit request_id=17760094-3c0c-49d2-9dae-885077d6692e method=GET path=/api/objects/DEMO_SRC_02 status=200 duration_ms=86.2
+2026-07-04 09:37:48,161 INFO dq_cockpit request_id=a5a845b6-29e9-42c7-92ea-35e055347897 method=GET path=/api/objects/DEMO_SRC_05/schedule status=200 duration_ms=39.4
+2026-07-04 09:37:48,180 INFO dq_cockpit request_id=a78e1aac-8535-4409-ae2e-190b142b53b3 method=GET path=/api/objects/DEMO_SRC_05/timeseries status=200 duration_ms=11.4
+2026-07-04 09:37:48,200 INFO dq_cockpit request_id=02b934d0-28d4-4c0d-9fc0-df47555c5b15 method=GET path=/api/objects/DEMO_SRC_05/runs status=200 duration_ms=28.8
+2026-07-04 09:37:48,228 INFO dq_cockpit request_id=f9e8fe7d-b71a-4afb-b4f3-425ca8217b51 method=GET path=/api/runs/9d8b1fbf-fd10-4437-b5b9-bdffb1adf628 status=200 duration_ms=14.2
+2026-07-04 09:37:48,241 INFO dq_cockpit request_id=33832190-aeb6-4d30-828a-c8a532244d8d method=GET path=/api/objects/DEMO_SRC_05 status=200 duration_ms=72.0
+2026-07-04 09:37:49,457 INFO dq_cockpit request_id=318ab58a-8f00-49d8-8a3f-bc6e52c95914 method=GET path=/api/incidents status=200 duration_ms=47.0
+2026-07-04 09:38:50,473 INFO dq_cockpit request_id=6e9cb0d4-31a8-4829-a086-c26494bbbbb5 method=GET path=/api/incidents status=200 duration_ms=51.5
+2026-07-04 09:39:51,459 INFO dq_cockpit request_id=addf3e09-2c94-4417-b524-1f9a0b04dd94 method=GET path=/api/incidents status=200 duration_ms=50.2
+2026-07-04 09:40:52,463 INFO dq_cockpit request_id=38c9939e-12f9-473f-8e36-20706af09ff9 method=GET path=/api/incidents status=200 duration_ms=47.0
+2026-07-04 09:41:53,474 INFO dq_cockpit request_id=05e515e7-becf-44c5-a7c1-f325863382c5 method=GET path=/api/incidents status=200 duration_ms=49.9
+2026-07-04 09:42:54,466 INFO dq_cockpit request_id=7f9a2186-6253-4de7-919b-df1df6e67fbe method=GET path=/api/incidents status=200 duration_ms=46.4
+2026-07-04 09:43:13,742 INFO dq_cockpit request_id=16667b6f-e162-4914-8b65-43569a3d1dc8 method=GET path=/api/objects status=200 duration_ms=28.7
+2026-07-04 09:43:55,423 INFO dq_cockpit request_id=4ba4e5bc-6b08-4470-9d1f-8b82e618ff19 method=GET path=/api/incidents status=200 duration_ms=4.8
+2026-07-04 09:44:56,454 INFO dq_cockpit request_id=2b64473b-a7ad-4ccb-8bc0-ce58e4c25936 method=GET path=/api/incidents status=200 duration_ms=46.4
+2026-07-04 09:45:57,477 INFO dq_cockpit request_id=9a58323e-d7b3-41ab-90c3-d9b680c3ed4e method=GET path=/api/incidents status=200 duration_ms=60.8
+2026-07-04 09:46:58,467 INFO dq_cockpit request_id=fae6f6bd-2ae3-45f5-bfb1-2d6fc72bdfde method=GET path=/api/incidents status=200 duration_ms=48.4
+2026-07-04 09:47:59,459 INFO dq_cockpit request_id=1ba95062-6714-4f65-8ff6-770757b10a50 method=GET path=/api/incidents status=200 duration_ms=50.1
+2026-07-04 09:49:00,460 INFO dq_cockpit request_id=4fd21a90-212f-4b1d-8972-4b130afececc method=GET path=/api/incidents status=200 duration_ms=49.1
+2026-07-04 09:50:01,419 INFO dq_cockpit request_id=1f331cc2-12c4-49fa-b295-255edc684e4a method=GET path=/api/incidents status=200 duration_ms=7.8
+2026-07-04 09:51:02,482 INFO dq_cockpit request_id=a3e43714-e92b-4f51-a9c3-323d200ddeba method=GET path=/api/incidents status=200 duration_ms=54.8
+2026-07-04 09:52:03,475 INFO dq_cockpit request_id=6565750f-2fda-4df2-a611-3f920c07aaa4 method=GET path=/api/incidents status=200 duration_ms=53.2
+2026-07-04 09:53:04,454 INFO dq_cockpit request_id=af1e2c15-1d4e-4f50-80a7-e673bad2cd0f method=GET path=/api/incidents status=200 duration_ms=38.6
+2026-07-04 09:54:05,461 INFO dq_cockpit request_id=f3280171-3bf4-4553-a25e-e42a3b3392da method=GET path=/api/incidents status=200 duration_ms=49.3
+2026-07-04 09:55:06,435 INFO dq_cockpit request_id=d0bdbdf4-0cf4-4da0-bcb0-f34a826e1c4e method=GET path=/api/incidents status=200 duration_ms=17.1
+2026-07-04 09:56:07,486 INFO dq_cockpit request_id=3794e2aa-70d6-4189-9bde-d5ae4c0981e5 method=GET path=/api/incidents status=200 duration_ms=56.7
+2026-07-04 09:57:08,471 INFO dq_cockpit request_id=80a49cf2-2d58-469e-a044-016daf494c44 method=GET path=/api/incidents status=200 duration_ms=56.4
+2026-07-04 09:58:09,462 INFO dq_cockpit request_id=dcf36961-6f2f-4429-8737-d5b013ee70df method=GET path=/api/incidents status=200 duration_ms=50.1
+2026-07-04 10:47:19,173 INFO dq_cockpit request_id=cd51c1b9-851b-482e-86aa-5f186c8266ec method=GET path=/api/objects status=200 duration_ms=513.6
+2026-07-04 10:47:22,209 INFO dq_cockpit request_id=aa22bb41-10a9-4116-90af-b36b500c0497 method=GET path=/api/objects status=200 duration_ms=48.3
+2026-07-04 10:47:47,035 INFO dq_cockpit request_id=5bde8096-e0db-43f0-a7aa-6fe4da6d30df method=GET path=/api/incidents status=200 duration_ms=5.0
+2026-07-04 10:47:50,642 INFO dq_cockpit request_id=3b92ca6b-c39d-41af-b46a-52c720536516 method=GET path=/api/objects status=200 duration_ms=41.8
+2026-07-04 10:47:50,777 INFO dq_cockpit request_id=fe58301f-c740-4213-857c-36281ac067f9 method=GET path=/api/objects status=200 duration_ms=35.2
+2026-07-04 10:47:51,205 INFO dq_cockpit request_id=e10159f7-2957-4caa-a13c-4ecab53c38ce method=GET path=/api/objects status=200 duration_ms=36.6
+2026-07-04 10:47:51,247 INFO dq_cockpit request_id=9379399b-5b22-4021-9442-77ca04dab12f method=GET path=/api/objects status=200 duration_ms=38.4
+2026-07-04 10:47:51,337 INFO dq_cockpit request_id=ba9ec50b-e3c4-40ed-8781-fc82f07c5228 method=GET path=/api/objects status=200 duration_ms=82.8
+2026-07-04 10:47:51,429 INFO dq_cockpit request_id=21a3b5d4-f00a-4f65-9d29-fc59f0b098ad method=GET path=/api/objects status=200 duration_ms=48.3
+2026-07-04 10:47:51,545 INFO dq_cockpit request_id=a608e91d-a02d-4356-b53b-2cd35906dc30 method=GET path=/api/objects status=200 duration_ms=108.9
+2026-07-04 10:47:52,097 INFO dq_cockpit request_id=35a94c75-0919-4b6e-9d1e-79a616681e1e method=GET path=/api/library status=200 duration_ms=3.9
+2026-07-04 10:47:52,241 INFO dq_cockpit request_id=b00091e9-48f0-42d6-bd60-5f53aa8da2e3 method=GET path=/api/admin/environments status=403 duration_ms=2.6
+2026-07-04 10:47:52,628 INFO dq_cockpit request_id=a4a38209-cf48-4c81-bc25-96dd22c46059 method=GET path=/api/objects status=200 duration_ms=29.1
+2026-07-04 10:47:52,982 INFO dq_cockpit request_id=8fde5018-e550-4c2a-8745-93681a665206 method=GET path=/api/objects status=200 duration_ms=115.2
+2026-07-04 10:47:53,626 INFO dq_cockpit request_id=5f1dd242-5a96-493b-8c22-7eae9ec0446c method=GET path=/api/incidents/2 status=200 duration_ms=29.8
+2026-07-04 10:47:53,629 INFO dq_cockpit request_id=4b6b447a-8ddb-4539-8a04-4c4e15bf7131 method=GET path=/api/incidents status=200 duration_ms=32.4
+2026-07-04 10:47:53,634 INFO dq_cockpit request_id=572fc361-2a55-4e53-9015-bbd41551204b method=GET path=/api/objects status=200 duration_ms=307.1
+2026-07-04 10:47:55,085 INFO dq_cockpit request_id=700a1822-029e-498c-a115-49704d508161 method=GET path=/api/admin/environments status=403 duration_ms=1.7
+2026-07-04 10:47:55,699 INFO dq_cockpit request_id=c8d3f92f-716a-4c8d-96ac-18325fcae6f6 method=GET path=/api/monitoring/config status=200 duration_ms=6.1
+2026-07-04 10:47:55,701 INFO dq_cockpit request_id=d78a4ed6-3d21-4304-b656-ee63c326521e method=GET path=/api/objects/DEMO_BUS_02/runs status=200 duration_ms=13.3
+2026-07-04 10:47:55,715 INFO dq_cockpit request_id=2e51c69d-5734-4426-852d-d629777cd321 method=GET path=/api/monitoring/shares status=200 duration_ms=15.5
+2026-07-04 10:47:55,717 INFO dq_cockpit request_id=03e611bd-fd95-4172-9c7f-0818d1c3dc00 method=GET path=/api/contracts/DEMO_BUS_02 status=200 duration_ms=26.1
+2026-07-04 10:47:55,763 INFO dq_cockpit request_id=259dae90-5dbe-43fa-b8df-e8122e31a2e3 method=GET path=/api/objects/DEMO_BUS_02 status=200 duration_ms=75.7
+2026-07-04 10:47:55,799 INFO dq_cockpit request_id=5aca1cba-10a3-4a35-9eda-feedb1cd4c95 method=GET path=/api/lineage status=200 duration_ms=59.2
+2026-07-04 10:47:56,147 INFO dq_cockpit request_id=588105bb-658d-4676-aae9-d9cb831f8d46 method=GET path=/api/objects/DEMO_SRC_01/runs status=200 duration_ms=9.1
+2026-07-04 10:47:56,153 INFO dq_cockpit request_id=60b094c5-cbc5-450b-88b5-2ab4ff0def79 method=GET path=/api/contracts/DEMO_SRC_01 status=200 duration_ms=8.0
+2026-07-04 10:47:56,157 INFO dq_cockpit request_id=74030990-2684-4089-bdec-cb6b0d7e1c22 method=GET path=/api/monitoring/config status=200 duration_ms=3.5
+2026-07-04 10:47:56,159 INFO dq_cockpit request_id=f6aa8aaa-8230-423f-b449-b68fedd5ef6c method=GET path=/api/monitoring/shares status=200 duration_ms=4.7
+2026-07-04 10:47:56,198 INFO dq_cockpit request_id=7caffb1e-c751-4779-894e-ae63907b364d method=GET path=/api/runs/74df8d6e-c714-4396-baad-ca0fa04bf89b status=200 duration_ms=10.1
+2026-07-04 10:47:56,205 INFO dq_cockpit request_id=b4507710-c623-4496-856b-40cfb7ff8fac method=GET path=/api/contracts/DEMO_BUS_02/version-diff status=200 duration_ms=4.4
+2026-07-04 10:47:56,217 INFO dq_cockpit request_id=bb846d06-d7f6-45eb-9862-0e4889e6e331 method=GET path=/api/runs/seed-demo_bus_02-34 status=200 duration_ms=21.5
+2026-07-04 10:47:56,225 INFO dq_cockpit request_id=991c644a-a30a-4107-a681-600875e26f48 method=GET path=/api/objects/DEMO_SRC_01 status=200 duration_ms=87.7
+2026-07-04 10:47:56,241 INFO dq_cockpit request_id=ecf39135-060a-452e-9cdd-56d70103ef02 method=GET path=/api/contracts/DEMO_SRC_01/version-diff status=200 duration_ms=22.4
+2026-07-04 10:47:56,336 INFO dq_cockpit request_id=b806a4f6-2b60-4ed1-ba32-3d3c30640ad4 method=GET path=/api/lineage/columns status=200 duration_ms=3.6
+2026-07-04 10:47:56,369 INFO dq_cockpit request_id=f83b09bf-7bbc-4c12-ae3a-9b7b50ce1dc1 method=GET path=/api/lineage status=200 duration_ms=36.8
+2026-07-04 10:47:56,377 INFO dq_cockpit request_id=e17d5e0c-0639-4ee0-a7fc-77f7ff540627 method=GET path=/api/lineage/columns status=200 duration_ms=2.3
+2026-07-04 10:47:56,407 INFO dq_cockpit request_id=8b77d5cf-41d8-440c-a9e1-e0237caa1c33 method=GET path=/api/lineage status=200 duration_ms=36.4
+2026-07-04 10:47:56,468 INFO dq_cockpit request_id=73d2751a-e949-4006-a710-02de93ec1e54 method=GET path=/api/lineage/columns/impact status=200 duration_ms=59.9
+2026-07-04 10:47:56,492 INFO dq_cockpit request_id=df4639d2-999b-4cb1-948a-60053be31cbf method=GET path=/api/lineage/columns/impact status=200 duration_ms=83.4
+2026-07-04 10:48:01,819 INFO dq_cockpit request_id=ea7a6975-d0f2-4ec4-b7eb-afa3ea72a7ee method=GET path=/api/objects/DEMO_SRC_04/schedule status=200 duration_ms=11.0
+2026-07-04 10:48:01,823 INFO dq_cockpit request_id=bc92b515-453e-45fc-95dd-61d5e4292c89 method=GET path=/api/objects/DEMO_SRC_04/timeseries status=200 duration_ms=13.7
+2026-07-04 10:48:01,825 INFO dq_cockpit request_id=8508d6bf-5cbe-454d-af71-545f9c8f7fab method=GET path=/api/objects/DEMO_SRC_04/runs status=200 duration_ms=15.7
+2026-07-04 10:48:01,868 INFO dq_cockpit request_id=c10fe02c-b00d-4f71-a862-3978e69383ac method=GET path=/api/objects/DEMO_SRC_04 status=200 duration_ms=57.7
+2026-07-04 10:48:01,877 INFO dq_cockpit request_id=5c38e976-86c7-446c-9e57-afe7c774c5e8 method=GET path=/api/runs/b21ccdb9-e797-40fe-919b-8ef775039cf5 status=200 duration_ms=6.7
+2026-07-04 10:48:01,893 INFO dq_cockpit request_id=0993d601-b66b-4af1-b7e3-68aa63da5818 method=GET path=/api/runs/9913db67-37b5-4651-bad1-58c737e1a294 status=200 duration_ms=20.4
+2026-07-04 10:48:01,915 INFO dq_cockpit request_id=d9cc70d5-4979-4140-92fa-0c6cd6d72c79 method=GET path=/api/objects/DEMO_SRC_04/checks/schema_columns/history status=200 duration_ms=5.6
+2026-07-04 10:48:01,931 INFO dq_cockpit request_id=1efc3ac0-bebd-4a2c-b567-87674e27cc73 method=GET path=/api/objects/DEMO_SRC_04/checks/freshness_SRC_COL_01/history status=200 duration_ms=21.7
+2026-07-04 10:48:21,734 INFO dq_cockpit request_id=4fa0d7b7-dc83-4a58-a630-f07bb04f229e method=GET path=/api/objects status=200 duration_ms=89.8
+2026-07-04 10:48:54,422 INFO dq_cockpit request_id=c1e56ba5-53e7-40fa-a501-a0914265c574 method=GET path=/api/incidents status=200 duration_ms=7.8
+2026-07-04 10:49:18,144 INFO dq_cockpit request_id=3e9e9b4d-e201-4f2d-9053-f9443d6c7b6f method=GET path=/api/objects status=200 duration_ms=81.4
+2026-07-04 10:49:18,150 INFO dq_cockpit request_id=38a9bdb0-bb51-4577-9440-4ea6eee68194 method=GET path=/api/lineage status=200 duration_ms=86.2
+2026-07-04 10:49:23,769 INFO dq_cockpit request_id=aa17931c-fe36-42f5-aa96-a6cfbc6b83a4 method=GET path=/api/incidents status=200 duration_ms=16.1
+2026-07-04 10:49:28,210 INFO dq_cockpit request_id=f513a18a-0220-413c-a2dc-9b8c721018c8 method=GET path=/api/inventory status=200 duration_ms=17.8
+2026-07-04 10:49:28,290 INFO dq_cockpit request_id=08b7ae69-c83c-467b-b3b0-afa74e48a270 method=GET path=/api/contracts status=200 duration_ms=96.6
+2026-07-04 10:49:29,970 INFO dq_cockpit request_id=0377cc9e-a1c2-4b26-9c8f-ffbb663614bf method=GET path=/api/contracts/DEMO_HARM_01 status=200 duration_ms=9.1
+2026-07-04 10:49:30,037 INFO dq_cockpit request_id=3122ca1e-e19b-48bd-99cf-2ea0fc43c407 method=GET path=/api/library status=200 duration_ms=3.4
+2026-07-04 10:49:30,049 INFO dq_cockpit request_id=76014892-8ae0-4d32-9560-88ab70f638e0 method=GET path=/api/contracts/DEMO_HARM_01/drift status=200 duration_ms=15.5
+2026-07-04 10:49:30,656 INFO dq_cockpit request_id=a2eb4094-df5f-43c2-ad99-03d012b25387 method=POST path=/api/contracts/DEMO_HARM_01/diff status=200 duration_ms=11.3
+2026-07-04 10:49:53,121 INFO dq_cockpit request_id=ad328395-1f89-41ea-97d9-453efda0feb2 method=GET path=/api/coverage/heatmap status=200 duration_ms=30.9
+2026-07-04 10:49:53,215 INFO dq_cockpit request_id=456b8ef1-6167-493a-829f-e98ddfa3e94a method=GET path=/api/contracts/DS_SALES_ORDERS/sla status=200 duration_ms=123.9
+2026-07-04 10:49:53,240 INFO dq_cockpit request_id=ff27035a-6f57-48b8-b9f7-0c524158b490 method=GET path=/api/objects status=200 duration_ms=146.8
+2026-07-04 10:49:53,250 INFO dq_cockpit request_id=0634d46d-caa4-4348-b923-9d70f1b47e94 method=GET path=/api/contracts/DS_REVENUE_SUMMARY/sla status=200 duration_ms=159.6
+2026-07-04 10:49:53,258 INFO dq_cockpit request_id=050af9af-dc7d-4507-ac43-1c84a4f4c119 method=GET path=/api/contracts/DEMO_SRC_02_contract/sla status=200 duration_ms=162.9
+2026-07-04 10:49:53,341 INFO dq_cockpit request_id=f590972a-7e34-46cd-8c0a-e88771ee9ed9 method=GET path=/api/coverage/summary status=200 duration_ms=204.4
+2026-07-04 10:49:53,468 INFO dq_cockpit request_id=d6e9a361-0447-4c41-8b7b-5aaa3d0f3ed8 method=GET path=/api/activity status=200 duration_ms=375.8
+2026-07-04 10:49:55,449 INFO dq_cockpit request_id=70581b58-120b-46e5-949b-e5dec752baae method=GET path=/api/incidents status=200 duration_ms=28.2
+2026-07-04 10:49:57,510 INFO dq_cockpit request_id=eefbe489-c1f3-4f02-a22c-bdb0979db122 method=GET path=/api/objects/DEMO_SRC_01/schedule status=200 duration_ms=19.1
+2026-07-04 10:49:57,513 INFO dq_cockpit request_id=dd4336d1-d230-4261-8748-545898f86071 method=GET path=/api/objects/DEMO_SRC_01/timeseries status=200 duration_ms=20.9
+2026-07-04 10:49:57,522 INFO dq_cockpit request_id=85f3a35f-b835-45f5-a4c7-cf5a0393ada0 method=GET path=/api/objects/DEMO_SRC_01/runs status=200 duration_ms=26.2
+2026-07-04 10:49:57,589 INFO dq_cockpit request_id=27c36976-056f-40d7-9549-8238fce2ea7f method=GET path=/api/runs/1987c766-25a8-43d3-aed1-5e3948f361b3 status=200 duration_ms=16.0
+2026-07-04 10:49:57,603 INFO dq_cockpit request_id=0e20587d-7a7d-4d67-97b5-8a65da79394d method=GET path=/api/runs/74df8d6e-c714-4396-baad-ca0fa04bf89b status=200 duration_ms=31.5
+2026-07-04 10:49:57,617 INFO dq_cockpit request_id=858920c3-4156-4710-8f62-5d88609ea2da method=GET path=/api/objects/DEMO_SRC_01 status=200 duration_ms=122.6
+2026-07-04 10:49:57,634 INFO dq_cockpit request_id=b727d5c5-abc2-4b17-8936-e6b5f1ff9fdb method=GET path=/api/objects/DEMO_SRC_01/checks/schema_columns/history status=200 duration_ms=10.6
+2026-07-04 10:49:57,643 INFO dq_cockpit request_id=ecd6897a-0778-4ba8-ad56-887108804b8d method=GET path=/api/objects/DEMO_SRC_01/checks/invalid_SRC_COL_01/history status=200 duration_ms=17.7
+2026-07-04 10:50:02,015 INFO dq_cockpit request_id=aa84283d-1ede-4e2d-91a8-2f5c59ca523b method=GET path=/api/monitoring/shares status=200 duration_ms=25.3
+2026-07-04 10:50:02,017 INFO dq_cockpit request_id=08ba5244-7125-4a5a-b594-51197dbfc111 method=GET path=/api/monitoring/config status=200 duration_ms=28.1
+2026-07-04 10:50:02,020 INFO dq_cockpit request_id=3fed0cae-a6e9-4238-9020-daaba683d21b method=GET path=/api/contracts/DEMO_SRC_01 status=200 duration_ms=32.1
+2026-07-04 10:50:02,047 INFO dq_cockpit request_id=7c696b89-5cb9-4036-ba38-4eb7d9913bf6 method=GET path=/api/contracts/DEMO_SRC_01/version-diff status=200 duration_ms=8.9
+2026-07-04 10:50:19,006 INFO dq_cockpit request_id=a5025f6d-dc53-4d68-86eb-4a32dba9b696 method=GET path=/api/incidents status=200 duration_ms=11.9
+2026-07-04 10:50:19,099 INFO dq_cockpit request_id=2de5eeac-2475-41c5-8b21-f222204bc24a method=GET path=/api/contracts status=200 duration_ms=102.2
+2026-07-04 10:50:28,131 INFO dq_cockpit request_id=58b4d9a4-ab27-4100-8abd-c0e2d632f05f method=GET path=/api/objects status=200 duration_ms=113.9
+2026-07-04 10:50:31,178 INFO dq_cockpit request_id=bff8865d-12da-40d2-88be-132142c7a138 method=GET path=/api/objects/DEMO_SRC_04/runs status=200 duration_ms=310.4
+2026-07-04 10:50:31,184 INFO dq_cockpit request_id=824f1ea4-2814-416d-8bc7-01d5cb69b4c6 method=GET path=/api/objects/DEMO_SRC_04/timeseries status=200 duration_ms=312.2
+2026-07-04 10:50:31,187 INFO dq_cockpit request_id=d957bd02-9d43-40f0-9bd6-6ced377bf71d method=GET path=/api/objects status=200 duration_ms=352.7
+2026-07-04 10:50:31,191 INFO dq_cockpit request_id=4c3d4d57-60c4-4ccd-a103-50c34324721a method=GET path=/api/objects/DEMO_SRC_04/schedule status=200 duration_ms=321.3
+2026-07-04 10:50:31,192 INFO dq_cockpit request_id=90aeb5c9-6497-4ee3-aecf-0e8bdc912b04 method=GET path=/api/runs/9913db67-37b5-4651-bad1-58c737e1a294 status=200 duration_ms=206.1
+2026-07-04 10:50:31,233 INFO dq_cockpit request_id=9bed23af-d629-497d-b226-08116dd0e7d1 method=GET path=/api/runs/b21ccdb9-e797-40fe-919b-8ef775039cf5 status=200 duration_ms=24.5
+2026-07-04 10:50:31,247 INFO dq_cockpit request_id=530d625b-faf5-412a-8dd8-ddc9eef43401 method=GET path=/api/objects/DEMO_SRC_04/checks/freshness_SRC_COL_01/history status=200 duration_ms=24.3
+2026-07-04 10:50:31,257 INFO dq_cockpit request_id=60880fdb-b341-40e7-8c3d-9e15bd87bd16 method=GET path=/api/objects/DEMO_SRC_04/checks/schema_columns/history status=200 duration_ms=39.6
+2026-07-04 10:50:31,291 INFO dq_cockpit request_id=68c73251-3bde-43e1-b6f6-f6a4ca12a426 method=GET path=/api/objects/DEMO_SRC_04 status=200 duration_ms=455.3
+2026-07-04 10:50:56,449 INFO dq_cockpit request_id=c6aab173-8308-485a-adcf-59d2bdb261cf method=GET path=/api/incidents status=200 duration_ms=31.8
+2026-07-04 10:51:23,634 INFO dq_cockpit request_id=7bf8cde6-0f35-4e18-83e7-d24980f8f41c method=GET path=/api/objects/DEMO_SRC_01/runs status=200 duration_ms=8.6
+2026-07-04 10:51:23,669 INFO dq_cockpit request_id=57240883-58f1-456a-8560-da99615a3b37 method=GET path=/api/runs/74df8d6e-c714-4396-baad-ca0fa04bf89b status=200 duration_ms=25.4
+2026-07-04 10:51:23,713 INFO dq_cockpit request_id=34c6008a-c3e0-4eba-9b0f-5ed4cbf0893b method=GET path=/api/objects/DEMO_SRC_01 status=200 duration_ms=88.6
+2026-07-04 10:51:23,725 INFO dq_cockpit request_id=e304e353-97f0-4148-8256-8d2a7052cb12 method=GET path=/api/objects/DEMO_SRC_01/checks/invalid_SRC_COL_01/history status=200 duration_ms=20.8
+2026-07-04 10:51:23,727 INFO dq_cockpit request_id=8310eca8-d14b-40bc-a08f-20358e0b96f8 method=GET path=/api/objects/DEMO_SRC_01/checks/schema_columns/history status=200 duration_ms=26.3
+2026-07-04 10:51:29,756 INFO dq_cockpit request_id=8a72d5e3-f1ef-4eb3-a1d4-f57fbaa407c1 method=GET path=/api/objects/DEMO_HARM_04/timeseries status=200 duration_ms=71.0
+2026-07-04 10:51:29,760 INFO dq_cockpit request_id=3b7f9b02-37e5-40af-812d-d1a2ef6c01fa method=GET path=/api/objects/DEMO_HARM_04/runs status=200 duration_ms=70.9
+2026-07-04 10:51:29,763 INFO dq_cockpit request_id=832183d1-3dba-4e64-a626-d325e275c41c method=GET path=/api/objects/DEMO_HARM_04/schedule status=200 duration_ms=81.2
+2026-07-04 10:51:29,767 INFO dq_cockpit request_id=9fdf199d-8b10-42ce-97a7-3c13f64f685c method=GET path=/api/objects/DEMO_HARM_04 status=200 duration_ms=79.5
+2026-07-04 10:51:32,092 INFO dq_cockpit request_id=9e704fa5-9e4d-415e-ae17-fa84e3dfa314 method=GET path=/api/objects/DEMO_SRC_03/runs status=200 duration_ms=66.3
+2026-07-04 10:51:32,106 INFO dq_cockpit request_id=2aa58487-5231-4c30-86f2-52fec17ae482 method=GET path=/api/objects/DEMO_SRC_03 status=200 duration_ms=81.0
+2026-07-04 10:51:32,112 INFO dq_cockpit request_id=657e24be-ddca-4266-93a2-e91ff0dde861 method=GET path=/api/runs/6a0dfb0d-20d5-4d39-9025-936e295ad355 status=200 duration_ms=8.8
+2026-07-04 10:51:32,131 INFO dq_cockpit request_id=5193dc0e-90b9-4f7a-b4d4-0035a1115699 method=GET path=/api/objects/DEMO_SRC_03/checks/row_count/history status=200 duration_ms=5.7
+2026-07-04 10:51:32,146 INFO dq_cockpit request_id=58f1bee8-1f75-4f47-9e8f-ba12199c58df method=GET path=/api/objects/DEMO_SRC_03/checks/null_key/history status=200 duration_ms=21.6
+2026-07-04 10:51:32,159 INFO dq_cockpit request_id=7dcb7c59-d959-4994-8a46-ecad01f415ee method=GET path=/api/objects/DEMO_SRC_03/checks/completeness_pct/history status=200 duration_ms=34.0
+2026-07-04 10:51:37,179 INFO dq_cockpit request_id=fad15635-5aa5-4818-8569-091bfaeb3401 method=GET path=/api/objects/DEMO_BUS_03/runs status=200 duration_ms=15.3
+2026-07-04 10:51:37,231 INFO dq_cockpit request_id=e1df12b6-266e-4833-a46f-9de2a88c0009 method=GET path=/api/objects/DEMO_BUS_03 status=200 duration_ms=68.6
+2026-07-04 10:51:41,424 INFO dq_cockpit request_id=cf398605-deda-4ac0-9220-4f65adaf1f43 method=GET path=/api/objects/DEMO_BUS_03/timeseries status=200 duration_ms=8.1
+2026-07-04 10:51:41,434 INFO dq_cockpit request_id=eefb2bc8-6509-45ed-be1a-6482944b5953 method=GET path=/api/objects/DEMO_BUS_03/schedule status=200 duration_ms=22.3
+2026-07-04 10:51:45,350 INFO dq_cockpit request_id=aaf793d1-5763-4c71-b3bc-be81dec5ed66 method=GET path=/api/objects status=200 duration_ms=36.4
+2026-07-04 10:51:57,433 INFO dq_cockpit request_id=974f752b-8437-485e-b2f7-234cf2eb3dc0 method=GET path=/api/incidents status=200 duration_ms=10.6
+2026-07-04 10:52:58,427 INFO dq_cockpit request_id=07d4af91-ab12-43d6-b405-47dd7bc6721e method=GET path=/api/incidents status=200 duration_ms=11.9
+2026-07-04 10:53:59,485 INFO dq_cockpit request_id=e8a2ffc3-7b42-4ad6-9b21-20396cfb009a method=GET path=/api/incidents status=200 duration_ms=59.7
+2026-07-04 10:55:00,448 INFO dq_cockpit request_id=c3517042-f2c9-428a-89a0-6575a83191b5 method=GET path=/api/incidents status=200 duration_ms=25.8
+2026-07-04 10:56:01,478 INFO dq_cockpit request_id=bbbd1ebc-f267-4fdf-b358-8a20f7b71281 method=GET path=/api/incidents status=200 duration_ms=52.7
+2026-07-04 10:57:02,416 INFO dq_cockpit request_id=7898d022-f3ab-4a3c-a2e1-980679bfecc6 method=GET path=/api/incidents status=200 duration_ms=8.4
+2026-07-04 10:58:03,471 INFO dq_cockpit request_id=6091f45f-6742-4dc3-8fec-2aaac4441dbc method=GET path=/api/incidents status=200 duration_ms=53.4
+2026-07-04 10:59:04,431 INFO dq_cockpit request_id=d6677c44-acfa-4bbe-8a27-d58e6b65988f method=GET path=/api/incidents status=200 duration_ms=11.2
+2026-07-04 11:00:05,431 INFO dq_cockpit request_id=8bc996f0-6f66-46f1-9571-93da14d62a56 method=GET path=/api/incidents status=200 duration_ms=12.4
+2026-07-04 11:01:06,479 INFO dq_cockpit request_id=9b8314ef-4b28-4fa8-b6bc-8b6d84ca3400 method=GET path=/api/incidents status=200 duration_ms=57.3
+2026-07-04 11:02:07,823 INFO dq_cockpit request_id=c4470e8d-3923-4511-b2f6-41b23a7026d6 method=GET path=/api/incidents status=200 duration_ms=49.6
+2026-07-04 11:03:09,478 INFO dq_cockpit request_id=063943fc-6800-4a88-bfe9-ec96122734e4 method=GET path=/api/incidents status=200 duration_ms=58.1
+2026-07-04 11:04:10,474 INFO dq_cockpit request_id=2ed8f76c-1c27-418f-993a-304d8166f956 method=GET path=/api/incidents status=200 duration_ms=54.2
+2026-07-04 11:05:11,466 INFO dq_cockpit request_id=76123b86-05dc-45ba-a7ca-fe26caa8970f method=GET path=/api/incidents status=200 duration_ms=55.0
+2026-07-04 11:06:12,426 INFO dq_cockpit request_id=0ab3eff6-c2d1-48c7-9465-13c3990f6b75 method=GET path=/api/incidents status=200 duration_ms=16.9
+2026-07-04 11:07:13,479 INFO dq_cockpit request_id=6a4f00e1-3eba-4795-b364-eb19e6233071 method=GET path=/api/incidents status=200 duration_ms=57.6
+2026-07-04 11:08:14,477 INFO dq_cockpit request_id=0e0565eb-f919-4ae2-a84e-4640ba2f7ab6 method=GET path=/api/incidents status=200 duration_ms=53.5
+2026-07-04 11:09:15,466 INFO dq_cockpit request_id=e231b0a5-5edc-44c6-8b19-4c982730e3f1 method=GET path=/api/incidents status=200 duration_ms=50.3
+2026-07-04 18:24:19,301 INFO dq_cockpit request_id=dd5e680e-6984-40c9-a8cc-125d1988a043 method=GET path=/api/incidents status=200 duration_ms=290.0
+2026-07-04 18:24:19,693 INFO dq_cockpit request_id=22cb4d68-c9a5-4eb5-831c-2db8fae42e40 method=GET path=/api/objects/DEMO_BUS_03/schedule status=200 duration_ms=493.6
+2026-07-04 18:24:19,695 INFO dq_cockpit request_id=a6ea3206-edd9-4c0e-83bc-f422ba5f3302 method=GET path=/api/objects/DEMO_BUS_03/runs status=200 duration_ms=397.7
+2026-07-04 18:24:19,701 INFO dq_cockpit request_id=4e11c595-18fa-4770-86b7-85cd7ea67501 method=GET path=/api/objects/DEMO_BUS_03/timeseries status=200 duration_ms=398.2
+2026-07-04 18:24:19,843 INFO dq_cockpit request_id=cad0878a-05cd-413a-9d77-35cab0df75ec method=GET path=/api/objects/DEMO_BUS_03 status=200 duration_ms=832.8
+2026-07-04 18:24:19,884 INFO dq_cockpit request_id=678fe46b-6975-4a6a-bb28-c7ea06a20d12 method=GET path=/api/objects status=200 duration_ms=872.4
+2026-07-04 18:24:28,041 INFO dq_cockpit request_id=dca27153-ca06-4972-85cb-fd1d65a6a1ef method=GET path=/api/monitoring/config status=200 duration_ms=5.4
+2026-07-04 18:24:28,048 INFO dq_cockpit request_id=4123333e-76e5-4107-9c7e-8af531fd67b6 method=GET path=/api/contracts/DEMO_BUS_02/version-diff status=200 duration_ms=11.2
+2026-07-04 18:24:28,053 INFO dq_cockpit request_id=005deeda-9d97-4ec5-839b-6eb4107a8d83 method=GET path=/api/contracts/DEMO_BUS_02 status=200 duration_ms=16.8
+2026-07-04 18:24:28,057 INFO dq_cockpit request_id=618fb18f-d398-449c-afc8-50f71afe152a method=GET path=/api/lineage/columns status=200 duration_ms=21.3
+2026-07-04 18:24:28,075 INFO dq_cockpit request_id=80f78e0a-6f43-4ed5-bacc-f89c3819dce6 method=GET path=/api/monitoring/shares status=200 duration_ms=9.3
+2026-07-04 18:24:28,091 INFO dq_cockpit request_id=3279dd86-790f-4bcd-a19b-ac7146c50ddd method=GET path=/api/runs/seed-demo_bus_02-34 status=200 duration_ms=32.8
+2026-07-04 18:24:28,120 INFO dq_cockpit request_id=03f9f9dc-2434-40ab-a670-da4bd7c90aad method=GET path=/api/objects/DEMO_BUS_02/runs status=200 duration_ms=57.7
+2026-07-04 18:24:28,142 INFO dq_cockpit request_id=4547b921-2932-47ae-8349-3870d3bf43e3 method=GET path=/api/lineage/columns/impact status=200 duration_ms=107.8
+2026-07-04 18:24:28,190 INFO dq_cockpit request_id=7279cffc-01ca-4e25-9df3-1dfb6f50dd2c method=GET path=/api/lineage status=200 duration_ms=128.6
+2026-07-04 18:24:28,197 INFO dq_cockpit request_id=3d188608-569a-4cd6-8051-c2969f424dfd method=GET path=/api/objects status=200 duration_ms=160.4
+2026-07-04 18:24:28,214 INFO dq_cockpit request_id=9085a600-7d6d-44f4-b5aa-6aca13e89e32 method=GET path=/api/objects/DEMO_BUS_02 status=200 duration_ms=128.9
+2026-07-04 18:24:34,928 INFO dq_cockpit request_id=6d8c0ba4-275a-4180-a087-8a1e0c7cbe7a method=GET path=/api/objects status=200 duration_ms=110.6
+2026-07-04 18:24:40,320 INFO dq_cockpit request_id=e14f3260-d6a1-420b-923e-86b2767fe427 method=GET path=/api/monitoring/shares status=200 duration_ms=18.8
+2026-07-04 18:24:40,322 INFO dq_cockpit request_id=86f90a82-c155-4bd5-88dc-f80829d9bda6 method=GET path=/api/monitoring/config status=200 duration_ms=20.3
+2026-07-04 18:24:40,330 INFO dq_cockpit request_id=f331fd83-5e87-47ad-a172-ec31c9a9aafc method=GET path=/api/contracts/DEMO_BUS_02 status=200 duration_ms=35.3
+2026-07-04 18:24:40,353 INFO dq_cockpit request_id=75c67446-ac9a-4538-9665-5a67fc949cb5 method=GET path=/api/objects/DEMO_BUS_02/runs status=200 duration_ms=55.9
+2026-07-04 18:24:40,452 INFO dq_cockpit request_id=5c78364d-f104-4337-a99a-cb54f7dc1b05 method=GET path=/api/objects/DEMO_BUS_02 status=200 duration_ms=157.8
+2026-07-04 18:24:40,468 INFO dq_cockpit request_id=32e9ae89-4c29-44e6-b391-c02ea98f6644 method=GET path=/api/contracts/DEMO_BUS_02/version-diff status=200 duration_ms=3.8
+2026-07-04 18:24:41,254 INFO dq_cockpit request_id=642bc695-5eae-4287-a362-1feb23c4802b method=GET path=/api/lineage/columns status=200 duration_ms=2.8
+2026-07-04 18:24:41,260 INFO dq_cockpit request_id=4ec3717f-068c-424a-9cca-79e2874b7bbe method=GET path=/api/runs/seed-demo_bus_02-34 status=200 duration_ms=8.9
+2026-07-04 18:24:41,303 INFO dq_cockpit request_id=100f6289-b476-40c1-9fd7-85e47377ed58 method=GET path=/api/lineage status=200 duration_ms=53.7
+2026-07-04 18:24:41,427 INFO dq_cockpit request_id=ae8e74d9-3c60-4305-a52a-058f58a4b577 method=GET path=/api/lineage/columns/impact status=200 duration_ms=37.5
+2026-07-04 18:25:09,271 INFO dq_cockpit request_id=831745f4-cf21-465e-b265-eea614f3cb1c method=GET path=/api/objects status=200 duration_ms=21.3
+2026-07-04 18:25:11,751 INFO dq_cockpit request_id=f954c8ea-2b96-44c8-a90f-e9ae562c1794 method=GET path=/api/objects status=200 duration_ms=27.2
+2026-07-04 18:25:11,784 INFO dq_cockpit request_id=bc97668c-cde1-4b9f-8e69-6a7ba0f0f9bd method=GET path=/api/objects status=200 duration_ms=28.8
+2026-07-04 18:25:17,566 INFO dq_cockpit request_id=ac4bf52b-638d-4eff-9d16-5a9337d3e5fb method=GET path=/api/objects status=200 duration_ms=27.0
+2026-07-04 18:25:17,580 INFO dq_cockpit request_id=b086fc1f-972e-4ae2-be19-90acef085e3f method=GET path=/api/monitoring/shares status=200 duration_ms=3.8
+2026-07-04 18:25:17,582 INFO dq_cockpit request_id=d7ca6b0e-4549-437e-94da-e6fa47c36b4d method=GET path=/api/contracts/DEMO_BUS_02/version-diff status=200 duration_ms=7.3
+2026-07-04 18:25:17,584 INFO dq_cockpit request_id=1d2a64a4-49e0-4521-b738-69bb949b2e47 method=GET path=/api/objects/DEMO_BUS_02/runs status=200 duration_ms=12.6
+2026-07-04 18:25:17,588 INFO dq_cockpit request_id=a187aaab-e330-444b-b337-2170ee222978 method=GET path=/api/contracts/DEMO_BUS_02 status=200 duration_ms=13.9
+2026-07-04 18:25:17,642 INFO dq_cockpit request_id=05c46c51-47b0-41f9-91b7-d69024224fc3 method=GET path=/api/objects/DEMO_BUS_02 status=200 duration_ms=71.2
+2026-07-04 18:25:18,812 INFO dq_cockpit request_id=ba33a03f-2b73-4b65-90df-66ccec709d18 method=GET path=/api/objects status=200 duration_ms=29.6
+2026-07-04 18:25:18,908 INFO dq_cockpit request_id=eb7448dd-bfda-4568-8fbb-1d66245aa9e7 method=GET path=/api/objects status=200 duration_ms=30.8
+2026-07-04 18:25:20,402 INFO dq_cockpit request_id=5e1a2755-66e4-4f55-9923-810c6a3b6b6c method=GET path=/api/library status=200 duration_ms=2.1
+2026-07-04 18:25:20,746 INFO dq_cockpit request_id=0f76122f-7b18-4058-9412-dd7c80aa1519 method=GET path=/api/lineage/columns status=200 duration_ms=3.4
+2026-07-04 18:25:20,756 INFO dq_cockpit request_id=4c1a0c8a-b094-4bb5-b640-273ab942b925 method=GET path=/api/runs/seed-demo_bus_02-34 status=200 duration_ms=14.0
+2026-07-04 18:25:20,789 INFO dq_cockpit request_id=7993b1ef-4dce-40a5-a7bc-32b1cb63931b method=GET path=/api/lineage/columns/impact status=200 duration_ms=46.3
+2026-07-04 18:25:20,791 INFO dq_cockpit request_id=a2821d08-edb2-4aa6-8edf-2837910d4b5b method=GET path=/api/lineage status=200 duration_ms=48.3
+2026-07-04 18:25:21,004 INFO dq_cockpit request_id=0a1805b8-c913-4582-94fb-f3d7a3c184dc method=GET path=/api/objects status=200 duration_ms=30.6
+2026-07-04 18:25:24,036 INFO dq_cockpit request_id=c2b428d8-f8c9-43c9-9903-380b1c75f5c4 method=GET path=/api/objects status=200 duration_ms=68.6
+2026-07-04 18:25:24,067 INFO dq_cockpit request_id=a317e5a9-b1a4-4857-b632-d3600b5665b7 method=GET path=/api/objects status=200 duration_ms=26.0
+2026-07-04 18:25:25,761 INFO dq_cockpit request_id=415226a2-8cdb-49a8-b2c2-a5036f3b83a9 method=GET path=/api/monitoring/config status=200 duration_ms=3.9
+2026-07-04 18:25:25,761 INFO dq_cockpit request_id=d3600cfa-97fd-4b0b-91b0-3ffb813e693d method=GET path=/api/monitoring/shares status=200 duration_ms=4.2
+2026-07-04 18:25:25,762 INFO dq_cockpit request_id=ffb7840d-724a-4c51-8635-e89f5bc667e4 method=GET path=/api/contracts/DEMO_SRC_01 status=200 duration_ms=6.0
+2026-07-04 18:25:25,764 INFO dq_cockpit request_id=aab87c0f-65cd-4327-a535-27c573123f8e method=GET path=/api/objects/DEMO_SRC_01/runs status=200 duration_ms=7.6
+2026-07-04 18:25:25,788 INFO dq_cockpit request_id=828f275d-036d-465a-a693-9a042fbf5fcc method=GET path=/api/objects/DEMO_SRC_01 status=200 duration_ms=33.2
+2026-07-04 18:25:28,825 INFO dq_cockpit request_id=a9500157-0570-4b76-a33e-d181c7811926 method=GET path=/api/admin/environments status=403 duration_ms=1.5
+2026-07-04 18:25:28,873 INFO dq_cockpit request_id=16630967-a34a-4831-96f7-19d7dd091218 method=GET path=/api/lineage/columns status=200 duration_ms=1.8
+2026-07-04 18:25:28,901 INFO dq_cockpit request_id=0dbc83c2-e86b-4858-86b9-6675f90a8db8 method=GET path=/api/runs/74df8d6e-c714-4396-baad-ca0fa04bf89b status=200 duration_ms=17.4
+2026-07-04 18:25:28,902 INFO dq_cockpit request_id=b477c79b-3871-4c36-8ede-5d425d28c3c9 method=GET path=/api/lineage status=200 duration_ms=32.9
+2026-07-04 18:25:28,903 INFO dq_cockpit request_id=8c2d781b-49af-4acd-9b5b-7a79dc8cd1c2 method=GET path=/api/contracts/DEMO_SRC_01/version-diff status=200 duration_ms=21.9
+2026-07-04 18:25:29,005 INFO dq_cockpit request_id=96acaa7a-b589-4092-b960-d87387cc9532 method=GET path=/api/lineage/columns/impact status=200 duration_ms=27.8
+2026-07-04 18:25:30,601 INFO dq_cockpit request_id=6de0f1e1-f224-4871-a65f-30ed1fad7111 method=GET path=/api/admin/environments status=403 duration_ms=1.6
+2026-07-04 18:25:30,667 INFO dq_cockpit request_id=826df635-9fec-443b-b807-58db721690f4 method=GET path=/api/incidents/2 status=200 duration_ms=7.3
+2026-07-04 18:25:30,688 INFO dq_cockpit request_id=a47076d3-2f15-4bf7-a32d-bd4e176a7617 method=GET path=/api/incidents status=200 duration_ms=26.2
+2026-07-04 18:25:32,665 INFO dq_cockpit request_id=559fa947-ac36-4ce3-98e2-5d23b342bb41 method=GET path=/api/objects status=200 duration_ms=33.5
+2026-07-04 18:26:35,657 INFO dq_cockpit request_id=ac693b98-c21a-4cbe-b234-b14f3c6931ce method=GET path=/api/incidents status=200 duration_ms=5.4
+2026-07-04 18:27:42,508 INFO dq_cockpit request_id=02fa981a-ae1c-4963-b4af-dd4178039dc1 method=GET path=/api/incidents status=200 duration_ms=47.9
+2026-07-04 18:28:43,462 INFO dq_cockpit request_id=bce5cce1-e211-439d-8694-7b23ea1147dc method=GET path=/api/incidents status=200 duration_ms=8.2
+2026-07-04 18:29:44,480 INFO dq_cockpit request_id=6f9b5035-5c6b-4b07-83a8-c9bbb587bdcc method=GET path=/api/incidents status=200 duration_ms=14.0
+2026-07-04 18:30:45,507 INFO dq_cockpit request_id=43f02c26-840c-46fd-b39b-fef1df0d5856 method=GET path=/api/incidents status=200 duration_ms=4.8
+2026-07-04 18:31:46,512 INFO dq_cockpit request_id=8c14ce47-2de7-4209-8b31-77f3dacb2ad8 method=GET path=/api/incidents status=200 duration_ms=50.7
+2026-07-04 18:32:47,463 INFO dq_cockpit request_id=2cd3746f-536c-4e4a-8178-57f849ff37b9 method=GET path=/api/incidents status=200 duration_ms=7.2
+2026-07-04 18:33:48,505 INFO dq_cockpit request_id=eb077ebd-fd38-4b96-ba13-1a638608c973 method=GET path=/api/incidents status=200 duration_ms=54.7
+2026-07-04 18:34:49,502 INFO dq_cockpit request_id=de552d1a-b02a-49c3-9437-80c5126f3213 method=GET path=/api/incidents status=200 duration_ms=43.8
+2026-07-04 18:35:50,513 INFO dq_cockpit request_id=f1153258-7c29-4afa-a3db-35dcb629033f method=GET path=/api/incidents status=200 duration_ms=51.9
+2026-07-04 18:36:51,518 INFO dq_cockpit request_id=84ce3599-ba52-4c1b-9e3f-443d5abb501d method=GET path=/api/incidents status=200 duration_ms=54.5
+2026-07-04 18:37:52,521 INFO dq_cockpit request_id=6d312bb1-3cf7-4b56-b699-37cb6383719d method=GET path=/api/incidents status=200 duration_ms=55.0
+2026-07-04 18:38:53,482 INFO dq_cockpit request_id=1db6e944-7582-4c5d-a6ae-32371f54e331 method=GET path=/api/incidents status=200 duration_ms=14.2
+2026-07-04 18:39:54,505 INFO dq_cockpit request_id=2560089c-07a2-4b01-8b04-af7d2ba2ba3d method=GET path=/api/incidents status=200 duration_ms=50.3
+2026-07-04 18:40:55,499 INFO dq_cockpit request_id=d8633b96-904d-4dcb-9ef0-c7eeeb43479b method=GET path=/api/incidents status=200 duration_ms=48.1
+2026-07-04 18:41:56,470 INFO dq_cockpit request_id=39f6cedc-e8a3-4744-a50f-c98a07a29b46 method=GET path=/api/incidents status=200 duration_ms=8.9
+2026-07-04 18:42:57,526 INFO dq_cockpit request_id=1f99d6eb-04ea-4dda-affe-db797bca5940 method=GET path=/api/incidents status=200 duration_ms=57.8
+2026-07-04 18:43:58,512 INFO dq_cockpit request_id=20642337-0fb3-4459-aa1d-ed3d95a9b08e method=GET path=/api/incidents status=200 duration_ms=53.6
+2026-07-04 20:39:58,563 INFO dq_cockpit request_id=ee2e9c15-eb72-456f-80dc-4b08e43c0efa method=GET path=/api/objects status=200 duration_ms=74.8
+2026-07-04 20:39:58,579 INFO dq_cockpit request_id=1dd5abda-f332-45e2-9e1d-fe95685163a2 method=GET path=/api/objects status=200 duration_ms=502.4
+2026-07-04 20:40:00,598 INFO dq_cockpit request_id=e47ef505-c3ae-419f-b687-9505b1b0baad method=GET path=/api/objects status=200 duration_ms=79.4
+2026-07-04 20:40:03,039 INFO dq_cockpit request_id=4d26573e-3bb0-4092-861a-351e5a0d00c2 method=GET path=/api/coverage/heatmap status=200 duration_ms=9.7
+2026-07-04 20:40:03,057 INFO dq_cockpit request_id=b484eab3-3d4d-48f1-b12a-a5995affb4ba method=GET path=/api/incidents status=200 duration_ms=26.6
+2026-07-04 20:40:03,162 INFO dq_cockpit request_id=6475273d-b9a8-4191-b4f9-c4226ebbad45 method=GET path=/api/contracts status=200 duration_ms=130.5
+2026-07-04 20:40:03,167 INFO dq_cockpit request_id=517db84a-c74b-40d8-ad29-c4fb52ea6f27 method=GET path=/api/coverage/summary status=200 duration_ms=134.2
+2026-07-04 20:40:03,352 INFO dq_cockpit request_id=ccc286c0-57b5-4c0c-9079-48cc9d7b8f4f method=GET path=/api/activity status=200 duration_ms=321.8
+2026-07-04 20:40:03,370 INFO dq_cockpit request_id=7e1f0108-6783-41d2-a50b-ca4fb6fd3d88 method=GET path=/api/contracts/DEMO_SRC_02_contract/sla status=200 duration_ms=44.1
+2026-07-04 20:40:03,387 INFO dq_cockpit request_id=f057a948-022f-4bc9-8ec2-7042b1c7cd42 method=GET path=/api/contracts/DS_REVENUE_SUMMARY/sla status=200 duration_ms=60.0
+2026-07-04 20:40:03,403 INFO dq_cockpit request_id=9dc2cb74-4f42-4dcc-ba0b-f7516f21102a method=GET path=/api/contracts/DS_SALES_ORDERS/sla status=200 duration_ms=76.5
+2026-07-04 20:40:15,604 INFO dq_cockpit request_id=bca0c87a-98fb-467d-94fc-978d41cb3424 method=GET path=/api/incidents status=200 duration_ms=5.0
+2026-07-04 20:40:25,199 INFO dq_cockpit request_id=5032f657-738c-4876-a53b-3636f9dc627b method=GET path=/api/monitoring/config status=200 duration_ms=5.3
+2026-07-04 20:40:25,203 INFO dq_cockpit request_id=945bbfc5-f353-4b43-a377-3a23f72dd4f5 method=GET path=/api/monitoring/shares status=200 duration_ms=8.2
+2026-07-04 20:40:25,205 INFO dq_cockpit request_id=163272ec-b1ed-40fc-bd15-8f7497e86966 method=GET path=/api/contracts/DEMO_SRC_01 status=200 duration_ms=12.2
+2026-07-04 20:40:25,206 INFO dq_cockpit request_id=ee337dbf-012c-4c06-b8fa-232b67b3355b method=GET path=/api/objects/DEMO_SRC_01/runs status=200 duration_ms=13.7
+2026-07-04 20:40:25,239 INFO dq_cockpit request_id=a5821296-a32d-4c7a-99f0-689e807a0bb5 method=GET path=/api/contracts/DEMO_SRC_01/version-diff status=200 duration_ms=17.4
+2026-07-04 20:40:25,248 INFO dq_cockpit request_id=eeb99cfb-e25d-4368-b294-422d09101fa3 method=GET path=/api/runs/74df8d6e-c714-4396-baad-ca0fa04bf89b status=200 duration_ms=25.7
+2026-07-04 20:40:25,280 INFO dq_cockpit request_id=1378e090-0112-40de-b978-4036557f220d method=GET path=/api/objects/DEMO_SRC_01 status=200 duration_ms=87.7
+2026-07-04 20:40:25,303 INFO dq_cockpit request_id=18fa85f8-0491-4b19-85f5-b2e7e4edec1f method=GET path=/api/objects/DEMO_SRC_01/checks/schema_columns/history status=200 duration_ms=10.6
+2026-07-04 20:40:25,316 INFO dq_cockpit request_id=9ab27781-7765-4451-a82a-2e9a770ff79f method=GET path=/api/objects/DEMO_SRC_01/checks/invalid_SRC_COL_01/history status=200 duration_ms=22.8
+2026-07-04 20:40:28,641 INFO dq_cockpit request_id=aabaa542-819f-4ecc-8924-73793f3b3520 method=GET path=/api/monitoring/config status=200 duration_ms=4.0
+2026-07-04 20:40:28,648 INFO dq_cockpit request_id=b94432fd-e644-467d-8caa-fd0f6d6519ea method=GET path=/api/contracts/DEMO_BUS_02/version-diff status=200 duration_ms=8.6
+2026-07-04 20:40:28,667 INFO dq_cockpit request_id=f84d7253-2a32-4d9e-90f2-4d2155bda37b method=GET path=/api/monitoring/shares status=200 duration_ms=13.8
+2026-07-04 20:40:28,673 INFO dq_cockpit request_id=cc84f972-543e-4c69-93db-493a704e8530 method=GET path=/api/contracts/DEMO_BUS_02 status=200 duration_ms=35.9
+2026-07-04 20:40:28,689 INFO dq_cockpit request_id=7e1e3c8d-de14-47f7-8b4d-8cda1ebb73f7 method=GET path=/api/objects/DEMO_BUS_02/runs status=200 duration_ms=52.5
+2026-07-04 20:40:28,692 INFO dq_cockpit request_id=5814d261-6bb1-445a-b687-c0dec88a2aac method=GET path=/api/runs/seed-demo_bus_02-34 status=200 duration_ms=34.0
+2026-07-04 20:40:28,698 INFO dq_cockpit request_id=49ff5a14-3ff1-4381-8a1a-bfde5a58a920 method=GET path=/api/objects status=200 duration_ms=72.6
+2026-07-04 20:40:28,740 INFO dq_cockpit request_id=4488dde0-dcee-4844-afc6-89da4a9ef9e9 method=GET path=/api/lineage status=200 duration_ms=81.7
+2026-07-04 20:40:28,778 INFO dq_cockpit request_id=3d15054e-b22c-4329-93df-6f75ef31dd51 method=GET path=/api/objects/DEMO_BUS_02 status=200 duration_ms=142.2
+2026-07-04 20:40:29,105 INFO dq_cockpit request_id=24944fcc-c787-40c8-b0ae-99c1ef217f77 method=GET path=/api/objects status=200 duration_ms=36.8
+2026-07-04 20:40:31,983 INFO dq_cockpit request_id=a52b232d-a1b8-4080-8bee-94b78f295d24 method=GET path=/api/monitoring/config status=200 duration_ms=9.0
+2026-07-04 20:40:31,985 INFO dq_cockpit request_id=9d79bd9e-097a-4fde-a91d-8e28a36ced65 method=GET path=/api/monitoring/shares status=200 duration_ms=12.5
+2026-07-04 20:40:31,986 INFO dq_cockpit request_id=616ebca5-ac46-4f7c-be11-bf1309fe6f93 method=GET path=/api/objects/DEMO_BUS_02/runs status=200 duration_ms=15.3
+2026-07-04 20:40:32,003 INFO dq_cockpit request_id=82cb5b53-527a-4e9d-9411-40bb57cd0bb2 method=GET path=/api/contracts/DEMO_BUS_02 status=200 duration_ms=31.7
+2026-07-04 20:40:32,015 INFO dq_cockpit request_id=bb3b07f0-c64c-4c80-8b9c-67f782272344 method=GET path=/api/contracts/DEMO_BUS_02/version-diff status=200 duration_ms=3.4
+2026-07-04 20:40:32,018 INFO dq_cockpit request_id=86fbc062-891d-4b6d-8cb5-a14e300f2b95 method=GET path=/api/runs/seed-demo_bus_02-34 status=200 duration_ms=21.4
+2026-07-04 20:40:32,067 INFO dq_cockpit request_id=ad55a303-6c0a-4629-81c0-f180b5bae7fa method=GET path=/api/objects/DEMO_BUS_02 status=200 duration_ms=96.2
+2026-07-04 20:40:32,086 INFO dq_cockpit request_id=b909239a-df30-4d9a-86d4-f077af42a565 method=GET path=/api/lineage/columns status=200 duration_ms=4.4
+2026-07-04 20:40:32,127 INFO dq_cockpit request_id=71859947-7760-4608-9d96-9b687e6822c7 method=GET path=/api/lineage status=200 duration_ms=44.9
+2026-07-04 20:40:32,138 INFO dq_cockpit request_id=09d97ec6-375e-4693-9fa2-aa81003b50d5 method=GET path=/api/lineage/columns/impact status=200 duration_ms=39.4
+2026-07-04 20:40:37,608 INFO dq_cockpit request_id=79f7d915-c4ef-4e74-a5c5-c4f405265137 method=GET path=/api/objects status=200 duration_ms=42.4
+2026-07-04 20:40:37,761 INFO dq_cockpit request_id=c39a4011-1a57-4eeb-a2a7-ade08eb5f5a8 method=GET path=/api/objects status=200 duration_ms=45.6
+2026-07-04 20:40:37,807 INFO dq_cockpit request_id=0bd4dd82-9642-4458-a404-f70a9eae2206 method=GET path=/api/objects status=200 duration_ms=41.5
+2026-07-04 20:40:37,856 INFO dq_cockpit request_id=8a99aa75-a701-4f25-b903-437fa94ffcd9 method=GET path=/api/objects status=200 duration_ms=42.8
+2026-07-04 20:40:37,904 INFO dq_cockpit request_id=703c4d9b-95f7-4416-9110-49e8e84a1d03 method=GET path=/api/objects status=200 duration_ms=43.0
+2026-07-04 20:40:38,013 INFO dq_cockpit request_id=02ea9483-089e-47ae-9a0e-cb2dd489dbf3 method=GET path=/api/library status=200 duration_ms=4.1
+2026-07-04 20:40:38,490 INFO dq_cockpit request_id=fd7746db-552e-4363-8ea8-5665e921786c method=GET path=/api/objects status=200 duration_ms=43.2
+2026-07-04 20:40:38,539 INFO dq_cockpit request_id=df2a44cd-fbb5-427d-9fb4-62486c5621c1 method=GET path=/api/objects status=200 duration_ms=39.9
+2026-07-04 20:40:39,030 INFO dq_cockpit request_id=437d1f30-b0c2-4296-a593-3c647d3d52ea method=GET path=/api/objects status=200 duration_ms=80.9
+2026-07-04 20:40:39,570 INFO dq_cockpit request_id=38e6bd00-a9c1-4d78-8185-40ee22a8563e method=GET path=/api/objects status=200 duration_ms=44.5
+2026-07-04 20:40:40,022 INFO dq_cockpit request_id=258b1b5d-a097-45aa-9e64-f93a0408a559 method=GET path=/api/incidents/2 status=200 duration_ms=6.2
+2026-07-04 20:40:40,039 INFO dq_cockpit request_id=7ff77be0-9033-4a20-9e3d-a2ab53a69cca method=GET path=/api/incidents status=200 duration_ms=22.5
+2026-07-04 20:40:40,429 INFO dq_cockpit request_id=22037568-3226-4934-b950-7b6e2e3e1480 method=GET path=/api/admin/environments status=403 duration_ms=2.4
+2026-07-04 20:40:40,703 INFO dq_cockpit request_id=8d533249-1f18-4996-b9e0-489063b6cdda method=GET path=/api/monitoring/config status=200 duration_ms=45.2
+2026-07-04 20:40:40,706 INFO dq_cockpit request_id=9c6bd13e-6ac1-4ff4-b358-604ef833cf3e method=GET path=/api/contracts/DEMO_SRC_01 status=200 duration_ms=49.1
+2026-07-04 20:40:40,709 INFO dq_cockpit request_id=14b2b71f-1bc4-4280-9850-b2f6e119c67d method=GET path=/api/monitoring/shares status=200 duration_ms=50.1
+2026-07-04 20:40:40,712 INFO dq_cockpit request_id=4f079734-fde2-450f-9ca9-d377fcb1a0a8 method=GET path=/api/objects/DEMO_SRC_01/runs status=200 duration_ms=55.4
+2026-07-04 20:40:40,820 INFO dq_cockpit request_id=d3370393-64de-4a57-9082-c75b45be527d method=GET path=/api/objects/DEMO_SRC_01 status=200 duration_ms=164.4
+2026-07-04 20:40:40,838 INFO dq_cockpit request_id=ff607dac-5111-44ed-a52a-6cfab9a6db7d method=GET path=/api/contracts/DEMO_SRC_01/version-diff status=200 duration_ms=7.3
+2026-07-04 20:40:40,840 INFO dq_cockpit request_id=01298ea3-ac45-4e88-aa4f-d7ff476cf8cc method=GET path=/api/runs/74df8d6e-c714-4396-baad-ca0fa04bf89b status=200 duration_ms=8.4
+2026-07-04 20:40:40,909 INFO dq_cockpit request_id=5f8a4672-f699-40cc-9736-bff4ddccecd2 method=GET path=/api/lineage/columns status=200 duration_ms=3.6
+2026-07-04 20:40:40,943 INFO dq_cockpit request_id=acf5bf4e-08df-4d1f-8757-c169b2a5b6d5 method=GET path=/api/lineage status=200 duration_ms=37.3
+2026-07-04 20:40:40,980 INFO dq_cockpit request_id=b2922517-353d-477f-ae05-4d4d78d301b6 method=GET path=/api/lineage/columns/impact status=200 duration_ms=33.4
+2026-07-04 20:40:41,726 INFO dq_cockpit request_id=d2821615-1f8b-4266-b850-c5adc90ecb48 method=GET path=/api/admin/environments status=403 duration_ms=1.8
+2026-07-04 20:40:44,963 INFO dq_cockpit request_id=93a6f7cb-3f88-4a9e-8aa9-54b6cc3b06eb method=GET path=/api/incidents status=200 duration_ms=75.5
+2026-07-04 20:40:44,964 INFO dq_cockpit request_id=e86ea9d1-e0cf-440d-85ec-bb2e91b24ea8 method=GET path=/api/contracts/DEMO_SRC_02_contract/sla status=200 duration_ms=83.6
+2026-07-04 20:40:44,966 INFO dq_cockpit request_id=94d83c3d-8bec-462a-8e28-41c4e9d8b87d method=GET path=/api/objects status=200 duration_ms=78.6
+2026-07-04 20:40:44,990 INFO dq_cockpit request_id=69ec9c72-52d9-4cc1-b87e-f132eaa25777 method=GET path=/api/contracts/DS_REVENUE_SUMMARY/sla status=200 duration_ms=103.9
+2026-07-04 20:40:45,017 INFO dq_cockpit request_id=0a94b913-0018-445c-89d9-adca5eece423 method=GET path=/api/contracts/DS_SALES_ORDERS/sla status=200 duration_ms=131.1
+2026-07-04 20:40:45,078 INFO dq_cockpit request_id=2bc3e705-e49f-4f38-a20f-94e35c8a4d17 method=GET path=/api/coverage/summary status=200 duration_ms=109.1
+2026-07-04 20:40:45,099 INFO dq_cockpit request_id=609986f9-4bf4-4584-825e-cb107f6e586a method=GET path=/api/contracts status=200 duration_ms=128.0
+2026-07-04 20:40:45,118 INFO dq_cockpit request_id=515bcc6a-d123-4541-9e7f-e2c13fd852f1 method=GET path=/api/activity status=200 duration_ms=231.2
+2026-07-04 20:41:40,471 INFO dq_cockpit request_id=b1e69409-7f30-4b41-941c-6f746ecd2764 method=GET path=/api/incidents status=200 duration_ms=11.7
+2026-07-04 20:42:41,474 INFO dq_cockpit request_id=49813822-919d-488b-a9c8-0b4f425d0af3 method=GET path=/api/incidents status=200 duration_ms=16.4
+2026-07-04 20:43:42,477 INFO dq_cockpit request_id=c19a32b8-e4fd-46f0-b9dd-b737406d652e method=GET path=/api/incidents status=200 duration_ms=10.7
+2026-07-04 20:44:43,509 INFO dq_cockpit request_id=f519e2a0-5d80-40f2-a17d-837c1ba971d2 method=GET path=/api/incidents status=200 duration_ms=9.4
+2026-07-04 20:45:25,011 INFO dq_cockpit request_id=f39e3ed0-f234-4c63-96e2-2ddbe3387e76 method=GET path=/api/incidents status=200 duration_ms=79.2
+2026-07-04 20:45:25,019 INFO dq_cockpit request_id=1e7dfa38-5f6c-47bf-891a-0329e8d11f65 method=GET path=/api/coverage/heatmap status=200 duration_ms=82.4
+2026-07-04 20:45:25,026 INFO dq_cockpit request_id=d5deea86-b53c-4a84-a183-1b41290ed4c9 method=GET path=/api/objects status=200 duration_ms=98.8
+2026-07-04 20:45:25,092 INFO dq_cockpit request_id=65ea9c28-3249-407f-ae80-f66919b8d38d method=GET path=/api/contracts/DEMO_SRC_02_contract/sla status=200 duration_ms=69.9
+2026-07-04 20:45:25,093 INFO dq_cockpit request_id=75fee18d-ad9b-43f6-851f-2b8d2f20ea74 method=GET path=/api/contracts/DS_REVENUE_SUMMARY/sla status=200 duration_ms=61.0
+2026-07-04 20:45:25,094 INFO dq_cockpit request_id=43664c19-e5d1-4d50-865d-179a17ab0ef6 method=GET path=/api/contracts status=200 duration_ms=158.6
+2026-07-04 20:45:25,104 INFO dq_cockpit request_id=47cd3904-1148-47a6-aa8b-f5aedec87f41 method=GET path=/api/contracts/DS_SALES_ORDERS/sla status=200 duration_ms=67.7
+2026-07-04 20:45:25,157 INFO dq_cockpit request_id=d783e755-b082-4912-9d7c-413472f5c1a9 method=GET path=/api/coverage/summary status=200 duration_ms=221.5
+2026-07-04 20:45:25,181 INFO dq_cockpit request_id=b1d35d41-f522-45d1-a4e8-8294f965aa1a method=GET path=/api/activity status=200 duration_ms=242.8
+2026-07-04 20:45:33,927 INFO dq_cockpit request_id=a393ccfc-a773-4bdc-ade7-fe4504abcfa1 method=GET path=/api/coverage/heatmap status=200 duration_ms=61.9
+2026-07-04 20:45:42,812 INFO dq_cockpit request_id=88ae4bf0-c4d5-4822-9275-84d6ea6f2a25 method=GET path=/api/library status=200 duration_ms=4.3
+2026-07-04 20:45:44,720 INFO dq_cockpit request_id=dc3383cb-5d8e-48f7-8618-5e1baf6dc912 method=GET path=/api/incidents status=200 duration_ms=51.2
+2026-07-04 20:46:45,489 INFO dq_cockpit request_id=685ea5f6-0a5d-49d4-ac4a-ad9d66f6671c method=GET path=/api/incidents status=200 duration_ms=8.2
+2026-07-04 20:47:05,380 INFO dq_cockpit request_id=20d77441-0226-46d9-8b4b-6d292c1d889d method=GET path=/api/objects status=200 duration_ms=41.3
+2026-07-04 20:47:10,986 INFO dq_cockpit request_id=2fe7c563-5f6f-409a-b4b9-80cc14a1f54e method=GET path=/api/objects status=200 duration_ms=103.5
+2026-07-04 20:47:11,019 INFO dq_cockpit request_id=6662e724-2ba9-47a3-8184-c7864e0cf91e method=GET path=/api/objects status=200 duration_ms=29.4
+2026-07-04 20:47:11,444 INFO dq_cockpit request_id=6fbcb42d-93ca-42a9-b609-a31522fe8160 method=GET path=/api/objects status=200 duration_ms=45.5
+2026-07-04 20:47:11,458 INFO dq_cockpit request_id=2729d54b-e238-45f2-8315-133694a23b4c method=GET path=/api/incidents/2 status=200 duration_ms=21.9
+2026-07-04 20:47:11,624 INFO dq_cockpit request_id=15ec98ac-77a5-4d8e-bc25-64928f68ed05 method=GET path=/api/objects status=200 duration_ms=44.2
+2026-07-04 20:47:11,667 INFO dq_cockpit request_id=7bd5f555-676b-4042-bf79-884b8f4b9584 method=GET path=/api/objects status=200 duration_ms=37.8
+2026-07-04 20:47:11,671 INFO dq_cockpit request_id=5666e385-3509-46e1-a6d1-33533bc54730 method=GET path=/api/admin/environments status=403 duration_ms=1.3
+2026-07-04 20:47:11,735 INFO dq_cockpit request_id=5af2b02d-cf5d-4187-a054-dc951ea7edd1 method=GET path=/api/lineage/columns status=200 duration_ms=17.0
+2026-07-04 20:47:11,746 INFO dq_cockpit request_id=d3025526-c516-4e1e-887f-35172896d1dd method=GET path=/api/lineage status=200 duration_ms=57.3
+2026-07-04 20:47:11,778 INFO dq_cockpit request_id=5c9ad869-938c-4545-9d45-8800f6816f88 method=GET path=/api/contracts/DEMO_BUS_02/version-diff status=200 duration_ms=18.2
+2026-07-04 20:47:11,791 INFO dq_cockpit request_id=b7ff6f11-5718-4a44-aaea-928df6ac3681 method=GET path=/api/monitoring/config status=200 duration_ms=4.1
+2026-07-04 20:47:11,802 INFO dq_cockpit request_id=26a64586-051e-4c0a-b1e2-93a77446ab99 method=GET path=/api/contracts/DEMO_BUS_02 status=200 duration_ms=43.5
+2026-07-04 20:47:11,807 INFO dq_cockpit request_id=8b643b06-fedf-476b-9b70-a1b8d7edd64d method=GET path=/api/monitoring/shares status=200 duration_ms=9.7
+2026-07-04 20:47:11,809 INFO dq_cockpit request_id=eb659040-fea2-48d5-9f1f-64237cbe0807 method=GET path=/api/objects status=200 duration_ms=120.8
+2026-07-04 20:47:11,816 INFO dq_cockpit request_id=66158d3d-41b7-4b69-ac03-d80593835602 method=GET path=/api/objects status=200 duration_ms=121.0
+2026-07-04 20:47:11,821 INFO dq_cockpit request_id=89f2066e-b338-44b8-853c-cd8988b24ede method=GET path=/api/lineage/columns/impact status=200 duration_ms=94.8
+2026-07-04 20:47:11,827 INFO dq_cockpit request_id=81775459-338f-402d-89d6-295fb33520f5 method=GET path=/api/objects/DEMO_BUS_02/runs status=200 duration_ms=69.4
+2026-07-04 20:47:11,835 INFO dq_cockpit request_id=c61599b3-06ab-46d4-b122-e41b0814f76e method=GET path=/api/runs/seed-demo_bus_02-34 status=200 duration_ms=24.5
+2026-07-04 20:47:11,841 INFO dq_cockpit request_id=0d29768f-6d87-4e86-ac10-dcbac4bc1338 method=GET path=/api/objects/DEMO_BUS_02 status=200 duration_ms=114.3
+2026-07-04 20:47:11,931 INFO dq_cockpit request_id=6ddb4d57-b403-4890-83b0-13a6809b370d method=GET path=/api/objects status=200 duration_ms=44.9
+2026-07-04 20:47:12,680 INFO dq_cockpit request_id=1c1d6765-5541-4437-904f-992634119fad method=GET path=/api/lineage/columns status=200 duration_ms=47.0
+2026-07-04 20:47:12,682 INFO dq_cockpit request_id=190a7ba8-9f58-4979-a464-e86c993e170f method=GET path=/api/lineage status=200 duration_ms=50.7
+2026-07-04 20:47:12,685 INFO dq_cockpit request_id=b7e80a00-32b1-4b42-8ccb-fb747c365cc6 method=GET path=/api/objects status=200 duration_ms=76.9
+2026-07-04 20:47:12,702 INFO dq_cockpit request_id=dc54f674-dbbb-4893-8a92-6f4a64edc87b method=GET path=/api/monitoring/config status=200 duration_ms=4.6
+2026-07-04 20:47:12,706 INFO dq_cockpit request_id=8e69af18-7238-4b8e-815a-0972bebcf6b3 method=GET path=/api/contracts/DEMO_SRC_01 status=200 duration_ms=18.3
+2026-07-04 20:47:12,711 INFO dq_cockpit request_id=748fa06e-62dc-47d1-9397-72e8def40805 method=GET path=/api/contracts/DEMO_SRC_01/version-diff status=200 duration_ms=13.9
+2026-07-04 20:47:12,716 INFO dq_cockpit request_id=ebfdc277-e5c4-4f3a-a4c9-1d29961907b6 method=GET path=/api/monitoring/shares status=200 duration_ms=2.1
+2026-07-04 20:47:12,720 INFO dq_cockpit request_id=9c158fb7-d2ee-4f5c-bda1-c72a3bb31e46 method=GET path=/api/objects/DEMO_SRC_01/runs status=200 duration_ms=39.4
+2026-07-04 20:47:12,739 INFO dq_cockpit request_id=74f16a52-a4ea-4165-add2-0e50ea07d24d method=GET path=/api/runs/74df8d6e-c714-4396-baad-ca0fa04bf89b status=200 duration_ms=24.7
+2026-07-04 20:47:12,744 INFO dq_cockpit request_id=4b882e60-e1b2-49d2-bec1-741b5238a4d8 method=GET path=/api/lineage/columns/impact status=200 duration_ms=111.0
+2026-07-04 20:47:12,774 INFO dq_cockpit request_id=da3af987-c0ac-4026-8d99-0051e1afad4f method=GET path=/api/objects/DEMO_SRC_01 status=200 duration_ms=139.7
+2026-07-04 20:47:12,789 INFO dq_cockpit request_id=32a0766b-f4b7-48d3-b6b1-f40d8493fb44 method=GET path=/api/objects status=200 duration_ms=70.9
+2026-07-04 20:47:13,470 INFO dq_cockpit request_id=2edbb2ac-89bf-4d62-a43b-6689f8736d72 method=GET path=/api/admin/environments status=403 duration_ms=12.0
