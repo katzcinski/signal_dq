@@ -40,6 +40,7 @@ umnummeriert (Hinweis jeweils im Dokumentkopf).
 
 | Dokument | Inhalt | Status |
 |---|---|---|
+| [`Konzept_MVP_Kundenrollout.md`](Konzept_MVP_Kundenrollout.md) | **Erster Wurf beim Kunden** — MVP-Zuschnitt (Welle 0: DQ-Checks, Contracts Lite, Runs, Cockpit/Coverage), Modul-Gating (`ROLLOUT_WAVE`) und Stufenrollout der übrigen Module | Konzept (zur Umsetzung) |
 | [`Konzept_DQ_Observability_Cockpit.md`](Konzept_DQ_Observability_Cockpit.md) | Fachliches Gesamtkonzept | Grundlage, weitgehend umgesetzt |
 | [`Konzept_DQ_Cockpit_UIUX.md`](Konzept_DQ_Cockpit_UIUX.md) | UI/UX-Zielbild | Grundlage, weitgehend umgesetzt |
 | [`Konzept_Enforcement_Modi_Gate_Quarantine_Monitor.md`](Konzept_Enforcement_Modi_Gate_Quarantine_Monitor.md) | Durchsetzungs-Achse `gate \| quarantine \| monitor` | **umgesetzt** (Slices ①–③) |

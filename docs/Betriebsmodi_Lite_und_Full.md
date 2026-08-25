@@ -3,7 +3,7 @@
 **Adressat:** Beratung, Plattform-Team, Fachbereich, Governance · **Stand:** 2026-06-15
 **Zweck:** Wie das DQ- & Observability-Cockpit zwei Reifegrade von Data-Product-Verbindlichkeit bedient — den **Lite-Einstieg** (Verbindlichkeit ohne Org-Change) und den **Voll-Modus** (governte Data Products mit Versionierung & Approval) — auf demselben technischen Unterbau.
 
-> Verwandte Dokumente: `ADR-0006_Editor-Modus_aus_Kind.md` (Modus-Default folgt dem `kind`; Override kontrolliert) · `HANDOVER.md` (technischer Implementierungsplan, Workstreams, Gates) · `Konzept_DQ_Observability_Cockpit.md` (fachliches Konzept).
+> Verwandte Dokumente: `ADR-0006_Editor-Modus_aus_Kind.md` (Modus-Default folgt dem `kind`; Override kontrolliert) · `HANDOVER.md` (technischer Implementierungsplan, Workstreams, Gates) · `Konzept_DQ_Observability_Cockpit.md` (fachliches Konzept) · `Konzept_MVP_Kundenrollout.md` (**welche Module beim Kunden wann freigeschaltet werden** — Lite ist der Funktionskern der Welle 0, Full folgt in Welle 2).
 
 ---
 

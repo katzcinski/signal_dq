@@ -1,7 +1,9 @@
 # OPEN TASKS — Konsolidierter Backlog (alle Bereiche) · Signal
 
-> **Stand:** 2026-07-23 (E/F/N gegen den Code nachgeführt: Obs-Intelligence v1
-> und Enforcement-Achse/Quarantäne sind seit 2026-07 in `main`) ·
+> **Stand:** 2026-08-25 (Abschnitt **T** — MVP-Modul-Gating/Stufenrollout —
+> ergänzt; übriger Stand 2026-07-23: E/F/N gegen den Code nachgeführt,
+> Obs-Intelligence v1 und Enforcement-Achse/Quarantäne sind seit 2026-07 in
+> `main`) ·
 > **Zweck:** Ein einziger Einstiegspunkt über **alle**
 > offenen Punkte, die heute über die `docs/`-Konzepte, Pläne, Reviews und
 > Handovers verstreut sind. Diese Datei **ersetzt** die Quelldokumente nicht —
@@ -55,6 +57,11 @@ Priorität: **[H]** hoch · **[M]** mittel · **[L]** später/optional.
 | **P**  | Data-Product/BDC Phase 2 + Verifikationspunkte | ◻ Offen | M/L | `ADR-0003`, `ADR-0004`, `PLAN_ADR-0003-0004_Implementation.md` |
 | **Q**  | Tech-Debt: `notify.py`-Dedup (Routing & Dispatch) | ◻ Offen | L | Abschnitt Q |
 | **R**  | Healing: Restoptionen H2/H4/H5 + Opt-in-Lücken (R5/R6) | ◻ Offen | H/M/L | `Konzept_Manuelles_Healing.md` |
+| **T**  | MVP-Modul-Gating + Stufenrollout (`ROLLOUT_WAVE`) | ◻ Offen | H | `Konzept_MVP_Kundenrollout.md` |
+
+> Der Buchstabe **S** ist bewusst übersprungen: `S1`/`S5`/`S-14` sind im Code
+> bereits Sicherheits-Marker (PII-Gate, Bind-Policy, Fehler-Leakage) — eine
+> Backlog-ID `S5` wäre doppeldeutig.
 
 > **Bereits geschlossen, obwohl ein Quelldoc es noch offen führt:** Interne
 > DQ-Checks-Library im Builder (`handover-iteration-1-internal-checks.md`) ist
@@ -562,6 +569,51 @@ Optionen sind bewusst **noch nicht gebaut** und vor einer Umsetzung zu bewerten:
   optimistisches Locking je Zeile (heute Last-Writer-Wins bei parallelen
   Stewards); SQL-Healing für Massenkorrekturen nach dem Guard-Entwurf
   (`Konzept_Manuelles_Healing.md` §6.3).
+
+---
+
+## T — MVP-Modul-Gating + Stufenrollout ◻ [H]
+
+**Quelle:** [`Konzept_MVP_Kundenrollout.md`](Konzept_MVP_Kundenrollout.md).
+Voraussetzung dafür, Signal beim Kunden in Betrieb zu nehmen, **bevor** der
+volle Funktionsumfang abgenommen ist: ein Codestand, ein Deployment, vier
+Freischalt-Wellen. Die Sicherheits-Gates (G1–G8, S5, PII) sind ausdrücklich
+**nicht** Teil des Gatings.
+
+- **T1 · Modul-Registry + Settings.** `[H]` ◻ — `services/api/modules.py`
+  (Modul→Welle, Kern-Set) plus `rollout_wave` / `modules_enabled_extra` /
+  `modules_disabled` in `settings.py`; unbekannter Modulname ⇒ Startabbruch
+  (fail-closed).
+- **T2 · Server-Gate.** `[H]` ◻ — `require_module(...)` in `deps.py`, als
+  Router-Dependency auf den gegateten Routern; Router bleiben registriert
+  (OpenAPI über alle Wellen stabil), gegatete Routen antworten 404
+  `problem+json`. Contracts-Router pro Route: Lite = Kern, Full-Pfade
+  (`PUT` draft, diff, approve, deprecate, sla, export) hinter
+  `contracts_full`; ohne dieses Modul akzeptieren Schreibpfade nur
+  `kind: internal_gate` (ADR-0006-konform).
+- **T3 · `GET /api/system/features` + FE-Spiegel.** `[H]` ◻ — effektives
+  Modulset an das Cockpit; Sidebar-Filter, Routen-Platzhalter „Modul nicht
+  aktiviert" (i18n), Workbench ohne Full-Pane. Spiegel ist Komfort —
+  autoritativ bleibt der Server. **Schwerpunkt ist der Abhängigkeits-Kontrakt**
+  (Konzept §2.5): `ObjectDetail` zieht heute Panels aus `profiling`,
+  `schedules`, `proposals`, `enforcement`/`monitoring` und `contracts_full`,
+  die Workbench aus `proposals` und `schema_drift` — jedes davon braucht einen
+  Guard, und `objectDetailTabs.ts` wird modulabhängig. Kein Kern-Screen darf ein
+  fehlendes Modul als Fehler zeigen.
+- **T4 · Tests + CI.** `[H]` ◻ — `tests/api/test_module_gating.py` (Welle 0 vs.
+  Welle 3, Overrides, Startvalidierung, Contracts-Full-Routen einzeln,
+  `certify`-G3-Netz bleibt in Welle 0 scharf), Vitest-Matrix
+  `navForRole × features` und je ein Welle-0-Render von Cockpit, ObjectDetail
+  und Workbench (kein Fehlerbanner, kein toter Tab). Bestehende Suiten laufen
+  unter `ROLLOUT_WAVE=3` unverändert.
+- **T5 · Kunden-Runbook Welle 0.** `[M]` ◻ — Deployment-Checkliste (OIDC,
+  `ALLOW_MOCK_CONNECTION=false`, read-only Space-User, externes Scheduling,
+  SQLite-Volume/Backup) und ENV-Referenz in `Tooldokumentation.md` §6.
+
+> **Abhängigkeit:** SQLite trägt die Pilotlast der Welle 0; **C2**
+> (`HanaResultStore`) bleibt der Skalierungspfad und ist keine
+> Welle-0-Vorbedingung. Welle 1 hängt am Scheduling-Entscheid (**N**), Welle 3
+> an den Live-Tenant-Spikes (**F** ④–⑦, O5/O6) und an **R5**.
 
 ---
 
