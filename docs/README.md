@@ -66,6 +66,7 @@ umnummeriert (Hinweis jeweils im Dokumentkopf).
 | [`Investment_Case_Signal.md`](Investment_Case_Signal.md) | Investment Case (Partner-Runde) |
 | [`Marktanalyse_DQ_Observability_2026.md`](Marktanalyse_DQ_Observability_2026.md) | Feature-Gap-Synthese Markt 2026 (Quelle der Tier-1/2-Konzepte) |
 | [`Kundendeck_DataProducts_Lite.md`](Kundendeck_DataProducts_Lite.md) | Kundenpitch Data Products Lite |
+| [`interactive/kundenpitch-datasphere-bdc.html`](interactive/kundenpitch-datasphere-bdc.html) | **Kundenpitch Welle 0** (HTML) — was Signal im ersten Wurf leistet und warum das mit Datasphere/BDC zusammenpasst; Scope aus `Konzept_MVP_Kundenrollout.md` |
 | [`Vortrag_Briefing_DataProducts_DataContracts_DSP_BDC.md`](Vortrag_Briefing_DataProducts_DataContracts_DSP_BDC.md) | Vortrags-Briefing |
 | [`Uebergabemodelle_und_Lizenz.md`](Uebergabemodelle_und_Lizenz.md) | Übergabemodelle & Lizenz |
 | [`DataProduct_Konzept_und_Handling.md`](DataProduct_Konzept_und_Handling.md) | Datenprodukte: Konzept & Workflow (Beratungs-Sicht) |

@@ -1,0 +1,820 @@
+<title>Signal für Datasphere</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+<style>
+  /* ────────────────────────────────────────────────────────────────
+     Tokens — übernommen aus dem Cockpit-Theme "signal"
+     (apps/cockpit/src/index.css). Die Pitch-Seite trägt bewusst die
+     Identität des Instruments, das sie beschreibt: Graphit-Chassis,
+     Haarlinien statt Schatten, Phosphor-Akzent sparsam gesetzt.
+     Einthemig dunkel — jede Farbe explizit, damit die Seite auf jedem
+     Host-Grund hält.
+     ──────────────────────────────────────────────────────────────── */
+  :root {
+    --bg-0: #0A0C0F;
+    --bg-1: #0F1318;
+    --bg-2: #161B22;
+    --bg-3: #1F262F;
+
+    --line: #232A33;
+    --line-2: #333D49;
+
+    --fg: #E9EDF2;
+    --fg-2: #98A2B0;
+    --fg-3: #79828F;
+
+    --signal: #B5E853;
+    --signal-bright: #CDF06A;
+    --signal-dim: rgba(181, 232, 83, 0.12);
+    --signal-line: rgba(181, 232, 83, 0.32);
+
+    --struct: #8B7CF6;   /* Struktur   — "Vereinbarung / Dokument" */
+    --qual:   #2DD4BF;   /* Qualität   — "saubere Daten" */
+    --perf:   #F5A524;   /* Performance — "Instrumenten-Warnung" */
+
+    --ok:     #3FB07A;
+    --warn:   #E0B23E;
+    --fail:   #E2783C;
+    --crit:   #E5484D;
+    --stale:  #646E7C;
+
+    --font-ui: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+
+    --r: 3px;
+    --r-md: 4px;
+    --r-lg: 6px;
+
+    --measure: 68ch;
+    --gutter: 148px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg-0);
+    background-image: radial-gradient(rgba(150, 180, 210, 0.035) 1px, transparent 1px);
+    background-size: 22px 22px;
+    color: var(--fg);
+    font-family: var(--font-ui);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--signal-dim); color: var(--signal-bright); }
+
+  a { color: var(--signal-bright); text-decoration-color: var(--signal-line); text-underline-offset: 3px; }
+  a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 3px;
+    border-radius: var(--r);
+  }
+
+  /* ── Statusstreifen: dasselbe Encoding wie die Systemleiste im Cockpit ── */
+  .healthstrip {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; height: 3px; overflow: hidden;
+  }
+  .healthstrip i { display: block; height: 100%; }
+
+  .page {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 4vw, 48px) 96px;
+  }
+
+  /* ── Kopf ─────────────────────────────────────────────────────────── */
+  .masthead {
+    display: flex; align-items: center; gap: 10px;
+    padding: 26px 0 0;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 999px; flex-shrink: 0;
+    background: var(--signal);
+    box-shadow: 0 0 0 3px var(--signal-dim);
+    animation: pulse 3.2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 3px var(--signal-dim); }
+    50%      { box-shadow: 0 0 0 6px rgba(181, 232, 83, 0.06); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dot { animation: none; }
+  }
+  .wordmark {
+    font-family: var(--font-mono);
+    font-weight: 600; font-size: 13px;
+    letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--fg);
+  }
+  .masthead .spacer { flex: 1; }
+  .masthead .stamp {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--fg-3);
+  }
+
+  .hero { padding: clamp(48px, 9vw, 104px) 0 clamp(40px, 6vw, 72px); }
+  .eyebrow {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--signal);
+    margin: 0 0 22px;
+  }
+  h1 {
+    font-size: clamp(34px, 5.6vw, 60px);
+    line-height: 1.06;
+    letter-spacing: -0.022em;
+    font-weight: 600;
+    text-wrap: balance;
+    margin: 0 0 26px;
+    max-width: 19ch;
+  }
+  h1 em {
+    font-style: normal;
+    color: var(--signal);
+  }
+  .standfirst {
+    font-size: clamp(17px, 2vw, 20px);
+    line-height: 1.55;
+    color: var(--fg-2);
+    max-width: 60ch;
+    margin: 0 0 34px;
+  }
+  .herofacts {
+    display: flex; flex-wrap: wrap; gap: 10px;
+  }
+  .fact {
+    font-family: var(--font-mono); font-size: 11.5px;
+    letter-spacing: 0.06em;
+    color: var(--fg-2);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-full, 999px);
+    padding: 5px 12px;
+  }
+
+  /* ── Sektionen mit Kanal-Label in der linken Spalte ────────────────── */
+  section {
+    border-top: 1px solid var(--line);
+    padding: clamp(40px, 6vw, 68px) 0 4px;
+    display: grid;
+    grid-template-columns: var(--gutter) minmax(0, 1fr);
+    gap: 0 40px;
+  }
+  .channel {
+    font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--fg-3);
+    padding-top: 6px;
+  }
+  .channel span { display: block; color: var(--signal); margin-bottom: 6px; }
+  .body { min-width: 0; }
+
+  h2 {
+    font-size: clamp(24px, 3vw, 32px);
+    line-height: 1.18;
+    letter-spacing: -0.016em;
+    font-weight: 600;
+    text-wrap: balance;
+    margin: 0 0 18px;
+    max-width: 24ch;
+  }
+  h3 {
+    font-size: 17px; font-weight: 600; letter-spacing: -0.005em;
+    margin: 0 0 8px;
+  }
+  p { margin: 0 0 18px; max-width: var(--measure); color: var(--fg-2); }
+  p strong, li strong { color: var(--fg); font-weight: 600; }
+  .lead { color: var(--fg); font-size: 17.5px; }
+
+  ul { margin: 0 0 20px; padding-left: 0; list-style: none; max-width: var(--measure); }
+  ul li {
+    position: relative; padding-left: 20px; margin-bottom: 10px; color: var(--fg-2);
+  }
+  ul li::before {
+    content: ""; position: absolute; left: 2px; top: 11px;
+    width: 6px; height: 1px; background: var(--line-2);
+  }
+
+  /* ── Tabellen ──────────────────────────────────────────────────────── */
+  .tablewrap { overflow-x: auto; margin: 0 0 24px; }
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 14.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  th, td {
+    text-align: left; padding: 11px 14px 11px 0;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  th {
+    font-family: var(--font-mono); font-size: 10.5px; font-weight: 500;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--fg-3);
+    border-bottom-color: var(--line-2);
+    white-space: nowrap;
+  }
+  td { color: var(--fg-2); }
+  td.k { color: var(--fg); font-weight: 500; white-space: nowrap; }
+  tr.hit td { background: rgba(229, 72, 77, 0.06); }
+  tr.hit td.k { color: var(--fg); }
+  .mono { font-family: var(--font-mono); font-size: 0.92em; }
+
+  .anchor-yes { color: var(--fg-2); }
+  .anchor-no  { color: var(--crit); font-weight: 500; }
+
+  /* ── Ablauf: die sechs Schritte ────────────────────────────────────── */
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    margin: 0 0 26px;
+  }
+  .step { background: var(--bg-1); padding: 16px 16px 18px; }
+  .step .n {
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em;
+    color: var(--signal); display: block; margin-bottom: 10px;
+  }
+  .step b { display: block; font-size: 14.5px; font-weight: 600; margin-bottom: 5px; color: var(--fg); }
+  .step span.t { font-size: 13px; line-height: 1.5; color: var(--fg-3); display: block; }
+
+  /* ── Garantie-Familien ─────────────────────────────────────────────── */
+  .families {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 14px;
+    margin: 0 0 26px;
+  }
+  .family {
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--fam);
+    border-radius: var(--r-lg);
+    padding: 18px 18px 20px;
+  }
+  .family .name {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--fam);
+    display: block; margin-bottom: 10px;
+  }
+  .family p { color: var(--fg-2); font-size: 14px; margin: 0 0 12px; }
+  .family .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .family .tags code {
+    font-family: var(--font-mono); font-size: 11.5px;
+    color: var(--fg-2); background: var(--bg-3);
+    border-radius: var(--r); padding: 3px 7px;
+  }
+  .family .claim {
+    display: block; margin-top: 14px; padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font-size: 13.5px; color: var(--fg-3); font-style: italic;
+  }
+
+  /* ── Status-Grid-Mock: der Blick des Konsumenten ───────────────────── */
+  .panel {
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    margin: 0 0 14px;
+  }
+  .panel-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-2);
+  }
+  .panel-head .title {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--fg-2);
+  }
+  .panel-head .right {
+    margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--fg-3);
+  }
+  .gridwrap { overflow-x: auto; }
+  table.grid { font-size: 13.5px; }
+  table.grid th, table.grid td {
+    padding: 9px 12px; border-bottom: 1px solid var(--line);
+  }
+  table.grid th { background: transparent; }
+  table.grid td.obj { color: var(--fg); font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+  table.grid tr:last-child td { border-bottom: none; }
+  .cell { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+  .sd { width: 8px; height: 8px; border-radius: 999px; flex-shrink: 0; }
+  .sd.ok { background: var(--ok); }
+  .sd.warn { background: var(--warn); }
+  .sd.crit { background: var(--crit); }
+  .sd.stale { background: var(--stale); }
+  .sd.none { background: transparent; border: 1px solid var(--line-2); }
+  .cellv { font-family: var(--font-mono); font-size: 12px; color: var(--fg-3); }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    font-family: var(--font-mono); font-size: 11px; color: var(--fg-3);
+    margin: 0 0 26px;
+  }
+  .legend .cell { gap: 6px; }
+
+  /* ── Reichweiten-Entscheid (BDC) ───────────────────────────────────── */
+  .reach { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; margin: 0 0 24px; }
+  .reach div { background: var(--bg-1); padding: 15px 18px; display: grid; grid-template-columns: 26px 1fr; gap: 14px; align-items: start; }
+  .reach .mark { font-family: var(--font-mono); font-size: 15px; line-height: 1.35; }
+  .reach .in .mark { color: var(--ok); }
+  .reach .out .mark { color: var(--stale); }
+  .reach b { color: var(--fg); font-weight: 600; display: block; margin-bottom: 3px; font-size: 15px; }
+  .reach span.t { color: var(--fg-2); font-size: 14px; line-height: 1.55; }
+
+  /* ── Wellen-Leiter ─────────────────────────────────────────────────── */
+  .waves { display: grid; gap: 10px; margin: 0 0 24px; }
+  .wave {
+    display: grid; grid-template-columns: 92px 1fr; gap: 18px;
+    border: 1px solid var(--line); border-radius: var(--r-lg);
+    padding: 15px 18px; background: var(--bg-1);
+  }
+  .wave.now { border-color: var(--signal-line); background: linear-gradient(90deg, var(--signal-dim), transparent 42%), var(--bg-1); }
+  .wave .tag {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--fg-3); padding-top: 2px;
+  }
+  .wave.now .tag { color: var(--signal); }
+  .wave b { display: block; color: var(--fg); font-size: 15px; margin-bottom: 4px; }
+  .wave span.t { color: var(--fg-2); font-size: 14px; }
+
+  /* ── Zitat / Pointe ────────────────────────────────────────────────── */
+  blockquote {
+    margin: 0 0 24px;
+    padding: 0 0 0 20px;
+    border-left: 2px solid var(--signal);
+    max-width: var(--measure);
+  }
+  blockquote p {
+    color: var(--fg);
+    font-size: clamp(18px, 2.2vw, 22px);
+    line-height: 1.45;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  /* ── Nächste Schritte ──────────────────────────────────────────────── */
+  ol.steps { margin: 0 0 20px; padding: 0; list-style: none; counter-reset: s; max-width: var(--measure); }
+  ol.steps li {
+    counter-increment: s;
+    display: grid; grid-template-columns: 34px 1fr; gap: 14px;
+    padding: 14px 0; border-bottom: 1px solid var(--line);
+    color: var(--fg-2);
+  }
+  ol.steps li::before {
+    content: counter(s, decimal-leading-zero);
+    font-family: var(--font-mono); font-size: 12px; color: var(--signal);
+    padding-top: 2px;
+  }
+  ol.steps b { color: var(--fg); font-weight: 600; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    margin-top: 56px; padding-top: 22px;
+    display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: baseline;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em;
+    color: var(--fg-3);
+  }
+
+  @media (max-width: 860px) {
+    section { grid-template-columns: 1fr; gap: 0; }
+    .channel { padding-top: 0; margin-bottom: 14px; }
+    .channel span { display: inline; margin-right: 8px; }
+    .wave { grid-template-columns: 1fr; gap: 6px; }
+  }
+</style>
+
+<div class="healthstrip" aria-hidden="true">
+  <i style="width:62%;background:var(--ok)"></i>
+  <i style="width:14%;background:var(--warn)"></i>
+  <i style="width:7%;background:var(--crit)"></i>
+  <i style="flex:1;background:var(--stale)"></i>
+</div>
+
+<div class="page">
+
+  <div class="masthead">
+    <span class="dot"></span>
+    <span class="wordmark">Signal</span>
+    <span class="spacer"></span>
+    <span class="stamp">Erster Wurf · Welle 0</span>
+  </div>
+
+  <header class="hero">
+    <p class="eyebrow">Data Quality &amp; Observability für SAP Datasphere</p>
+    <h1>Ihre Daten versprechen etwas. <em>Wir machen es messbar.</em></h1>
+    <p class="standfirst">
+      In SAP Datasphere und der Business Data Cloud sind Schema, Katalog, Sharing und
+      Zugriff jeweils an einem Ort verankert. Für Datenqualität gibt es diesen Ort
+      nicht — sie wird pro Projekt in Views nachgebaut. Signal schließt genau diese
+      Lücke: semantische Zusagen, die bei jedem Lauf gegen Ihre Daten geprüft werden,
+      sichtbar als Ampel für die, die von den Daten leben.
+    </p>
+    <div class="herofacts">
+      <span class="fact">Nur lesend auf Ihrem Tenant</span>
+      <span class="fact">Kein SQL im Contract</span>
+      <span class="fact">Erste Ampel in Tagen, nicht Monaten</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="channel"><span>01</span>Ausgangslage</div>
+    <div class="body">
+      <h2>Die eine Schicht ohne Zuhause</h2>
+      <p class="lead">
+        Ein Datenprodukt in Datasphere verteilt seinen Vertrag über fünf Schichten.
+        Vier davon haben einen deklarativen Anker im Werkzeug. Eine nicht.
+      </p>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>Schicht</th><th>Verankert in Datasphere / BDC</th><th>Deklarativer Ort?</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="k">Semantik &amp; Schema</td><td>Fact View, Measures, Associations, Analytic Model</td><td class="anchor-yes">ja</td></tr>
+            <tr><td class="k">Katalog / Data Product</td><td>Marketplace, BDC-ORD-Descriptor</td><td class="anchor-yes">ja</td></tr>
+            <tr><td class="k">Sharing / Output-Port</td><td>Delta Sharing, exponierte Consumption-View</td><td class="anchor-yes">ja</td></tr>
+            <tr><td class="k">Zugriff</td><td>Data Access Controls, Scoped &amp; Read Roles</td><td class="anchor-yes">ja</td></tr>
+            <tr class="hit"><td class="k">Qualität &amp; SLA</td><td>handgebaute DQ-Logik, Task Chains</td><td class="anchor-no">nein — nur implementiert</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Die Folge kennen Sie: Qualitätsregeln leben als SQL in Views, verteilt über
+        Spaces und Köpfe. Niemand kann sagen, <strong>was ein Objekt eigentlich zusagt</strong> —
+        und niemand merkt es zuerst, wenn die Zusage bricht. Es merkt der Report am Montag.
+      </p>
+      <p>
+        Der Markt löst das nicht für Sie: Die etablierten Data-Observability-Anbieter
+        verkaufen über Warehouse-Konnektoren — Snowflake, BigQuery, Databricks, Redshift.
+        SAP ist dort Nische. Für Sie ist es die Plattform.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="channel"><span>02</span>Vorschlag</div>
+    <div class="body">
+      <h2>Verbindlichkeit, ohne auf die Organisation zu warten</h2>
+      <blockquote>
+        <p>Verbindlichkeit braucht normalerweise Ownership — aber Ownership entsteht
+        erst, wenn jemand einen sichtbaren Grund dafür sieht.</p>
+      </blockquote>
+      <p>
+        Wer diese Henne-Ei-Frage mit Rollenmodell, Versionierung und Freigabeprozessen
+        zuerst beantwortet, verliert Monate. Signal dreht die Reihenfolge um: Das
+        Plattform&shy;team gibt die ersten Zusagen — als geführte Checkliste, ohne
+        Zeremonie. Der Fachbereich übernimmt sie, wenn die Ampel den Wert zeigt.
+      </p>
+      <p>
+        Technisch ist das kein Wegwerf-Prototyp: Es ist derselbe Unterbau, dieselben
+        Garantie-Familien, derselbe Compiler wie im governten Voll-Modus. Der Wechsel
+        später ist ein Schalter, kein zweites Projekt.
+      </p>
+
+      <div class="flow">
+        <div class="step"><span class="n">01</span><b>Extrakt</b><span class="t">Inventar und Lineage aus Datasphere lesen.</span></div>
+        <div class="step"><span class="n">02</span><b>Seed</b><span class="t">Signal schlägt Garantien vor — kein leeres Blatt.</span></div>
+        <div class="step"><span class="n">03</span><b>Garantien</b><span class="t">Familien an/aus, Severity je Familie.</span></div>
+        <div class="step"><span class="n">04</span><b>Aktivieren</b><span class="t">Ein Klick. Checks werden kompiliert.</span></div>
+        <div class="step"><span class="n">05</span><b>Lauf</b><span class="t">Read-only gegen Ihre Datasphere-Objekte.</span></div>
+        <div class="step"><span class="n">06</span><b>Ampel</b><span class="t">Status, Compliance, Coverage im Cockpit.</span></div>
+      </div>
+      <p>
+        Schritt 4 ist ein Klick, keine Freigaberunde. Von der ersten Objektliste bis zur
+        ersten Ampel vergehen Tage — vorausgesetzt, der lesende Datenbank-Zugang steht.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="channel"><span>03</span>Substanz</div>
+    <div class="body">
+      <h2>Was eine Zusage konkret abdeckt</h2>
+      <p>
+        Garantien werden rein semantisch formuliert — als Fachaussage, niemals als SQL.
+        Den geprüften SQL erzeugt ausschließlich der Compiler, deterministisch und mit
+        erst zur Laufzeit gebundenem Schema. Das ist keine Stilfrage, sondern ein
+        Sicherheits-Gate: In einen Contract kann niemand Code schmuggeln.
+      </p>
+
+      <div class="families">
+        <div class="family" style="--fam: var(--struct)">
+          <span class="name">Struktur</span>
+          <p>Die Form der Daten steht fest — Spalten, Schlüssel, Beziehungen.</p>
+          <div class="tags"><code>schema</code><code>keys</code><code>referential</code></div>
+          <span class="claim">„Genau diese Spalten. Schlüssel eindeutig. Keine verwaisten Referenzen."</span>
+        </div>
+        <div class="family" style="--fam: var(--qual)">
+          <span class="name">Qualität</span>
+          <p>Die Inhalte tragen — Pflichtfelder gefüllt, Füllgrade gehalten.</p>
+          <div class="tags"><code>not_null</code><code>completeness</code></div>
+          <span class="claim">„Kundennummer nie leer. Mindestens 99,5 % Füllgrad im Umsatzfeld."</span>
+        </div>
+        <div class="family" style="--fam: var(--perf)">
+          <span class="name">Performance</span>
+          <p>Die Lieferung kommt an — aktuell genug und vollständig genug.</p>
+          <div class="tags"><code>freshness</code><code>volume</code></div>
+          <span class="claim">„Nicht älter als 24 Stunden. Nicht plötzlich die halbe Menge."</span>
+        </div>
+      </div>
+      <p>
+        Erfahrungsgemäß ist <strong>Freshness</strong> der emotionalste Hebel: „Sind die
+        Zahlen von heute?" ist die Frage, die Ihre Konsumenten ohnehin jeden Morgen
+        stellen — nur beantwortet sie heute niemand verlässlich.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="channel"><span>04</span>Sichtbarkeit</div>
+    <div class="body">
+      <h2>Was der Konsument am Montag sieht</h2>
+      <p>
+        Kein PDF, kein Qualitätsbericht im Quartal. Ein Status je Objekt und Familie,
+        aus dem jüngsten Lauf, mit Historie — und ehrlich gekennzeichnet, wenn ein
+        Ergebnis veraltet oder ein Check bewusst übersprungen wurde.
+      </p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <span class="dot" style="width:6px;height:6px;box-shadow:0 0 0 2px var(--signal-dim)"></span>
+          <span class="title">Statusraster</span>
+          <span class="right">Beispielhafte Darstellung</span>
+        </div>
+        <div class="gridwrap">
+          <table class="grid">
+            <thead>
+              <tr>
+                <th>Objekt</th><th>Struktur</th><th>Qualität</th><th>Freshness</th><th>Volume</th><th>Zusage</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="obj">V_SALES_ORDERS</td>
+                <td><span class="cell"><span class="sd ok"></span><span class="cellv">pass</span></span></td>
+                <td><span class="cell"><span class="sd ok"></span><span class="cellv">99,8 %</span></span></td>
+                <td><span class="cell"><span class="sd ok"></span><span class="cellv">2 h</span></span></td>
+                <td><span class="cell"><span class="sd ok"></span><span class="cellv">1,2 M</span></span></td>
+                <td><span class="cell"><span class="sd ok"></span><span class="cellv">erfüllt</span></span></td>
+              </tr>
+              <tr>
+                <td class="obj">V_CUSTOMER_MASTER</td>
+                <td><span class="cell"><span class="sd ok"></span><span class="cellv">pass</span></span></td>
+                <td><span class="cell"><span class="sd warn"></span><span class="cellv">97,1 %</span></span></td>
+                <td><span class="cell"><span class="sd ok"></span><span class="cellv">6 h</span></span></td>
+                <td><span class="cell"><span class="sd ok"></span><span class="cellv">84 k</span></span></td>
+                <td><span class="cell"><span class="sd warn"></span><span class="cellv">beobachtet</span></span></td>
+              </tr>
+              <tr>
+                <td class="obj">V_FIN_POSTINGS</td>
+                <td><span class="cell"><span class="sd ok"></span><span class="cellv">pass</span></span></td>
+                <td><span class="cell"><span class="sd ok"></span><span class="cellv">99,9 %</span></span></td>
+                <td><span class="cell"><span class="sd crit"></span><span class="cellv">31 h</span></span></td>
+                <td><span class="cell"><span class="sd ok"></span><span class="cellv">4,7 M</span></span></td>
+                <td><span class="cell"><span class="sd crit"></span><span class="cellv">gebrochen</span></span></td>
+              </tr>
+              <tr>
+                <td class="obj">V_PRODUCT_DIM</td>
+                <td><span class="cell"><span class="sd stale"></span><span class="cellv">veraltet</span></span></td>
+                <td><span class="cell"><span class="sd stale"></span><span class="cellv">veraltet</span></span></td>
+                <td><span class="cell"><span class="sd stale"></span><span class="cellv">veraltet</span></span></td>
+                <td><span class="cell"><span class="sd stale"></span><span class="cellv">veraltet</span></span></td>
+                <td><span class="cell"><span class="sd stale"></span><span class="cellv">unbekannt</span></span></td>
+              </tr>
+              <tr>
+                <td class="obj">V_MARKETING_LEADS</td>
+                <td><span class="cell"><span class="sd none"></span><span class="cellv">—</span></span></td>
+                <td><span class="cell"><span class="sd none"></span><span class="cellv">—</span></span></td>
+                <td><span class="cell"><span class="sd none"></span><span class="cellv">—</span></span></td>
+                <td><span class="cell"><span class="sd none"></span><span class="cellv">—</span></span></td>
+                <td><span class="cell"><span class="sd none"></span><span class="cellv">keine Zusage</span></span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="legend">
+        <span class="cell"><span class="sd ok"></span>erfüllt</span>
+        <span class="cell"><span class="sd warn"></span>Warnschwelle</span>
+        <span class="cell"><span class="sd crit"></span>gebrochen</span>
+        <span class="cell"><span class="sd stale"></span>Ergebnis veraltet</span>
+        <span class="cell"><span class="sd none"></span>keine Garantie hinterlegt</span>
+      </div>
+
+      <p>
+        Die letzte Zeile ist das eigentliche Werkzeug. Die <strong>Coverage-Karte</strong>
+        zeigt entlang Ihrer Lineage, welche Objekte eine geprüfte Zusage tragen und
+        welche nackt sind. Damit führen Sie ein anderes Gespräch mit dem Fachbereich:
+        nicht „wir sollten Data Governance machen", sondern <em>„dieses Objekt, von dem
+        Ihr Report lebt, garantiert heute nichts."</em>
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="channel"><span>05</span>Passung</div>
+    <div class="body">
+      <h2>Warum das gerade mit Datasphere und BDC zusammenpasst</h2>
+      <p>
+        Die Business Data Cloud bringt ein Ökosystem für Datenprodukte — Katalog,
+        ORD-Descriptor, Delta Sharing, Data Product Studio. Es <strong>beschreibt</strong>
+        Datenprodukte hervorragend. Es <strong>erzwingt</strong> ihre Qualität nicht.
+        Genau diese Naht besetzt Signal, und zwar dort, wo ein Produkt SQL spricht.
+      </p>
+
+      <div class="reach">
+        <div class="in">
+          <span class="mark">✓</span>
+          <span>
+            <b>Produkt auf einem HANA-Space</b>
+            <span class="t">Consumption-View, Fact View, Analytic Model — die klassische
+            Datasphere-Oberfläche. Signal prüft direkt dagegen, ohne Anpassung.</span>
+          </span>
+        </div>
+        <div class="in">
+          <span class="mark">✓</span>
+          <span>
+            <b>HDLF-Produkt mit SQL-Output-Port</b>
+            <span class="t">Liegt das Produkt als Delta/Parquet im Data Lake, aber es
+            existiert eine SQL-Sicht darauf, ist das für Signal dieselbe Sache: eine
+            relationale Oberfläche unter stabilem Namen.</span>
+          </span>
+        </div>
+        <div class="out">
+          <span class="mark">○</span>
+          <span>
+            <b>Nur Delta Share, keine SQL-Sicht</b>
+            <span class="t">Dann prüfen wir das SQL-erreichbare Objekt davor — oder wir
+            sagen offen, dass dieses Produkt nicht überwacht ist. Wir färben nichts grün,
+            was wir nicht gemessen haben.</span>
+          </span>
+        </div>
+      </div>
+
+      <p>
+        Diese Reichweiten-Frage ist zugleich ein nützliches Governance-Werkzeug: Wenn ein
+        Datenprodukt verbindlich zugesagt werden soll, dann braucht es eine SQL-erreichbare
+        Oberfläche. Aus einer technischen Einschränkung wird eine klare Designregel für
+        Ihre Produktlandschaft.
+      </p>
+      <p>
+        Und die Begriffe bleiben Ihre: Ein Contract entsteht dort, wo Verantwortung die
+        Partei wechselt — an der Grenze zur Quelle und an der Grenze zum Konsumenten.
+        Was dazwischen im Core geprüft wird, ist ein internes Quality Gate und braucht
+        keine Vertrags&shy;zeremonie. Signal unterscheidet beides von Haus aus.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="channel"><span>06</span>Vertrauen</div>
+    <div class="body">
+      <h2>Was Signal auf Ihrem Tenant tut — und was nicht</h2>
+      <p>
+        Die häufigste Frage im Sicherheits-Review lautet: Was schreibt das Werkzeug in
+        unsere Datenbank? In Welle 0 lautet die Antwort: nichts.
+      </p>
+      <ul>
+        <li><strong>Nur lesend.</strong> Signal verbindet über einen dedizierten technischen
+          Datenbank-User je Space mit minimalen Rechten — SELECT auf genau die Objekte
+          unter Vertrag. Kein Space-Admin, kein tenant-weiter Diagnose-User.</li>
+        <li><strong>Ergebnisse liegen getrennt.</strong> Messwerte und Historie landen im
+          eigenen Ergebnis-Store, nicht in Ihren Fachschemata.</li>
+        <li><strong>Kein SQL im Contract.</strong> Zusagen sind semantisch; den SQL erzeugt
+          der Compiler. Identifier werden validiert, das Schema erst zur Laufzeit gebunden.</li>
+        <li><strong>Keine Rohdaten ohne Freigabe.</strong> Diagnose-Zeilen verlassen die
+          Datenbank nur, wenn Sie es pro Check und pro Spalte ausdrücklich erlauben —
+          standardmäßig ist das aus.</li>
+        <li><strong>Verschlüsselt und rotierbar.</strong> TLS mit Zertifikatsprüfung,
+          Secrets aus dem Secret-Store, benannte Rotationszuständigkeit.</li>
+        <li><strong>Nachvollziehbar.</strong> Contracts liegen als Text in Git — jede
+          Änderung mit Autor und Zeitpunkt.</li>
+      </ul>
+      <p>
+        Betrieb wahlweise beraterlokal für die Pilotphase oder als Container bei Ihnen,
+        angebunden an Ihren Identity Provider mit den Rollen Betrachter, Steward, Owner
+        und Admin. Beides läuft aus demselben Code.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="channel"><span>07</span>Zuschnitt</div>
+    <div class="body">
+      <h2>Bewusst klein anfangen — und sichtbar wachsen</h2>
+      <p>
+        Signal kann mehr, als Welle 0 zeigt. Genau deshalb ist der erste Wurf bewusst
+        beschnitten: Sie bekommen den kompletten Stand ausgeliefert, freigeschaltet ist
+        nur der geschlossene Wertkreislauf. Alles Weitere kommt als Konfigurations&shy;änderung,
+        wenn Sie es im Betrieb erprobt und entschieden haben — nicht als neues Projekt.
+      </p>
+
+      <div class="waves">
+        <div class="wave now">
+          <span class="tag">Jetzt</span>
+          <span>
+            <b>Messen und sichtbar machen</b>
+            <span class="t">Extrakt, Contracts Lite, Checks, Läufe, Statusraster,
+            Coverage-Karte, Compliance-Ampel, Störungs-Historie.</span>
+          </span>
+        </div>
+        <div class="wave">
+          <span class="tag">Danach</span>
+          <span>
+            <b>Betrieb und Alarmierung</b>
+            <span class="t">Geplante Läufe im Werkzeug, Benachrichtigung an Ihre Kanäle,
+            Profiling, Ladeinformationen aus Datasphere.</span>
+          </span>
+        </div>
+        <div class="wave">
+          <span class="tag">Danach</span>
+          <span>
+            <b>Governance und versionierte Zusagen</b>
+            <span class="t">SemVer, Freigabe-Workflow, Schutz vor brechenden Änderungen,
+            SLA-Fenster, Datenprodukte als Komposition, datengetriebene Vorschläge,
+            Katalog-Export.</span>
+          </span>
+        </div>
+        <div class="wave">
+          <span class="tag">Optional</span>
+          <span>
+            <b>Aktives Eingreifen</b>
+            <span class="t">Quarantäne, geführte Korrektur, Gate-Verdikte für Ihre
+            Task-Chains. Nur nach ausdrücklichem Betriebsentscheid — hier verlässt Signal
+            die reine Beobachterrolle.</span>
+          </span>
+        </div>
+      </div>
+      <p>
+        Der Schnitt ist keine Verkaufstaktik, sondern Risikomanagement: Jede Stufe wird
+        auf Ihren echten Daten beobachtet, bevor die nächste dazukommt.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="channel"><span>08</span>Grenzen</div>
+    <div class="body">
+      <h2>Was wir Ihnen vorher sagen</h2>
+      <p>
+        Ein Pitch ohne Lücken ist unglaubwürdig. Diese vier Punkte gehören auf den Tisch,
+        bevor Sie entscheiden:
+      </p>
+      <ul>
+        <li><strong>Anomalie-Erkennung braucht Anlauf.</strong> Rollierende Mengen-Baselines
+          entstehen erst aus Lauf-Historie. Der Einstieg läuft über eine schlichte
+          Mindestmenge — verlässlich, aber weniger clever.</li>
+        <li><strong>Regelmäßige Läufe planen Sie zunächst außerhalb.</strong> In Welle 0
+          löst eine Task Chain oder ein Cron-Job die Läufe aus; die Planung im Werkzeug
+          selbst kommt mit der nächsten Stufe.</li>
+        <li><strong>Coverage beginnt auf Objektebene.</strong> Spaltengenaue Abdeckung
+          folgt; für das Ownership-Gespräch reicht die Objektebene erfahrungsgemäß.</li>
+        <li><strong>Ohne SQL-Oberfläche keine Messung.</strong> Ein reines Delta-Share-Produkt
+          ohne SQL-Sicht bleibt außerhalb der Reichweite — wir weisen es als „nicht
+          überwacht" aus, statt es grün zu färben.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="channel"><span>09</span>Nächster Schritt</div>
+    <div class="body">
+      <h2>Ein halber Tag, dann eine echte Ampel</h2>
+      <ol class="steps">
+        <li><span><b>Scoping-Workshop, ein halber Tag.</b> Wir wählen gemeinsam die drei bis
+          fünf Objekte, von denen Ihre wichtigsten Konsumenten leben.</span></li>
+        <li><span><b>Lesender Zugang.</b> Ein technischer Datenbank-User je Space, SELECT auf
+          genau diese Objekte. Der einzige Vorbereitungsschritt auf Ihrer Seite.</span></li>
+        <li><span><b>Pilot auf echten Daten.</b> Extrakt, Garantien, erster Lauf — Sie sehen
+          Ihre Objekte im Statusraster, nicht eine Demo-Datenbank.</span></li>
+        <li><span><b>Review mit dem Fachbereich.</b> Die Coverage-Karte als Gesprächsanker
+          für die Frage, wer welche Zusage künftig verantwortet.</span></li>
+        <li><span><b>Entscheidung.</b> Betriebsmodell festlegen und die nächste Stufe
+          freischalten — oder es bewusst bei Welle 0 belassen.</span></li>
+      </ol>
+      <p>
+        Der Pilot lässt sich vollständig beraterlokal fahren. Sie brauchen dafür weder
+        eine Beschaffung noch eine Plattform-Entscheidung — nur den lesenden Zugang.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <span>Signal · DQ &amp; Observability Cockpit</span>
+    <span>SAP Datasphere · HANA Cloud · Business Data Cloud</span>
+    <span>Welle 0 — Erster Wurf</span>
+  </footer>
+
+</div>
