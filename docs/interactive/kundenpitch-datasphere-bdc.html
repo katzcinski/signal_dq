@@ -346,7 +346,16 @@
   }
   .wave.now .tag { color: var(--signal); }
   .wave b { display: block; color: var(--fg); font-size: 15px; margin-bottom: 4px; }
-  .wave span.t { color: var(--fg-2); font-size: 14px; }
+  .wave span.t { color: var(--fg-3); font-size: 14px; display: block; }
+  .wave span.gain {
+    display: block; margin-top: 9px;
+    color: var(--fg-2); font-size: 14px; line-height: 1.5;
+    padding-left: 20px; position: relative;
+  }
+  .wave span.gain::before {
+    content: "\2192"; position: absolute; left: 0; top: 0;
+    color: var(--signal); font-family: var(--font-mono);
+  }
 
   /* ── Zitat / Pointe ────────────────────────────────────────────────── */
   blockquote {
@@ -732,6 +741,8 @@
             <b>Messen und sichtbar machen</b>
             <span class="t">Extrakt, Contracts Lite, Checks, Läufe, Statusraster,
             Coverage-Karte, Compliance-Ampel, Störungs-Historie.</span>
+            <span class="gain">Ihre Konsumenten sehen erstmals, ob die Daten halten, was
+            sie versprechen — und Sie erfahren es vor ihnen.</span>
           </span>
         </div>
         <div class="wave">
@@ -740,6 +751,8 @@
             <b>Betrieb und Alarmierung</b>
             <span class="t">Geplante Läufe im Werkzeug, Benachrichtigung an Ihre Kanäle,
             Profiling, Ladeinformationen aus Datasphere.</span>
+            <span class="gain">Aus der Momentaufnahme wird Dauerbetrieb: Ein Bruch meldet
+            sich von selbst, statt darauf zu warten, dass jemand ins Cockpit schaut.</span>
           </span>
         </div>
         <div class="wave">
@@ -749,6 +762,8 @@
             <span class="t">SemVer, Freigabe-Workflow, Schutz vor brechenden Änderungen,
             SLA-Fenster, Datenprodukte als Komposition, datengetriebene Vorschläge,
             Katalog-Export.</span>
+            <span class="gain">Der Fachbereich kann Zusagen wirklich verantworten — eine
+            Änderung kann Konsumenten nicht mehr unbemerkt brechen.</span>
           </span>
         </div>
         <div class="wave">
@@ -758,6 +773,8 @@
             <span class="t">Quarantäne, geführte Korrektur, Gate-Verdikte für Ihre
             Task-Chains. Ein eigenes Vorhaben mit eigener Risikobewertung — hier verlässt
             Signal die reine Beobachterrolle.</span>
+            <span class="gain">Fehlerhafte Daten erreichen den Report gar nicht erst,
+            statt ihn erst falsch zu machen und dann korrigiert zu werden.</span>
           </span>
         </div>
       </div>
