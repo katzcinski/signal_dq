@@ -610,7 +610,7 @@ Freischalt-Wellen. Die Sicherheits-Gates (G1–G8, S5, PII) sind ausdrücklich
   `ALLOW_MOCK_CONNECTION=false`, read-only Space-User, externes Scheduling,
   SQLite-Volume/Backup) und ENV-Referenz in `Tooldokumentation.md` §6.
 
-> **Abhängigkeit:** SQLite trägt die Pilotlast der Welle 0; **C2**
+> **Abhängigkeit:** SQLite reicht für die Pilotlast der Welle 0; **C2**
 > (`HanaResultStore`) bleibt der Skalierungspfad und ist keine
 > Welle-0-Vorbedingung. Welle 1 hängt am Scheduling-Entscheid (**N**), Welle 3
 > an den Live-Tenant-Spikes (**F** ④–⑦, O5/O6) und an **R5**.

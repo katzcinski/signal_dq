@@ -6,7 +6,7 @@
 <style>
   /* ────────────────────────────────────────────────────────────────
      Tokens — übernommen aus dem Cockpit-Theme "signal"
-     (apps/cockpit/src/index.css). Die Pitch-Seite trägt bewusst die
+     (apps/cockpit/src/index.css). Die Pitch-Seite übernimmt bewusst die
      Identität des Instruments, das sie beschreibt: Graphit-Chassis,
      Haarlinien statt Schatten, Phosphor-Akzent sparsam gesetzt.
      Einthemig dunkel — jede Farbe explizit, damit die Seite auf jedem
@@ -332,7 +332,7 @@
   .reach b { color: var(--fg); font-weight: 600; display: block; margin-bottom: 3px; font-size: 15px; }
   .reach span.t { color: var(--fg-2); font-size: 14px; line-height: 1.55; }
 
-  /* ── Wellen-Leiter ─────────────────────────────────────────────────── */
+  /* ── Ausbau-Leiter ─────────────────────────────────────────────────── */
   .waves { display: grid; gap: 10px; margin: 0 0 24px; }
   .wave {
     display: grid; grid-template-columns: 92px 1fr; gap: 18px;
@@ -408,23 +408,24 @@
     <span class="dot"></span>
     <span class="wordmark">Signal</span>
     <span class="spacer"></span>
-    <span class="stamp">Erster Wurf · Welle 0</span>
+    <span class="stamp">Beratungsangebot</span>
   </div>
 
   <header class="hero">
-    <p class="eyebrow">Data Quality &amp; Observability für SAP Datasphere</p>
+    <p class="eyebrow">Beratungsleistung für SAP Datasphere &amp; Business Data Cloud</p>
     <h1>Ihre Daten versprechen etwas. <em>Wir machen es messbar.</em></h1>
     <p class="standfirst">
       In SAP Datasphere und der Business Data Cloud sind Schema, Katalog, Sharing und
       Zugriff jeweils an einem Ort verankert. Für Datenqualität gibt es diesen Ort
-      nicht — sie wird pro Projekt in Views nachgebaut. Signal schließt genau diese
-      Lücke: semantische Zusagen, die bei jedem Lauf gegen Ihre Daten geprüft werden,
-      sichtbar als Ampel für die, die von den Daten leben.
+      nicht — sie entsteht in jedem Projekt neu, handgebaut in Views. Wir schließen
+      diese Lücke mit Ihnen gemeinsam: Zusagen an Ihre Datenkonsumenten, formuliert in
+      Ihrer Fachsprache, geprüft bei jedem Lauf, sichtbar als Ampel. Das Werkzeug
+      dafür — Signal — bringen wir mit.
     </p>
     <div class="herofacts">
+      <span class="fact">Beratungsleistung, keine Lizenz</span>
       <span class="fact">Nur lesend auf Ihrem Tenant</span>
-      <span class="fact">Kein SQL im Contract</span>
-      <span class="fact">Zusagen ohne Governance-Projekt</span>
+      <span class="fact">Ohne Governance-Projekt</span>
     </div>
   </header>
 
@@ -473,9 +474,10 @@
       </blockquote>
       <p>
         Wer diese Henne-Ei-Frage mit Rollenmodell, Versionierung und Freigabeprozessen
-        zuerst beantwortet, verliert Monate. Signal dreht die Reihenfolge um: Das
-        Plattform&shy;team gibt die ersten Zusagen — als geführte Checkliste, ohne
-        Zeremonie. Der Fachbereich übernimmt sie, wenn die Ampel den Wert zeigt.
+        zuerst beantwortet, verliert Monate. Wir drehen die Reihenfolge um: Ihr
+        Plattform&shy;team formuliert mit uns die ersten Zusagen — als geführte
+        Checkliste, ohne Zeremonie. Der Fachbereich übernimmt sie, wenn die Ampel den
+        Wert zeigt.
       </p>
       <p>
         Technisch ist das kein Wegwerf-Prototyp: Es ist derselbe Unterbau, dieselben
@@ -518,7 +520,7 @@
         </div>
         <div class="family" style="--fam: var(--qual)">
           <span class="name">Qualität</span>
-          <p>Die Inhalte tragen — Pflichtfelder gefüllt, Füllgrade gehalten.</p>
+          <p>Die Inhalte stimmen — Pflichtfelder gefüllt, Füllgrade gehalten.</p>
           <div class="tags"><code>not_null</code><code>completeness</code></div>
           <span class="claim">„Kundennummer nie leer. Mindestens 99,5 % Füllgrad im Umsatzfeld."</span>
         </div>
@@ -615,8 +617,8 @@
 
       <p>
         Die letzte Zeile ist das eigentliche Werkzeug. Die <strong>Coverage-Karte</strong>
-        zeigt entlang Ihrer Lineage, welche Objekte eine geprüfte Zusage tragen und
-        welche nackt sind. Damit führen Sie ein anderes Gespräch mit dem Fachbereich:
+        zeigt entlang Ihrer Lineage, für welche Objekte eine geprüfte Zusage existiert
+        und welche blank sind. Damit führen Sie ein anderes Gespräch mit dem Fachbereich:
         nicht „wir sollten Data Governance machen", sondern <em>„dieses Objekt, von dem
         Ihr Report lebt, garantiert heute nichts."</em>
       </p>
@@ -684,7 +686,7 @@
       <h2>Was Signal auf Ihrem Tenant tut — und was nicht</h2>
       <p>
         Die häufigste Frage im Sicherheits-Review lautet: Was schreibt das Werkzeug in
-        unsere Datenbank? In Welle 0 lautet die Antwort: nichts.
+        unsere Datenbank? In dem Umfang, um den es hier geht, lautet die Antwort: nichts.
       </p>
       <ul>
         <li><strong>Nur lesend.</strong> Signal verbindet über einen dedizierten technischen
@@ -713,17 +715,19 @@
   <section>
     <div class="channel"><span>07</span>Zuschnitt</div>
     <div class="body">
-      <h2>Bewusst klein anfangen — und sichtbar wachsen</h2>
+      <h2>Was danach möglich wäre</h2>
       <p>
-        Signal kann mehr, als Welle 0 zeigt. Genau deshalb ist der erste Wurf bewusst
-        beschnitten: Sie bekommen den kompletten Stand ausgeliefert, freigeschaltet ist
-        nur der geschlossene Wertkreislauf. Alles Weitere kommt als Konfigurations&shy;änderung,
-        wenn Sie es im Betrieb erprobt und entschieden haben — nicht als neues Projekt.
+        Dieser Einstieg deckt bewusst nur den geschlossenen Kreislauf ab: zusagen,
+        messen, sichtbar machen. Darüber hinaus arbeiten wir an weiteren Bausteinen —
+        teils erprobt, teils in Entwicklung. Keiner davon ist Teil dieses Angebots.
+        Wenn Sie einen davon brauchen, setzen wir ihn in einem eigenen, abgegrenzten
+        Folgeprojekt mit Ihnen um: mit eigenem Ziel, eigenem Umfang und eigener
+        Entscheidung.
       </p>
 
       <div class="waves">
         <div class="wave now">
-          <span class="tag">Jetzt</span>
+          <span class="tag">Dieses Angebot</span>
           <span>
             <b>Messen und sichtbar machen</b>
             <span class="t">Extrakt, Contracts Lite, Checks, Läufe, Statusraster,
@@ -731,7 +735,7 @@
           </span>
         </div>
         <div class="wave">
-          <span class="tag">Danach</span>
+          <span class="tag">Folgeprojekt</span>
           <span>
             <b>Betrieb und Alarmierung</b>
             <span class="t">Geplante Läufe im Werkzeug, Benachrichtigung an Ihre Kanäle,
@@ -739,7 +743,7 @@
           </span>
         </div>
         <div class="wave">
-          <span class="tag">Danach</span>
+          <span class="tag">Folgeprojekt</span>
           <span>
             <b>Governance und versionierte Zusagen</b>
             <span class="t">SemVer, Freigabe-Workflow, Schutz vor brechenden Änderungen,
@@ -748,18 +752,19 @@
           </span>
         </div>
         <div class="wave">
-          <span class="tag">Optional</span>
+          <span class="tag">Nur auf Wunsch</span>
           <span>
             <b>Aktives Eingreifen</b>
             <span class="t">Quarantäne, geführte Korrektur, Gate-Verdikte für Ihre
-            Task-Chains. Nur nach ausdrücklichem Betriebsentscheid — hier verlässt Signal
-            die reine Beobachterrolle.</span>
+            Task-Chains. Ein eigenes Vorhaben mit eigener Risikobewertung — hier verlässt
+            Signal die reine Beobachterrolle.</span>
           </span>
         </div>
       </div>
       <p>
-        Der Schnitt ist keine Verkaufstaktik, sondern Risikomanagement: Jede Stufe wird
-        auf Ihren echten Daten beobachtet, bevor die nächste dazukommt.
+        Der enge Schnitt ist keine Verkaufstaktik, sondern Risikomanagement: Was wir
+        aufsetzen, soll sich auf Ihren echten Daten bewährt haben, bevor wir das Nächste
+        anfassen.
       </p>
     </div>
   </section>
@@ -776,9 +781,9 @@
         <li><strong>Anomalie-Erkennung braucht Anlauf.</strong> Rollierende Mengen-Baselines
           entstehen erst aus Lauf-Historie. Der Einstieg läuft über eine schlichte
           Mindestmenge — verlässlich, aber weniger clever.</li>
-        <li><strong>Regelmäßige Läufe planen Sie zunächst außerhalb.</strong> In Welle 0
-          löst eine Task Chain oder ein Cron-Job die Läufe aus; die Planung im Werkzeug
-          selbst kommt mit der nächsten Stufe.</li>
+        <li><strong>Regelmäßige Läufe planen Sie zunächst außerhalb.</strong> Eine Task
+          Chain oder ein Cron-Job löst die Läufe aus; die Planung im Werkzeug selbst wäre
+          Gegenstand eines Folgeprojekts.</li>
         <li><strong>Coverage beginnt auf Objektebene.</strong> Spaltengenaue Abdeckung
           folgt; für das Ownership-Gespräch reicht die Objektebene erfahrungsgemäß.</li>
         <li><strong>Ohne SQL-Oberfläche keine Messung.</strong> Ein reines Delta-Share-Produkt
@@ -801,8 +806,9 @@
           Ihre Objekte im Statusraster, nicht eine Demo-Datenbank.</span></li>
         <li><span><b>Review mit dem Fachbereich.</b> Die Coverage-Karte als Gesprächsanker
           für die Frage, wer welche Zusage künftig verantwortet.</span></li>
-        <li><span><b>Entscheidung.</b> Betriebsmodell festlegen und die nächste Stufe
-          freischalten — oder es bewusst bei Welle 0 belassen.</span></li>
+        <li><span><b>Entscheidung.</b> Betriebsmodell festlegen — und danach in Ruhe
+          entscheiden, ob ein Folgeprojekt ansteht oder es bewusst bei diesem Umfang
+          bleibt.</span></li>
       </ol>
       <p>
         Der Pilot lässt sich vollständig beraterlokal fahren. Sie brauchen dafür weder
@@ -814,7 +820,7 @@
   <footer>
     <span>Signal · DQ &amp; Observability Cockpit</span>
     <span>SAP Datasphere · HANA Cloud · Business Data Cloud</span>
-    <span>Welle 0 — Erster Wurf</span>
+    <span>Erster Ausbauschritt</span>
   </footer>
 
 </div>

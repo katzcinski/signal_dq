@@ -299,7 +299,7 @@ Kunden** (und das ist der Sinn des ersten Wurfs) gilt:
 |---|---|---|
 | Deployment | **Container beim Kunden** | Berater-lokal (NoAuth/Loopback) bleibt das PoC-/Demo-Setup, nicht der Kundenbetrieb |
 | Auth | `AUTH_MODE=oidc`, Kunden-IdP, Role-Mapping (`oidc_role_mapping`) | S5 erzwingt das ohnehin bei Nicht-Loopback-Bind; Mapping-Abstimmung ist Teil des Onboardings (O4) |
-| Result-Store | `STORE_BACKEND=sqlite` + Volume/Backup | `HanaStore` ist Stub (`OPEN_TASKS` C2); SQLite trägt die Pilotlast. HANA-Store ist Skalierungs-, kein Welle-0-Thema |
+| Result-Store | `STORE_BACKEND=sqlite` + Volume/Backup | `HanaStore` ist Stub (`OPEN_TASKS` C2); SQLite reicht für die Pilotlast. HANA-Store ist Skalierungs-, kein Welle-0-Thema |
 | DB-Zugriff | Technischer Space-User, **read-only** (ADR-0002) | Signal schreibt in Welle 0–2 nichts in den Tenant |
 | Mock | `ALLOW_MOCK_CONNECTION=false` | Kein stiller Fail-Open (S-13) |
 | Scheduling | Extern: Cron/Task-Chain → `cli/dq_check_runner.py` | Interner Poller erst mit Welle 1 (falls gewünscht) |
@@ -328,7 +328,7 @@ Kunden** (und das ist der Sinn des ersten Wurfs) gilt:
 **Welle 0 beim Kunden (erste 2–4 Wochen):**
 
 1. Inventar/Lineage des Ziel-Space extrahiert, Extrakt-Alter < 7 Tage.
-2. 3–5 Konsum-Objekte tragen zertifizierte Lite-Contracts (≥ je 1 kompilierbare
+2. 3–5 Konsum-Objekte haben zertifizierte Lite-Contracts (≥ je 1 kompilierbare
    Garantie; Fokus `freshness`, `not_null`, `keys`, `schema closed`).
 3. Regelmäßige Läufe (extern geplant) schreiben in den Result-Store; Cockpit-
    Ampel und Coverage-Karte sind für Kunden-`viewer` erreichbar und aktuell.
