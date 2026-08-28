@@ -231,7 +231,9 @@
   /* ── Ablauf: die sechs Schritte ────────────────────────────────────── */
   .flow {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    /* Feste Spaltenzahl statt auto-fit: bei sechs Schritten liess auto-fit je
+       nach Breite eine 5+1-Reihe mit vier leeren Zellen stehen. */
+    grid-template-columns: repeat(3, 1fr);
     gap: 1px;
     background: var(--line);
     border: 1px solid var(--line);
@@ -394,6 +396,10 @@
     display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: baseline;
     font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em;
     color: var(--fg-3);
+  }
+
+  @media (max-width: 620px) {
+    .flow { grid-template-columns: repeat(2, 1fr); }
   }
 
   @media (max-width: 860px) {
